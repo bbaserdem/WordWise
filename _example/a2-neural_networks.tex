@@ -1,0 +1,461 @@
+% !TeX root    = ../dissertation.tex
+\documentclass[../dissertation.tex]{subfiles}
+\begin{document}
+
+% Appendix on backprop
+
+\section{Neural Networks}
+\label{sec:nn}
+
+This section is a review of artificial neural networks (ANN) and technical details as it relates to this work.
+
+\subsection{Feed-forward Neural Networks}
+
+A feed-forward neural network (FFNN) is a parametric function that transforms vectors $\vec{i} \rightarrow \vec{o}$ non-linearly in an organized fashion.
+The inspiration for the organization is introduced in \cref{sec:intro-ann}.
+For a number $N$ of hidden layers $h^i$, FFNN is the repeated linear transformation coupled with a non-linear activation functions.
+
+\begin{align}
+    \label{eqn:ffnn-rules}
+    \tilde{h}^1_\mu     & = \omega^1_{ \mu \nu } i_\nu          + \beta^1_\mu       \\
+    \tilde{h}^i_\mu     & = \omega^i_{ \mu \nu } h^{i - 1}_\nu  + \beta^i_\mu       \\
+    \vec{h}^i           & = f^i \left( \vec{\tilde{h}}^i \right)                    \\
+    \tilde{o}_\mu       & = \omega^{N+1}_{ \mu \nu } h^N_\nu    + \beta^{N+1}_\mu   \\
+    \vec{o}^i           & = f^{N+1} \left( \vec{\tilde{o}} \right)                  \\
+    \vec{o}             & = F \left( \vec{i} ; \{ \omega, \beta \} \right)
+\end{align}
+
+(Einstein notation of implied summation over repeated indices when they appear only on one side of equalities is used throughout this section when applicable.)
+The set of parameters of this function, $( \omega^i, \beta^i )$ are called weights, $\beta$ sometimes also referred to as bias.
+This structure defines a computational graph that transforms inputs sequentially into the activation of the hidden layers $\vec{h}^i$, and then to the output $\vec{o}$.
+
+\subsection{Terminology}
+
+A list of terms, symbols used to denote them, and explanation is as follows.
+
+\begin{xltabular}{\linewidth}{ l | X }
+    \caption{Notation of variables used for neural networks.}
+    \label{tab:nnVarDesc}
+    \\
+    \toprule
+    \textbf{\normalsize Notation}   & \textbf{\normalsize Definition} \\
+    \midrule
+    \endfirsthead
+
+    \toprule
+    \textbf{\normalsize Notation}   & \textbf{\normalsize Definition} \\
+    \midrule
+    \endhead
+    \bottomrule
+    \endfoot
+
+    $N$                 & Number of hidden layers                               \\
+    $\vec{i}$           & Input vector to neural network                        \\
+    $\tilde{\vec{h}}^n$ & Input vector to the n'th hidden layer                 \\
+    $\vec{h}^n$         & Vector of activation of the n'th hidden layer         \\
+    $f^n$               & Activation function for the n'th hidden layer         \\
+    $f'^{n}$            & Derivative of activation function                     \\
+    $\omega^n$          & Weight matrix used to calculate the n'th hidden layer \\
+    $\vec{\beta}^n$     & Bias vector used to calculate the n'th hidden layer   \\
+    $\tilde{\vec{o}}$   & Vector of the input to the output layer               \\
+    $\vec{o}$           & Vector of activation of the output layer              \\
+    $f^{N+1}$           & Activation function for the output layer              \\
+    $\omega^{N+1}$      & Weight matrix used to calculate the output layer      \\
+    $\vec{\beta}^{N+1}$ & Bias vector used to calculate the output layer        \\
+    $F$                 & The neural network (function from input to output)    \\
+    $X$                 & Set of input vectors                                  \\
+    $Y$                 & Set of desired outputs of the input vectors           \\
+    $\vec{x}^a$         & a'th input vector belonging to $X$                    \\
+    $\vec{y}^a$         & Desired output vector of $\vec{x}^a$                  \\
+    $\vec{h}^{a,n}$     & Activation vector of the n'th hidden layer when the input is $\vec{x}^a$ \\
+    $\mathbb{C}$        & Cost function of network, $X$ and $Y$                 \\
+    $\delta \vec{o}$    & Gradient of cost wrt. input to output                 \\
+    $\delta \vec{h}^n$  & Gradient of cost wrt. input to n'th hidden layer      \\
+    $\delta \vec{i}$    & Gradient of cost wrt. input vector                    \\
+    $\delta \omega^n$   & Gradient of cost wrt. n'th weight matrix              \\
+    $\delta \beta^n$    & Gradient of cost wrt. n'th bias vector
+\end{xltabular}
+
+
+\subsection{Backpropagation}
+
+The input-output relation of the FFNN is dependent on the network weights.
+A choice of weights that gives a desired input-output pairing is usually of interest.
+A set of inputs $X = \{ \vec{x} \}$ and matching outputs $Y = \{ \vec{y} \}$ is denoted as the binary relation $( \vec{x}^a, \vec{y}^a )$.
+A cost function $\mathbb{C}$ is a function of the output of the neural network on the set of inputs $F(\vec{x^a}) = \vec{o}^a$ and $\vec{y}^a$.
+The cost function should satisfy a few conditions.
+It must be separable, meaning that $\mathbb{C} = \sum_a \mathbb{C}_a$ and $\mathbb{C}_a$ is the cost function on $F(\vec{x}^a)$ and $\vec{y}^a$.
+And the cost function must have a global minimum when $F(\vec{x}^a) == \vec{y}^a \forall a$.
+If the minimum of $\mathbb{C}( F(\vec{X}), Y)$ occurs when $F(\vec{x^a} = \vec{y}^a$, then minimizing the cost function with respect to the weights of the neural network would result in a set of weights that most accurately approximates the desired input-output relation.
+
+If the activation functions $f^n$ are differentiable, the partial gradient of $\mathbb{C}$ with respect to layer inputs can be calculated via traversing the computational graph backwards.
+Here, the indices $i$ refer to the hidden layer number, greek indices $(\mu,\nu,...)$ refer to the indices of the vectors, and latin indices $(a,b,...)$ refer to the index of the input output pairs.
+
+\begin{align}
+    \delta o^a_\mu \equiv \frac{\partial \mathbb{C}}{\partial \tilde{o}^a_\mu} & = 
+        \sum_a
+        \frac{\partial \mathbb{C}}{\partial o^a_\nu}
+        \frac{\partial o^a_\nu}{\partial \tilde{o}^a_\mu} \\
+    \delta h^{N,a}_\mu \equiv \frac{\partial \mathbb{C}}{\partial \tilde{h}^{N,a}_\mu} & = 
+        \sum_a
+        \frac{\partial \mathbb{C}}{\partial o^a_\nu}
+        \frac{\partial o^a_\nu}{\partial \tilde{o}^a_\alpha}
+        \frac{\partial \tilde{o}^a_\alpha}{\partial h^{N,a}_\beta}
+        \frac{\partial h^{N,a}_\beta}{\partial \tilde{h}^{N,a}_\mu} \\
+    \delta h^{N,a}_\mu & =
+        \sum_a
+        \delta o^a_\nu
+        \frac{\partial \tilde{o}^a_\nu}{\partial h^{N,a}_\alpha}
+        \frac{\partial h^{N,a}_\alpha}{\partial \tilde{h}^{N,a}_\mu} \\
+    \delta h^{i,a}_\mu & =
+        \sum_a
+        \delta h^{i + 1,a}_\nu
+        \frac{\partial \tilde{h}^{i+1,a}_\nu}{\partial h^{i,a}_\alpha}
+        \frac{\partial h^{i,a}_\alpha}{\partial \tilde{h}^{i,a}_\mu}
+\end{align}
+
+Due to the computational graph, the partial derivate of the cost function with respect to the input to one hidden layer $\vec{\tilde{h}}^i$ depends on the partial derivative of the above layer.
+For layers with activation functions acting element-wise, ($h^n_\mu = f^n(\tilde{h}^n_\mu)$) the expression for $\delta h^{i,a}_\mu$ simplifies;
+
+\begin{align}
+    \label{eqn:ff-bp-layerDelta}
+    \delta h^{n,a}_\mu & =
+        \sum_a
+        \delta h^{n + 1,a}_\nu
+        \omega^{n + 1}_{\nu\mu}
+        f'^n(\tilde{h}^{n,a}_\mu) \\
+    \delta \vec{h}^{n, a} & = 
+        \sum_a
+        \left( \omega^{ n + 1} \right)^\intercal
+        \delta \vec{h}^{n+1, a}
+        \cdot f'^n (\tilde{\vec{h}}^{n,a})
+\end{align}
+
+By traversing the computational graph in the reverse order, all the layer gradients $\delta \vec{h}$ can be calculated.
+To compute the gradient of the cost function with respect to the matrix weights, we use partial differentiation.
+
+\begin{align}
+    \delta \omega^{n}_{\mu \nu} \equiv \frac{\partial \mathbb{C}}{\partial \omega^{n}_{\mu \nu}} & =
+        \frac{\partial \mathbb{C}}{\partial \tilde{h}^{n,a}_\alpha}
+        \frac{\partial \tilde{h}^{n,a}_\alpha}{\partial \omega^{n}_{\mu \nu}} \\
+    & =
+    \delta h^{n,a}_\mu
+    h^{n - 1,a}_\nu \\
+    \delta \omega &= 
+        \left( \delta \vec{h}^{n, a} \right) \cdot \left( \vec{h}^{n - 1, a} \right)^\intercal
+\end{align}
+
+Likewise for the biases, the gradients are.
+
+\begin{align}
+    \delta \vec{\beta}^{n} \equiv \frac{\partial \mathbb{C}}{\partial \vec{\beta}^{n}} & =
+        \sum_a \delta \vec{h}^{n, a}
+\end{align}
+
+For $n=1$ and $n=N+1$, we use the input and output respectively when needed.
+
+\begin{align}
+    \delta \vec{\beta}^{N+1}    & = \sum_a \delta \vec{o}^{a} \\
+    \delta \omega^{1}           & = \sum_a 
+        \left( \delta \vec{h}^{1, a} \right) \cdot \left( \vec{i}^{a} \right)^\intercal
+\end{align}
+
+Backpropagation algorithm allows the calculation of the gradient of the cost with respect to the parameters of the neural network.
+Reducing the cost function can be done iteratively by using gradient descent methods, which allows the network to learn the weights that best approximates the function with the input output relationship ascribed in $(X, Y)$.
+
+Backpropagation is the computational algorithm used to calculate the weight gradients in a FFNN, but does not concern to how exactly the weights are updated.
+To fit the FFNN function to the annotated dataset $(X, Y)$, the gradients can be used to update values of the weights to reduce the cost function.
+This is the goal of supervised learning; given a labelled dataset (like $X$ with annotated $Y$) finding the function that calculates a good estimate of $Y$.
+These methods are a combination of iterative weight update rules derived from the weight gradients, and manipulating the dataset used to do each iteration.
+Many algorithms exist, but an overview of all the methods are out of scope for this text.
+The following sections outline and explain the methods used in this work to perform the supervised learning tasks.
+
+\subsection{Gradient Descent}
+
+Gradient descent is the simplest algorithm for iterative weight updates.
+The formulation comes from the definition of gradient.
+The value of a differentiable function $f$ at a point $\vec{x}$ increases fastest along the direction of it's gradient $\vec{\nabla}$,
+and decreases fastest along the negative direction of it's gradient.
+Then if $\vec{x}$ is not an extrema of the function $f$, for sufficiently small $\alpha$; the following expression holds.
+
+\begin{align}
+    f\left(\vec{x} - \alpha \vec{\nabla} f(\vec{x}) \right) < f(\vec{x})
+\end{align}
+
+Gradient descent comes from the observation that given a dataset $(X, Y)$ the value of the cost function $\mathbb{C}$ is a function of the parameters of the functional approximation.
+Denoting all the parameters used to approximate the desired function and $\theta$, updating the parameters in the negative direction of the gradient will result in a new functional approximation that reduces the value of $\mathbb{C}$.
+
+\begin{align}
+    \label{eqn:gd}
+    \vec{\theta}_{t+1} = \vec{\theta}_t  - \alpha \delta \vec{\theta}_t \\
+    \delta \vec{\theta}_t \equiv \frac{\partial \mathbb{C}}{\partial \vec{\theta}} \rvert_{\vec{\theta}_t}
+\end{align}
+
+The index $t$ denotes the iteration number. 
+Iterating over this algorithm will cause the value of $\mathbb{C}$ to move towards a local minimum.
+In the case of FFNN, this update rule results in the following weight update rules;
+
+\begin{align}
+    \label{eqn:basicgd}
+    \omega^n    & \rightarrow \omega^n  - \alpha \delta \omega^n \\
+    \beta^n     & \rightarrow \beta^n   - \alpha \delta \beta^n
+\end{align}
+
+The simple gradient descent can eventually find a local minimum of $\mathbb{C}$.
+In practice, this might take a long time to converge, or may not converge due to reasons.
+Many algorithms to use gradients for weight updates exist, and throughout this work, the Adam algorithm is used.
+Adam algorithm is a name derived from Adaptive Moment Estimation, and is built upon two other gradient descent algorithms.
+
+\subsubsection{Momentum}
+
+One failure mode of \cref{eqn:gd} is when the gradients are small, it takes many iterations to reach towards a local minima.
+Gradient may be vanishingly small near an extrema.
+A way to mitigate this is to update the weights by an intermediary momentum term $m_t$ instead of the gradient, and allow gradients to update this momentum term.
+
+\begin{align}
+    \theta_{t+1} = \theta_{t} - \alpha m_{t} \\
+    \vec{m}_{t} = \beta_1 \vec{m}_{t-1} + (1 - \beta_1) \delta \vec{\theta}_t
+\end{align}
+
+This formulation allows the update term to not be the gradient itself, but a moving exponential average of the gradient over updates.
+This method allows converging to a local minima at a faster pace.
+Momentum here is used as a term, borrowing from an analogy of a boulder rolling down a hill.
+A rolling boulder does not move just with the speed proportional to the gradient of the height map.
+It has built speed after it starts tumbling, and even upon reaching a low level slope it keeps going because of momentum buildup.
+Here, $\beta_1 \in (0,1]$ is a new hyperparameter of the system, like learning rate $\alpha$, and referred to in this work as the momentum term.
+
+\subsubsection{Root Mean Square Propagation}
+
+Another failure mode of \cref{eqn:gd} is when the gradients vary a lot in between iterations.
+Usually this happens when iterations are done on different subsets of data.
+A way to mitigate this is to modulate each weight update such they are more similar in magnitude.
+Root mean square propagation (RMSprop) is a technique where the parameter updates are scaled with a moving exponential average of the magnitudes of past updates.
+
+\begin{align}
+    \vec{\theta}_{t+1} = \vec{\theta}_{t} - \frac{\alpha}{\sqrt{\vec{v_t}} + \epsilon} \delta \vec{\theta}_t \\
+    \vec{v}_t = \beta_2 \vec{v}_{t-1} + (1 - \beta_2) * \delta \vec{\theta}_t^2
+\end{align}
+
+(All the operations are done element-wise in this formula.)
+Here, $\beta_2 \in (0,1]$ is a new hyperparameter of the system, called the moving average parameter.
+In this work, it is also referenced as the inertia term, to parallel the naming of the momentum term.
+The $\epsilon$ term is a hyperparameter to ensure that there is no division by 0; and is usually just a very small number.
+
+\subsubsection{Adam Optimizer}
+
+Combining momentum and RMSprop algorithm along with the initial values $\vec{m}_0 = 0$ and $\vec{v}_0 = 0$, we get the main steps of the Adam algorithm.
+Both $\vec{m}$ and $\vec{v}$ start off from 0 and slowly reach their values over iterations, which empirically slowls down learning in the initial iterations.
+Adam also proposes a correction of the decay rates with a factor of $1 / (1 - \beta^{t})$ to bypass this delay in learning.
+The update rules to parameters using Adam is as follows.
+
+\begin{align}
+    \vec{m}_t = \beta_1 \vec{m}_{t-1} + (1 - \beta_1) \delta \vec{\theta}_t \\
+    \vec{v}_t = \beta_2 \vec{v}_{t-1} + (1 - \beta_2) * \delta \vec{\theta}_t^2 \\
+    \vec{\hat{m}}_t = \frac{\vec{m}_t}{1 - \beta_1^t} \\
+    \vec{\hat{v}}_t = \frac{\vec{v}_t}{1 - \beta_2^t} \\
+    \vec{\theta}_{t + 1} = \vec{\theta}_t - \alpha \frac{\vec{\hat{m}}_t}{\sqrt{\vec{\hat{v}}_t} + \epsilon}
+\end{align}
+
+This algorithm is the one used to do weight updates for all neural networks used in this work.
+
+\subsection{Recurrent Neural Networks}
+
+FFNN are widely used, but they can only apply on one input at a time.
+Certain models of problems involve processing sequence of inputs, and the output may depend on the order of the input sequence, and the length of the sequence may be arbitrary.
+To process sequences of inputs, recurrent neural networks (RNNs) can be used.
+
+A RNN is a neural network with delayed recurrent connections.
+While there are multiple ways to achieve this structure, only the structure used in this work will be described.
+This is achieved by linking the output of the hidden layer to the input of that same layer when the next input in the sequence is processed.
+\Cref{eqn:ffnn-rules} can be modified to describe a RNN that takes a sequence of inputs $\vec{i}_t$ (where $t$ index stands for the sequence order)
+
+\begin{align}
+    \label{eqn:rnn-rules}
+    \vec{\tilde{h}}^1_t & = \omega^1 \vec{i}_t          + \kappa^1 \vec{h}^1_{t - 1}    + \vec{\beta}^1 \\
+    \vec{\tilde{h}}^n_t & = \omega^n \vec{h}^{n - 1}_t  + \kappa^n \vec{h}^n_{t - 1}    + \vec{\beta}^n \\
+    \vec{h}^n_0         & = 0                                                                           \\
+    \vec{h}^n           & = f^n \left( \vec{\tilde{h}}^n \right)                                        \\
+    \vec{\tilde{o}}_t   & = \omega^{N+1} h^N_t          + \vec{\beta}^{N + 1}                           \\
+    \vec{o}             & = f^{N + 1} \left( \vec{\tilde{o}} \right)
+\end{align}
+
+This network is modelled to output at every input in the sequence, but other structures can be modelled.
+Activation of the hidden layers not only depend on the activation of the inferior hidden layer on the computational diagram, but also the activation of the same hidden layer on the previous calculation of the sequence.
+This links the computations on a discrete time axis; hidden layer activations are dependent not only on the current input, but on the history of all the inputs processed in the network sequence.
+
+\subsubsection{Backpropagation Through Time}
+
+The backpropagation algorithm cannot be used as is on RNNs and need to be modified for the new terms in the hidden layer inputs.
+For the form of the RNN described, the cost function needs to be a function on the sequences of inputs and outputs.
+For a sequence of $T$ inputs, traversing the computational graph top to bottom, then from end to beginning of the sequence, cost gradients can be calculated in the same manner.
+While mostly unchanged, \cref{eqn:ff-bp-layerDelta} needs to be modified to take account of the new terms.
+(The dataset index $a$ is dropped for brevity, but is implied in the case of multiple input-output sequences within the labeled dataset.)
+
+\begin{align}
+    \label{eqn:rec-bp-layerDelta}
+    \delta \vec{h}^n_t & = \left(
+        \left( \omega^{n + 1} \right)^\intercal
+        \delta \vec{h}^{n + 1}_t + 
+        \left( \kappa^n \right)^\intercal
+        \delta \vec{h}^n_{t + 1} + 
+        \right) \odot
+        f'^n \left( \vec{\tilde{h}}^n_t \right) \\
+    \delta \vec{h}^n_{T + 1} & = 0
+\end{align}
+
+$\odot$ is used to denote element-wise multiplication of vectors; $(a \odot b)_\mu = a_\mu b_\mu$
+The formulation for the gradients are mostly unchanged, but now include contributions from each sequence step.
+By partial differentiation rules, each sequence step contribution is added to get the full gradient.
+
+\begin{align}
+    \delta \vec{\beta}^{N+1}    & = \sum_{t = 1}^T \delta \vec{o}_t \\
+    \delta \vec{\beta}^n        & = \sum_{t = 1}^T \delta \vec{h}_t \\
+    \delta \omega^1             & = \sum_{t = 1}^T \delta \vec{h}^1_t \cdot \left( \vec{i}_t \right)^\intercal \\
+    \delta \omega^n             & = \sum_{t = 1}^T \delta \vec{h}^n_t \cdot \left( \vec{h}^{n - 1}_t \right)^\intercal \\
+    \delta \kappa^n             & = \sum_{t = 1}^T \delta \vec{h}^n_{t + 1} \cdot \left( \vec{h}^n_t \right)^\intercal
+\end{align}
+
+\subsection{Using ANN for Reinforcement Learning}
+
+So far, ANNs are discussed in terms of supervised learning; weight updates to reduce a cost function.
+RL tasks don't have an associated cost function, so there is no gradient to backpropagate.
+So an appropriate cost function needs to be formulated to optimize RL tasks using ANNs as value function approximations.
+In this section, $t$ will be the index used to denote the sequence step of the RL task,
+greek letters ($\mu$, $\nu$, etc.) will be used to denote vector indices,
+and $n$ as an index will be used to denote ANN gradient descent iteration index.
+We limit the discussion to a single hidden layer ANNs, but the formulation here is generalizable to multiple hidden layers.
+
+We will interpret the output of the network as the Q-function estimate.
+RL formulation used in this work only uses discrete and finite action sets, therefore we will interpret the components of the vector output of ANN as Q-function estimates for each possible action.
+The environment state $s_t$ is used as the input vector $\vec{i_t}$ to the ANN.
+
+\begin{align}
+    Q^a(s_t, a_\mu) = \left( \vec{o}^a_t \right)_\mu
+\end{align}
+
+In this work, identity is used as the output activation function.
+Since the derivative of the identity function ($f^{N+1}(\vec{x}) = \vec{x}$) is trivial, this implies that $\delta \vec{o}_t$ is immediately equivalent to the gradient of the cost function with respect to the Q-function estimate at the $t$'th RL step.
+We note that the cost function is not yet formulated, however if $\delta \vec{o}_t$ is known, the unknown cost function can still be reduced.
+The iterative Bellman equation of \cref{eqn:bellman-qlearn} can be rearranged to resemble the simple gradient descent update \cref{eqn:gd}.
+
+\begin{align}
+    \label{eqn:bellman2gd_q}
+    Q^{a + 1}\left( s_t, a_t \right) = Q^a\left( s_t, a_t \right) - \alpha \left(
+          Q^a\left( s_t, a_t \right)
+        - r_{t+1}
+        - \gamma \max_{a'} Q^a\left( s_{t + 1}, a_{t + 1} \right)
+    \right)
+\end{align}
+
+Then for an agent doing an RL task equipped with an ANN to do Q-function estimation, after navigating a sequence of states by taking a sequence of actions; we can define the following output gradient that will correspond to some cost function.
+
+\begin{align}
+    \label{eqn:bellman2gd_n}
+    \delta \left( \vec{o}^a_t \right)_\mu = \delta_{\mu, a_t} \left(
+          \left( \vec{o}^a_t \right)_\mu
+        - r_{t + 1}
+        - \gamma \max_{\nu} \left( \vec{o}^a_{t + 1} \right)_\nu
+    \right)
+\end{align}
+
+Doing gradient descent using this set of $\delta \vec{o}_t$ is equivalent to updating the Q-function estimate using the Bellman equation.
+Since the gradient term for the $t$'th time step involves network output from the $t+1$'th time step; the empirical form of $\mathbb{C}$ is not separable between RL steps, and requires the entire sequence.
+
+\begin{align}
+    \label{eqn:bellman2gd_cost}
+    \mathbb{C}\left( \left\{ \vec{o}_t \right\}, \left\{ s_t \right\}, \left\{ a_t \right\},  \left\{ r_t \right\} \right) = 
+        \sum_{t = 1}^T 
+\end{align}
+
+However the empirical form is not necessary; only the equivalence of choosing $\mathbb{C}$ with the property given in \cref{eqn:bellman2gd_n} and RL optimization is required.
+For RL tasks using ANN for functional approximation given the paradigm described this section, weight gradient can be calculated using backpropagation (and BPTT) by utilizing \cref{eqn:bellman2gd_n}.
+
+\subsection{Activation functions}
+
+If not for the non-linear activation functions $f^n$, the neural network becomes equivalent to a single linear transformation.
+Non-linearity of the activation function accounts for the non-linear nature of ANN.
+Several commonly used activation functions exist, and several are listed in \cref{tab:nl-functions}.
+
+\begin{table}
+    \begin{tabulary}{\linewidth}{@{}lCC@{}}
+        \toprule
+        \textbf{\normalsize Name}   & \textbf{\normalsize Activation}   &  \textbf{\normalsize Derivative}
+        \\ \midrule Sigmoid function
+        & $\sigma       \left( x \right) = \frac{1}{1 + e^{-x}}$
+        & $\sigma^\prime\left( x \right) = \sigma(x) \left( 1 - \sigma(x) \right)$
+        \\ \midrule Rectified Linear Unit (ReLU) 
+        & $f       \left( x \right) = \begin{cases} x & x >= 0 \\ 0 & x < 0 \end{cases}$
+        & $f^\prime\left( x \right) = \begin{cases} 1 & x >= 0 \\ 0 & x < 0 \end{cases}$
+        \\ \midrule  Leaky ReLU
+        & $f_\alpha       \left( x \right) = \begin{cases} x & x >= 0 \\ \alpha * x & x < 0 \end{cases}$
+        & $f_\alpha^\prime\left( x \right) = \begin{cases} 1 & x >= 0 \\ \alpha & x < 0 \end{cases}$
+        \\ \midrule  Softplus
+        & $f       \left( x \right) = \log \left( 1 + e^x \right)$
+        & $f^\prime\left( x \right) = \frac{1}{1 + e^{-x}} = \sigma\left( x \right)$
+        \\ \midrule Hyperbolic tangent 
+        & $tanh       \left( x \right) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}$
+        & $tanh^\prime\left( x \right) = 1 - tanh^2\left( x \right)$
+        \\ \midrule
+    \end{tabulary}
+    \caption{The different moves formulated for moving barcode-pairs.}
+    \label{tab:nl-functions}
+\end{table}
+
+For the neural networks used in this work, hyperbolic tangent is chosen as the activation function for hidden layers.
+The output activation function is usually chosen to reflect the task wanted for the functional form.
+Since the cost function uses the output layer, the activation function choice usually determines which cost function can be used.
+In case of function approximation, the last activation function $f^{N+1}$ can be left as the identity function, in which case a suitable cost function is the L2 norm between network output and the labels in the dataset.
+
+\begin{align}
+    \mathbb{C} = \sum_a \frac{1}{2} \| \vec{o}^a - \vec{y}^a \|^2 \\
+    \vec{o} = \vec{\tilde{o}} \\
+    \delta \vec{o}^a = \vec{o}^a - \vec{y}^a
+\end{align}
+
+For a different task, such as a classifier where the output clamped between 0 and 1 would be interpreted as classification percentage, different cost function can be used.
+For classifiers, a common output activation function is the softmax function.
+Softmax function depends on the whole vector, and is the normalized exponential vector.
+
+\begin{align}
+    \vec{o} = softmax \left( \vec{\tilde{o}} \right) \\
+    o_\mu = \frac{e^{\tilde{o}_\mu}}{\sum_\nu e^{\tilde{o}_\nu}}
+\end{align}
+
+The softmax function clamps the sum of the output vector components to unity, and every component is positive.
+This is useful in interpreting the output components as classification probabilities for each class.
+The calculation of $\delta \vec{o}$ in this formulation necessitates the use of the Jacobian matrix.
+
+\begin{align}
+    J_{\mu\nu} = \frac{\partial o_\mu}{\partial \tilde{o}_\nu} = \delta_{\mu\nu} o_\mu - o_\mu o_\nu
+\end{align}
+
+In classification, usually the cross-entropy loss is used as the cost function.
+This cost function is minimized if the inputs are classified, that is $o^a_\nu = 1$ for the $\nu$ corresponding to the correct class, and 0 in the other components.
+The labels of the dataset, $\vec{y}^a$, are formulated to be one-hot encoded label vectors.
+One-hot vectors are vectors with a single 1 component, and all other components being 0.
+The encoded label vectors have 1 on the index that corresponds to the correct class of the $a$'th sample.
+The cross entropy loss on this encoding is defined with the following expression.
+
+\begin{align}
+    \mathbb{C} = - \sum_a \frac{1}{2} \vec{y}^a \cdot \log \left( \vec{o}^a \right)
+\end{align}
+
+Using this formulation, and denoting the index that $\vec{y}^a$ is non-zero as $I^a$, the gradient can be calculated as follows.
+
+\begin{align}
+    \delta o^a_{I^a} &  = \frac{\partial \mathbb{C}}{\partial o_\nu} \frac{\partial o_{\nu}}{\partial \tilde{o}_{I^a}} \\
+                     &  = - \frac{1}{o_{I^a}} \left( o_{I^a} - o_{I^a}^2 \right) \\
+                     &  = o_{I^a} - 1 \\
+    \delta o^a_{\nu} \rvert_{\nu \neq I^a}
+                     &  = \frac{\partial \mathbb{C}}{\partial o_\alpha} \frac{\partial o_{\alpha}}{\partial \tilde{o}_{\nu}} \\
+                     &  = - \frac{1}{o_{I^a}} \left( - o_{I^a} o_\nu \right) \\
+                     &  = o_{\nu} \\
+\end{align}
+
+For this choice of activation function, and cost function; the output gradient is similar to the L2 norm case.
+
+\begin{align}
+    \delta \vec{o}^a = \vec{o}^a - \vec{y}^a
+\end{align}
+
+\end{document} 
