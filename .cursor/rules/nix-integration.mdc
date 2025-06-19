@@ -1,9 +1,9 @@
 ---
-description: Best practices for setting up local dev environment in NixOS; both for flake and for choosing node packages.
-globs: flake.nix
+description: "Best practices for setting up local dev environment in NixOS; both for flake and for choosing node packages."
+globs: ["flake.nix", "shell.nix", "package.json", "pnpm-lock.yaml", "**/*.nix", "**/nix/**/*"]
 ---
 
-# NixOS
+# NixOS Integration Guidelines
 
 ## Overview
 Make sure we can develop on NixOS, and still have it run elsewhere.
@@ -14,11 +14,38 @@ We will be using flakes, and the current shell will have direnv to automatically
 2. Use flake-utils to make flake.nix more readable
 3. Keep our flake as a hybrid model; prefer to fetch node packages using pnpm.
 4. Avoid shell hooks that have output to avoid clutter when entering a dev shell.
-5. Keep our flake a single file, do not modularize flake.nix into seperate files.
+5. Keep our flake a single file, do not modularize flake.nix into separate files.
+
+## Node.js Package Management Strategy
+**CRITICAL**: We use a hybrid approach where:
+- **Nix shell provides**: Node.js runtime, pnpm package manager, and system utilities
+- **pnpm installs**: All Node.js tools, frameworks, and dependencies (including Firebase CLI, ESLint, Prettier, etc.)
+
+### What goes in Nix shell (flake.nix):
+- Node.js runtime (nodejs_20)
+- Package manager (pnpm)
+- System utilities (git, coreutils, etc.)
+- Development tools that are system-level (ripgrep, bat, etc.)
+
+### What goes in pnpm (package.json):
+- Firebase CLI (firebase-tools)
+- Next.js framework
+- React and related libraries
+- TypeScript and type definitions
+- ESLint, Prettier, and other code quality tools
+- Tailwind CSS and related packages
+- All application dependencies
+
+### Examples of what NOT to add to flake.nix:
+- firebase-tools (install via `pnpm add -D firebase-tools`)
+- eslint, prettier (install via `pnpm add -D eslint prettier`)
+- next, react, typescript (install via `pnpm add next react typescript`)
+- tailwindcss (install via `pnpm add -D tailwindcss`)
 
 ## Guidelines for picking tech stack
 - Don't suggest packages and software that is known to be incompatible with NixOS.
 - State when a software I want to use is incompatible developing with NixOS.
+- When suggesting Node.js tools, always recommend installing via pnpm rather than adding to Nix shell.
 
 ## Example nix flake
 ```nix
@@ -67,3 +94,28 @@ We will be using flakes, and the current shell will have direnv to automatically
     });
 }
 ```
+
+## Example package.json dependencies
+```json
+{
+  "devDependencies": {
+    "firebase-tools": "^13.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "tailwindcss": "^3.0.0"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
+```
+
+## Common Commands
+- Install Firebase CLI: `pnpm add -D firebase-tools`
+- Install ESLint/Prettier: `pnpm add -D eslint prettier`
+- Install Next.js: `pnpm add next react react-dom`
+- Install TypeScript: `pnpm add -D typescript @types/react @types/node`
+- Install Tailwind: `pnpm add -D tailwindcss postcss autoprefixer` 

@@ -16,29 +16,29 @@
         pkgs = import nixpkgs {inherit system;};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = [
+          buildInputs = with pkgs; [
             # Node.js and package manager
-            pkgs.nodejs_20
-            pkgs.nodePackages.pnpm
-            pkgs.git
+            nodejs_20
+            nodePackages.pnpm
+            git
 
             # Unix utilities
-            pkgs.coreutils # Basic file, shell and text manipulation utilities
-            pkgs.findutils # Find, locate, and xargs commands
-            pkgs.gnugrep # GNU grep, egrep and fgrep
-            pkgs.gnused # GNU stream editor
-            pkgs.ripgrep # Fast line-oriented search tool
-            pkgs.fd # Simple, fast and user-friendly alternative to find
-            pkgs.bat # Cat clone with syntax highlighting
-            pkgs.eza # Modern replacement for ls
-            pkgs.htop # Interactive process viewer
-            pkgs.jq # Lightweight JSON processor
-            pkgs.watch # Execute a program periodically
-            pkgs.curl # Command line tool for transferring data
-            pkgs.wget # Internet file retriever
-            pkgs.tree # Display directories as trees
-            pkgs.unzip # Unzip utility
-            pkgs.zip # Zip utility
+            coreutils # Basic file, shell and text manipulation utilities
+            findutils # Find, locate, and xargs commands
+            gnugrep # GNU grep, egrep and fgrep
+            gnused # GNU stream editor
+            ripgrep # Fast line-oriented search tool
+            fd # Simple, fast and user-friendly alternative to find
+            bat # Cat clone with syntax highlighting
+            eza # Modern replacement for ls
+            htop # Interactive process viewer
+            jq # Lightweight JSON processor
+            watch # Execute a program periodically
+            curl # Command line tool for transferring data
+            wget # Internet file retriever
+            tree # Display directories as trees
+            unzip # Unzip utility
+            zip # Zip utility
           ];
 
           shellHook = ''
