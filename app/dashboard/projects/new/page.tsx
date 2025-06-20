@@ -41,7 +41,7 @@ export default function NewProjectPage() {
             Project Creation Coming Soon
           </h3>
           <p className="text-text-secondary mb-6">
-            This feature will be available in the next phase. You'll be able to create
+            This feature will be available in the next phase. You&apos;ll be able to create
             projects, add documents, and start writing with AI assistance.
           </p>
           <Link href="/dashboard/projects">
