@@ -22,6 +22,10 @@
             nodePackages.pnpm
             git
 
+            # Python for LaTeX processing
+            python3
+            python3Packages.pip
+
             # Unix utilities
             coreutils # Basic file, shell and text manipulation utilities
             findutils # Find, locate, and xargs commands

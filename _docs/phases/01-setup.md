@@ -121,6 +121,37 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Production environment is stable
 - Basic error tracking is functional
 
+### 7. Test Data Setup
+**Goal**: Establish realistic test data for development and testing
+
+**Tasks**:
+1. Import markdown test files from `_example` directory into database
+2. Create seed data script for populating test projects and documents
+3. Set up test user accounts with sample data
+4. Implement data import functionality for markdown files
+5. Create test scenarios for different document types and content
+
+**Acceptance Criteria**:
+- Test markdown files can be imported as documents
+- Seed data script populates database with realistic content
+- Test users have access to sample projects and documents
+- Import functionality handles markdown formatting correctly
+- Test scenarios cover various academic writing styles
+
+**Test Data Sources**:
+- `_example/0-intro.md` - Introduction to neural networks
+- `_example/1-connclone.md` - Connectome encoding research
+- `_example/2-mapseq.md` - Mapping and sequencing methods
+- `_example/3-odor_navigation.md` - Olfactory navigation studies
+- `_example/a1-reinforcement_learning.md` - RL concepts
+- `_example/a2-neural_networks.md` - Neural network architectures
+
+**Implementation Notes**:
+- Use Firebase emulators for local testing
+- Create utility functions for markdown parsing and import
+- Ensure test data doesn't affect production environment
+- Document import process for team reference
+
 ## Technical Implementation
 
 ### Core Dependencies
@@ -197,6 +228,7 @@ interface Document {
 - ✅ Basic text editing and saving works
 - ✅ Development environment is fully functional
 - ✅ All code follows project rules and conventions
+- ✅ Test data is properly imported and accessible
 
 ## Risk Mitigation
 - **Firebase Setup**: Use emulators for development to avoid costs
