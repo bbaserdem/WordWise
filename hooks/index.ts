@@ -10,6 +10,7 @@
  * @since 2024-01-01
  */
 
+export { useAuth } from '@/lib/auth/auth-context';
+
 // Export custom hooks here as they are created
-// Example: export { useAuth } from './use-auth';
 // Example: export { useProjects } from './use-projects'; 

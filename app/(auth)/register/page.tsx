@@ -2,107 +2,70 @@
  * @fileoverview Registration page component for new user signup.
  * 
  * This page provides a form for new users to create a WordWise account.
- * It will be enhanced with proper form handling and authentication logic
- * in subsequent phases.
+ * It uses the RegisterForm component with proper authentication integration.
  * 
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
  */
 
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { RegisterForm } from '@/components/forms/auth-form';
+import { useAuth } from '@/hooks';
 
 /**
  * Registration page component.
  * 
- * Displays a registration form for new user signup. This is a placeholder
- * that will be enhanced with proper form handling and Firebase Auth
- * integration in subsequent phases.
+ * Displays a registration form for new user signup. If the user is already
+ * authenticated, they are redirected to the dashboard.
  * 
  * @returns The registration page component
  */
 export default function RegisterPage() {
-  return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-text-primary">Create your account</h2>
-        <p className="mt-2 text-text-secondary">
-          Join WordWise to enhance your academic writing.
-        </p>
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-text-secondary">Loading...</p>
+        </div>
       </div>
-      
-      <form className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-text-primary">
-            Full name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Enter your full name"
-            required
-          />
+    );
+  }
+
+  // Don't render registration form if already authenticated
+  if (isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background-primary py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-text-primary">WordWise</h1>
+          <p className="mt-2 text-text-secondary">
+            Your AI-powered academic writing assistant
+          </p>
         </div>
         
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-text-primary">
-            Email address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-text-primary">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Create a password"
-            required
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary">
-            Confirm password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Confirm your password"
-            required
-          />
-        </div>
-        
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          Create account
-        </button>
-      </form>
-      
-      <div className="text-center">
-        <p className="text-sm text-text-secondary">
-          Already have an account?{' '}
-          <a href="/login" className="font-medium text-primary-600 hover:text-primary-500">
-            Sign in
-          </a>
-        </p>
+        <RegisterForm
+          onSuccess={() => router.push('/dashboard')}
+          onGoToLogin={() => router.push('/login')}
+        />
       </div>
     </div>
   );

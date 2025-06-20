@@ -22,6 +22,9 @@
             nodePackages.pnpm
             git
 
+            # Java for Firebase emulators
+            jdk17
+
             # Python for LaTeX processing
             python3
             python3Packages.pip
