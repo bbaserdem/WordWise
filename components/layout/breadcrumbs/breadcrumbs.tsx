@@ -12,9 +12,12 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks';
+import { getProject } from '@/lib/db/projects';
+import { getDocument } from '@/lib/db/documents';
 
 /**
  * Props for the Breadcrumbs component.
@@ -63,6 +66,47 @@ export function Breadcrumbs({
   homeLabel = 'Dashboard',
 }: BreadcrumbsProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [projectNames, setProjectNames] = useState<Record<string, string>>({});
+  const [documentNames, setDocumentNames] = useState<Record<string, string>>({});
+
+  /**
+   * Fetch project name for a given project ID.
+   */
+  const fetchProjectName = async (projectId: string) => {
+    if (!user || projectNames[projectId]) return;
+
+    try {
+      const project = await getProject(projectId, user.uid);
+      if (project) {
+        setProjectNames(prev => ({
+          ...prev,
+          [projectId]: project.name,
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching project name for breadcrumb:', error);
+    }
+  };
+
+  /**
+   * Fetch document title for a given document ID.
+   */
+  const fetchDocumentTitle = async (documentId: string) => {
+    if (!user || documentNames[documentId]) return;
+
+    try {
+      const document = await getDocument(documentId, user.uid);
+      if (document) {
+        setDocumentNames(prev => ({
+          ...prev,
+          [documentId]: document.title,
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching document title for breadcrumb:', error);
+    }
+  };
 
   /**
    * Generate breadcrumb items from the current pathname.
@@ -93,7 +137,63 @@ export function Breadcrumbs({
         return;
       }
 
-      // Format segment label
+      // Handle project ID segments
+      if (segment === 'projects' && segments[index + 1] && segments[index + 1] !== 'new') {
+        // This is the projects segment, next segment should be project ID
+        breadcrumbs.push({
+          label: 'Projects',
+          href: currentPath,
+          isCurrent: false,
+        });
+        return;
+      }
+
+      // Check if this segment might be a project ID (after projects segment)
+      if (segments[index - 1] === 'projects' && segment !== 'new') {
+        // This is likely a project ID, fetch the project name
+        const projectId = segment;
+        fetchProjectName(projectId);
+        
+        // Use project name if available, otherwise show "Loading..." or project ID
+        const projectName = projectNames[projectId] || 'Loading...';
+        
+        breadcrumbs.push({
+          label: projectName,
+          href: currentPath,
+          isCurrent: index === segments.length - 1,
+        });
+        return;
+      }
+
+      // Handle documents segment
+      if (segment === 'documents' && segments[index + 1] && segments[index + 1] !== 'new') {
+        // This is the documents segment, next segment should be document ID
+        breadcrumbs.push({
+          label: 'Documents',
+          href: currentPath,
+          isCurrent: false,
+        });
+        return;
+      }
+
+      // Check if this segment might be a document ID (after documents segment)
+      if (segments[index - 1] === 'documents' && segment !== 'new') {
+        // This is likely a document ID, fetch the document title
+        const documentId = segment;
+        fetchDocumentTitle(documentId);
+        
+        // Use document title if available, otherwise show "Loading..." or document ID
+        const documentTitle = documentNames[documentId] || 'Loading...';
+        
+        breadcrumbs.push({
+          label: documentTitle,
+          href: currentPath,
+          isCurrent: index === segments.length - 1,
+        });
+        return;
+      }
+
+      // Format segment label for other segments
       const label = segment
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))

@@ -62,6 +62,8 @@ export async function createDocument(
     const documentsRef = collection(firestore, 'documents');
 
     const now = Timestamp.now();
+    
+    // Build the document object, only including folderId if it has a value
     const newDocument: Omit<Document, 'id'> = {
       projectId,
       userId,
@@ -70,12 +72,11 @@ export async function createDocument(
       type: documentData.type,
       status: 'draft',
       order: documentData.order,
-      folderId: documentData.folderId,
       tags: documentData.tags,
       metadata: {
         description: documentData.description,
         enableAutoSave: documentData.enableAutoSave,
-        autoSaveInterval: 30,
+        autoSaveInterval: 30, // Default 30 seconds, minimum enforced
         enableCollaboration: documentData.enableCollaboration,
         enableVersionHistory: true,
         maxVersions: 50,
@@ -99,6 +100,11 @@ export async function createDocument(
       createdAt: now,
       updatedAt: now,
     };
+
+    // Only add folderId if it has a value
+    if (documentData.folderId) {
+      (newDocument as any).folderId = documentData.folderId;
+    }
 
     const docRef = await addDoc(documentsRef, newDocument);
     const createdDocument: Document = {
@@ -273,16 +279,27 @@ export async function updateDocument(
       status: updateData.status,
       tags: updateData.tags,
       order: updateData.order,
-      folderId: updateData.folderId,
       updatedAt: Timestamp.now(),
     };
 
+    // Only add folderId if it has a value
+    if (updateData.folderId) {
+      updateFields.folderId = updateData.folderId;
+    }
+
     // Update metadata if provided
     if (updateData.metadata) {
-      updateFields.metadata = {
+      const updatedMetadata = {
         ...existingDocument.metadata,
         ...updateData.metadata,
       };
+      
+      // Ensure auto-save interval is at least 30 seconds to prevent abuse
+      if (updatedMetadata.autoSaveInterval !== undefined) {
+        updatedMetadata.autoSaveInterval = Math.max(updatedMetadata.autoSaveInterval, 30);
+      }
+      
+      updateFields.metadata = updatedMetadata;
     }
 
     // Update the document
@@ -491,6 +508,48 @@ export async function updateDocumentStats(
 }
 
 /**
+ * Get all documents for a specific project.
+ *
+ * This function retrieves all documents belonging to a specific project.
+ * It's a simplified version of getDocuments without pagination or complex filtering.
+ *
+ * @param projectId - ID of the project whose documents to retrieve
+ * @param userId - ID of the user requesting the documents (for security)
+ * @returns List of documents in the project
+ * @throws Error if document retrieval fails
+ *
+ * @since 1.0.0
+ */
+export async function getDocumentsByProject(
+  projectId: string,
+  userId: string
+): Promise<Document[]> {
+  try {
+    const firestore = getFirebaseFirestore();
+    const documentsRef = collection(firestore, 'documents');
+
+    // Verify user has access to the project (you might want to add project access check here)
+    const q = query(
+      documentsRef,
+      where('projectId', '==', projectId),
+      where('userId', '==', userId),
+      orderBy('order', 'asc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    const documents: Document[] = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Document[];
+
+    return documents;
+  } catch (error) {
+    console.error('Error getting documents by project:', error);
+    throw new Error('Failed to retrieve project documents');
+  }
+}
+
+/**
  * Search documents by title or content.
  *
  * This function performs a text search on document titles and content.
@@ -513,10 +572,10 @@ export async function searchDocuments(
   try {
     // For now, we'll get all documents and filter client-side
     // In production, you'd want to use a proper search service
-    const allDocuments = await getDocuments(projectId, userId);
+    const allDocuments = await getDocumentsByProject(projectId, userId);
     const searchLower = searchTerm.toLowerCase();
 
-    return allDocuments.documents.filter(
+    return allDocuments.filter(
       (document) =>
         document.title.toLowerCase().includes(searchLower) ||
         document.content.toLowerCase().includes(searchLower)
