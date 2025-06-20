@@ -13,6 +13,7 @@ For local development and testing, the project includes a set of converted markd
 - **Usage**: Import into the database for testing grammar checking, AI suggestions, and document management features
 
 ### Test Files Available
+
 - `0-intro.md` - Introduction to neural networks and brain connectivity
 - `1-connclone.md` - Encoding and retrieval of connectome data
 - `2-mapseq.md` - Mapping and sequencing methodologies
@@ -41,8 +42,8 @@ Elevate the clone by integrating advanced AI features tailored to a specific nic
 - **Context-aware suggestions powered by large language models**
 - **Personalized writing recommendations based on user goals**
 - **Advanced style analysis beyond rule-based corrections**
-- **Comparing document versions** 
-- **Exporting the final document in DOCX or LaTeX format** 
+- **Comparing document versions**
+- **Exporting the final document in DOCX or LaTeX format**
 
 ## Ultimate Goal
 

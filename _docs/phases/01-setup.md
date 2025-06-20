@@ -1,9 +1,11 @@
 # Phase 1: Setup - Barebones Foundation
 
 ## Overview
+
 This phase establishes the foundational structure for WordWise, creating a minimal running application with basic project setup, authentication, and core infrastructure. The goal is to have a functional but basic application that can be built upon in subsequent phases.
 
 ## Phase Goals
+
 - Set up the complete development environment
 - Establish basic project structure and routing
 - Implement core authentication system
@@ -11,6 +13,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Ensure the application runs and deploys successfully
 
 ## Deliverables
+
 - ✅ Working Next.js application with TypeScript
 - ✅ Firebase integration with authentication
 - ✅ Basic project structure following project rules
@@ -21,9 +24,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 ## Features & Tasks
 
 ### 1. Project Foundation Setup
+
 **Goal**: Establish the complete development environment and project structure
 
 **Tasks**:
+
 1. Initialize Next.js project with TypeScript and App Router
 2. Configure Tailwind CSS with custom design tokens
 3. Set up ESLint, Prettier, and TypeScript configuration
@@ -31,15 +36,18 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Configure Firebase project and add configuration files
 
 **Acceptance Criteria**:
+
 - Project builds and runs without errors
 - All linting and formatting rules pass
 - Firebase configuration is properly set up
 - Project structure matches defined conventions
 
 ### 2. Authentication System
+
 **Goal**: Implement basic user authentication with Firebase Auth
 
 **Tasks**:
+
 1. Set up Firebase Auth configuration and context
 2. Create login and registration pages with forms
 3. Implement authentication state management
@@ -47,6 +55,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Create basic user profile management
 
 **Acceptance Criteria**:
+
 - Users can register with email/password
 - Users can log in and log out
 - Authentication state persists across sessions
@@ -54,9 +63,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Basic user profile information is accessible
 
 ### 3. Basic Navigation & Layout
+
 **Goal**: Create the fundamental navigation structure and layout system
 
 **Tasks**:
+
 1. Design and implement responsive header component
 2. Create collapsible sidebar navigation
 3. Set up breadcrumb navigation system
@@ -64,6 +75,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Add loading states and error boundaries
 
 **Acceptance Criteria**:
+
 - Navigation works on mobile and desktop
 - Sidebar collapses and expands properly
 - Breadcrumbs show current location
@@ -71,9 +83,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Error boundaries catch and display errors
 
 ### 4. Project Management Foundation
+
 **Goal**: Establish basic project and document management structure
 
 **Tasks**:
+
 1. Create project data models and Firestore collections
 2. Implement basic project CRUD operations
 3. Create project listing and creation pages
@@ -81,6 +95,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Add basic project navigation and routing
 
 **Acceptance Criteria**:
+
 - Users can create new projects
 - Projects are saved to Firestore
 - Project listing displays user's projects
@@ -88,9 +103,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Document structure is established
 
 ### 5. Basic Writing Editor
+
 **Goal**: Create a minimal but functional text editor
 
 **Tasks**:
+
 1. Implement basic text editor component
 2. Add auto-save functionality
 3. Create document version history system
@@ -98,6 +115,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Add basic document export functionality
 
 **Acceptance Criteria**:
+
 - Users can create and edit documents
 - Documents auto-save every 30 seconds
 - Version history tracks manual saves
@@ -105,9 +123,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Basic export to plain text works
 
 ### 6. Development Infrastructure
+
 **Goal**: Establish complete development and deployment pipeline
 
 **Tasks**:
+
 1. Set up Firebase emulators for local development
 2. Configure environment variables and secrets
 3. Set up CI/CD pipeline for automated deployment
@@ -115,6 +135,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Implement basic monitoring and error tracking
 
 **Acceptance Criteria**:
+
 - Emulators run locally for development
 - Environment variables are properly configured
 - Automated deployment works
@@ -122,9 +143,11 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Basic error tracking is functional
 
 ### 7. Test Data Setup
+
 **Goal**: Establish realistic test data for development and testing
 
 **Tasks**:
+
 1. Import markdown test files from `_example` directory into database
 2. Create seed data script for populating test projects and documents
 3. Set up test user accounts with sample data
@@ -132,6 +155,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 5. Create test scenarios for different document types and content
 
 **Acceptance Criteria**:
+
 - Test markdown files can be imported as documents
 - Seed data script populates database with realistic content
 - Test users have access to sample projects and documents
@@ -139,6 +163,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - Test scenarios cover various academic writing styles
 
 **Test Data Sources**:
+
 - `_example/0-intro.md` - Introduction to neural networks
 - `_example/1-connclone.md` - Connectome encoding research
 - `_example/2-mapseq.md` - Mapping and sequencing methods
@@ -147,6 +172,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - `_example/a2-neural_networks.md` - Neural network architectures
 
 **Implementation Notes**:
+
 - Use Firebase emulators for local testing
 - Create utility functions for markdown parsing and import
 - Ensure test data doesn't affect production environment
@@ -155,6 +181,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 ## Technical Implementation
 
 ### Core Dependencies
+
 ```json
 {
   "dependencies": {
@@ -176,6 +203,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 ```
 
 ### Key Files to Create
+
 - `app/layout.tsx` - Root layout with authentication context
 - `app/(auth)/layout.tsx` - Authentication layout
 - `app/(dashboard)/layout.tsx` - Dashboard layout
@@ -187,6 +215,7 @@ This phase establishes the foundational structure for WordWise, creating a minim
 - `types/project.ts` - Project type definitions
 
 ### Database Schema
+
 ```typescript
 // Users collection
 interface User {
@@ -222,6 +251,7 @@ interface Document {
 ```
 
 ## Success Metrics
+
 - ✅ Application builds and deploys successfully
 - ✅ Authentication flow works end-to-end
 - ✅ Users can create projects and documents
@@ -231,6 +261,7 @@ interface Document {
 - ✅ Test data is properly imported and accessible
 
 ## Risk Mitigation
+
 - **Firebase Setup**: Use emulators for development to avoid costs
 - **Authentication**: Implement proper error handling for auth failures
 - **Data Loss**: Ensure auto-save works reliably before proceeding
@@ -238,6 +269,7 @@ interface Document {
 - **Security**: Implement proper Firestore security rules
 
 ## Definition of Done
+
 - All acceptance criteria are met
 - Code passes all linting and type checking
 - Tests are written for critical functionality
@@ -246,8 +278,10 @@ interface Document {
 - Team can successfully run and develop locally
 
 ## Next Phase Preparation
+
 This phase establishes the foundation for Phase 2 (MVP), which will add:
+
 - Real-time grammar and spell checking
 - Enhanced writing editor with suggestions
 - Improved project and document management
-- Better user experience and polish 
+- Better user experience and polish

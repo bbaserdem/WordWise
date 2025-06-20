@@ -1,4 +1,5 @@
 # Structured connectivity in Mouse Brain
+
 One of the big challenges when it comes to connectomics is measuring the connectivity information.
 Imaging of the brain connections on small scales is exceptionally challenging due to several reasons.
 The spatial scale of synapses are of orders of magnitude smaller than neurons, requiring finer or separate techniques to measure than techniques used to image neurons.
@@ -8,7 +9,9 @@ Information of all scales are useful in trying to understand the exact function 
 In this section, several established methods used for imaging connectomics is discussed.
 A novel imaging method proposed to image the projectome, and by extension the connectome, is described,
 and results of our latest analysis of these results will be discussed.
+
 ## Organization of the mouse olfactory system
+
 Olfactory system starts with olfactory receptor neurons (ORNs) found in the olfactory epithelium in the nasal cavity.
 Each ORN cell contains one type of odorant receptor (OR) which are chemoreceptors that respond to odorant molecules.
 (In the mouse, there are around 1000 different ORs identified.)
@@ -31,7 +34,9 @@ While previous research state the absence of structured connectivity in the regi
 Either the studies don't have enough neuron samples needed to make do of a larger pattern, or they lack the resolution required to determine connectivity patterns over smaller scales.
 We used sequencing methods to do a high-throughtput and smaller scale imaging of the projectome, and checked for evidence of structure.
 A depiction of the brain regions we measured can be seen in .
+
 ## Using sequencing for single neuron projection data
+
 To overcome the limitations of past research, we explored methods that can image a higher number of neurons than previous research, and resolution enough to obtain the projectome.
 To interrogate the olfactory bulb outputs, we used two single-neuron projection mapping techniques, MAPseq and BARseq.
 Both these methods are sequencing methods, and are compatible with each other.
@@ -44,7 +49,9 @@ Infection rates of the neurons are kept low to ensure that the probability of a 
 Once a neuron is infected with the viral particle, the barcode injected is replicated and transported along the axonal branch.
 This mechanism ensures that the barcode of a certain sequence is distributed along the projection path of the neuron.
 shows a rundown of this process, and sequencing methods can be used to utilize these distributed barcodes to extract information about the neuron projectome in the region.
+
 ### MAPseq
+
 Our main imaging method we used is MAPseq, standing for Multiplexed Analysis of Projections by Sequencing.
 After performing the infection stage and proliferation of barcodes in the neurons, the relevant neural tissue is removed.
 Tissue sections corresponding areas of interest can be sectioned along an axis of interest, and the sample can be sent for sequencing.
@@ -58,7 +65,9 @@ We infected the cells of the olfactory bulb in our study with barcodes, then app
 These target regions in our study are the anterior and posterior part of piriform cortex (APC/PPC), the anterior olfactory nucleus (AON), the olfactory tubercle (OT), cortical amygdala (CoA) and the lateral entorhinal cortex (lENT).
 These regions are chosen because of their known distinct functional roles.
 ~
+
 ### BARseq
+
 Operating on the same methodology, BARseq is an alternative method for imaging the barcoding data.
 Standing for Barcoded Anatomy Resolved by Sequencing, it allows for detailed imaging of individual neurons without homogenizing tissue samples.
 ~
@@ -80,19 +89,25 @@ Then, by utilizing BARseq, the sequences the cell is infected with is known, and
 The classification is done to identify mitral cells, tufted cells, and a third separate population of neurons that are referred as deep cells (DCs).
 DCs are called so because they resemble deep short axon cells, that are reported to innervate the higher olfactory areas.
 ~
+
 ## Imaging of mouse olfactory bulb projections
+
 Our imaging consists of MAPseq data of 4894 olfactory bulb neurons across six mice brains.
 Among a subset of 415 neurons (from two of the mice), we also performed BARseq on the olfactory bulb.
 Our imaging study contains two orders of magnitude more neuronal projections than previous single-cell imaging studies.
 In the following sections, certain analysis methods used are described to translate the raw imaging data to connectivity information.
+
 ### Analysis of cell-types using BARseq
+
 The MAPseq data consists of barcode counts of each barcode after sequencing in different sections.
 This barcode count data is kept in the form of matrix $C^{OB}_{b,s}$, where the index $b$ denotes the barcode index and the index $s$ denotes the tissue slice the counts were recovered from.
 The barcode index ranges from 1 to the number of barcodes, and slice index ranges from 1 to 60 along the anterior-posterior (AP) axis.
 The slices are taken from different brain regions from the entire slices, and a list of which slice index range corresponds to which region is given in .
 Not all slices taken from each brain is reflected in the dataset, due to brain samples having varying sizes and the difficulty of slicing the tissue at the exact same location.
 The slices from each brain is aligned according to region borders which are distinguished before slices are sent for sequencing, and pooled together.
+
 ### Cell type filtering and clustering
+
 Our assumption is that different cell types account for different modalities of olfaction data, and their projection patterns to upstream brain regions will be different.
 From the BARseq imaging results, even though the experimental setup is focused mostly on infecting and imaging MCs, we observed that some TCs and another population of cells (DCs) were also targeted by barcoding.
 We would like to separate these cell types to prevent biases that can arise from mixed population of cells.
@@ -125,7 +140,7 @@ To mitigate for the effect of the unbalanced dataset, the cross-entropy loss fun
 <EQN HERE>
 ($N_{MC}$ stands for the number of mitral cell samples in the testing dataset used, and likewise for $N_{TC}$ and $N_{DC}$.)
 The training dataset used consists of 227 MCs, 25 TCs and 13 DCs.
-To control for overfitting on this set, we split this dataset into training and testing datasets, while keeping the class ratio of the  constant.
+To control for overfitting on this set, we split this dataset into training and testing datasets, while keeping the class ratio of the constant.
 Classifiers were trained on 100 different training-testing splits, for various training to testing ratios. (80\
 pMC subsets of the MAPseq dataset using the classifiers trained on training-testing splits were compared to the pMC set obtained from using the entire BARseq labelled data.
 Comparing these pMC subsets with the pMC obtained from using the classifier trained on the entire data, the change was observed to be minimal, which is demonstrated in .
@@ -148,7 +163,9 @@ We use watershed algorithm in the PC centroid and IPR space to cluster these two
 The sets are labelled broadly-projecting (BP) and narrowly-projecting (NP) neurons, due to the distribution locii having higher and lower IPR values.
 The subsets are such that BP neurons are more numerous, with 3457 BP neurons and 842 NP neurons.
 (89 neurons were excluded from the pMC set due to not having any projections in PC.)
+
 ### Tiling of brain regions by mitral cells
+
 Investigation of barcode counts show that the piriform cortex (PC) is fully projected by the OB neurons.
 We call this effect tiling, that is for a slice in PC, we can find a neuron that projects mainly to this slice, effectively tiling the entire AP axis of PC with input from OB.
 The tiling is not seemingly random, and biased towards the boundaries as evident in .
@@ -169,7 +186,9 @@ Observing this contrast in projection pattern across the halves of PC, we want t
 To do this, we checked for correlation between the maximal projected slice in APC and PPC, and found that the projection maxima in respective regions are not correlated across different barcodes.
 (Shown in .)
 These findings suggest that the input distribution to APC and PPC are spatially distinct, and may be evidence that they are responsible for different modalities of olfactory information processing.
+
 ## Co-innervation patterns between PC and other brain regions
+
 We observed that the piriform cortex is a main target for projections from OB neurons.
 Observing this spatial pattern of organization, we want to quantify if neurons projecting to different areas in PC are involved in different patterns.
 To quantify the patterns, we want to quantify the relative projection strength of a neuron predominantly projecting to a position in PC, and another brain region.
@@ -230,7 +249,9 @@ shows that our results are apparent and significant only when the number of neur
 Each individual neurons' projection pattern can seem random, however the structure we found points to a larger organizational scheme.
 In our downsampling analysis, we measure the significance of our results on the q-value of the slope fits to the conditional probabilities.
 For our ground hypothesis, we random shuffle the count matrix of the PC slices for each barcode, and random shuffle the region projection strengths and use the linear fits on the shuffled data as ground hypothesis.
+
 ## Projections of neurons within piriform cortex
+
 We see strong evidence for correlation between OB projections along the AP axis of piriform cortex, and co-innervation strength to extra-piriform targets.
 Along with reports in literature an asymmetric rostro-caudal intra-piriform inhibition and biases in PC projections,
 we wanted to investigate the projections of the piriform cortex along the AP axis.
@@ -238,7 +259,9 @@ To this end, we did MAPseq on the neurons that output from PC in sections spanni
 We collected 30,433 neurons from 5 mice, eclipsing the number of barcodes achieved in the previous recordings.
 MAPseq was performed on slices within PC, and to 14 other target regions where each target region was sequenced by pooling.
 For this experiment, we did not collect individual slice data for the extra-piriform target regions.
+
 ### Intra-piriform projections
+
 From the data we collected, we investigated the recurrent circuitry within the PC.
 The slice locations of the barcoded neurons' soma are apparent with sharp peak in the piriform cortex barcode counts.
 Using these slices of maximum barcode counts as soma locations, we mapped out the intra-piriform projection strengths.
@@ -250,7 +273,9 @@ For each barcode, we find the fractional projection strength to slices other tha
 shows this projection pattern, and that we found connection strength within the region asymmetric.
 We observed a decay of intra-piriform projections depending on the distance from the soma of the projecting neuron, however we found significant bias in the direction of this attenuation.
 Intra-piriform projections are biased towards the anterior-to-posterior direction, and the decay of projection is stronger in the posterior-to-anterior direction.
+
 ### Extra-piriform projections
+
 The co-innervation patterns between PC and extra-piriform targets observed in the OB projections and the asymmetric intra-piriform projection suggest that projection pattern from the PC to extra-piriform regions may also be conditioned spatially along PC.
 To test for this, we calculated a similar metric described in , but instead of using OB injection barcodes, we use the PC injection data.
 $C^{PC}_{b,s}$ denotes the barcode count of the barcode $b$ found in slice $s$ of the piriform, and $C^{PC}_{b,r}$ denotes the total barcode count of the barcode $b$ in the brain region $r$.
@@ -269,17 +294,20 @@ This metric of projection probability dependent on the soma position in PC is sh
 We observed a distribution of projection strengths that are highly dependent on neuron position in PC, similar to the pattern seen in .
 There is a large difference in the mean projection pattern to extra-piriform targets across the APC-PPC boundary, as observed.
 While AON, lENT and CoA have biases similar to the biases observed with the co-innervation pattern of the OB neurons, the projection strength to OT is biased towards the center of the PC.
+
 ## Evidence of parallel circuitry through the piriform cortex
 
 After the two rounds of measurements and observing similar gradients in the projection patterns, we wanted to quantify both of these quantitites' relation along the AP axis of the PC.
-To do this, we calculated the Spearman correlation across slices between $*[^{PC}]{P}{} (r | s)$ and $*[^{OB}]{P}{} (r | s)$ for each region, shown in  and plotted in .
+To do this, we calculated the Spearman correlation across slices between $*[^{PC}]{P}{} (r | s)$ and $*[^{OB}]{P}{} (r | s)$ for each region, shown in and plotted in .
 Our results indicate that the co-innervation of location in the PC and extra-piriform targets by OB neurons is correlated with the innervation of the extra-piriform target by the PC neurons in the same region.
 AON has a negative correlation, meaning that OB neurons that project strongly to APC also project strongly to AON, and the neurons in APC also project strongly to AON.
 lENt and CoA has similar behavior, but biased more towards PPC.
 This correlatory behavior is not observed in OT; an the connections from OB and from PC are not correlated across the AP axis of PC.
 This observation is suggestive of a triadic circuit motifs across OB, PC and the three brain regions of our investigation.
 The circuit motif suggests multiple parallel circuitry as shown in .
+
 ## Conclusion
+
 In our study of the olfactory system, we found out through high-throughtput imaging that there is strong evidence towards a structured connectivity model.
 Our experiments confirm some existing features found in other studies; such as projection patterns of mitral cells vs. tufted cells,
 ~

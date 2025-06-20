@@ -1,4 +1,5 @@
 # Encoding and retrieval of connectome
+
 The connectome determines the computations performed by a neural network.
 A lot of the functions of the brain are learned through interaction with an organism's environment.
 However, the brain is highly structured from early development, and is capable of complex behavior before interacting with any external environment.
@@ -27,7 +28,9 @@ Some animals have predetermined circuitry that do complex tasks, such as path in
 ~
 In this chapter, the limitations regarding encoding and decoding connectivity information is discussed.
 This task is described as connectome cloning; duplicating the connectome of one network on a separate network through a self-assembly algorithm.
+
 ## Locality of connectome coding
+
 In artificial neural networks, connectivity information storage and retrieval is almost trivial from the principals of computation.
 A supervisor (CPU) reads from a memory location and writes this information on another memory information, decoding if needed.
 This is possible because read and write operations are global algorithms with digital computers, a supervisor has access to the whole state of the memory and can manipulate it.
@@ -41,7 +44,9 @@ Any algorithm that stores connectivity information has the locality condition wh
 That is, each cell can only make use of information locally available to them.
 The instructions executed by a cell cannot make use of information pertaining some other cell that's not in contact.
 This condition demonstrates that a computer algorithm analogue cannot work on neural development.
+
 ## SYNseq method for connectome imaging
+
 An analogous question in neural imaging is efficient reading of the connectome.
 Multiple methods have been employed in doing this, we describe one novel method used to image the cell-level connectome of a neuronal section.
 The SYNseq method utilizes RNA labels to do imaging, making use of readily available high-throughput sequencing technology.~
@@ -53,13 +58,17 @@ This workflow is depicted in .
 While this connectome imaging technique is in development, it shows the proof of concept on how local mechanisms can be used to generate a netlist representation of the connectome.
 Netlist representation of a network can be stored as a sequence, as demonstrated by using nucleotide sequences to do imaging.
 It is also of note that if the connectome is a sparse graph, the netlist representation contains a compressed representation than the entire connectome matrix.
+
 ## Connectome cloning
+
 Since there is a viable method to encode a connectome using cellular mechanisms, it is plausible that similar data can be used to decode a connectome using cellular mechanisms.
 The target task is formulated is the following model; if the library of barcode-pair of some initial neural network is available to a separate neural network, can the secondary neural network evolve to have the identical connectome?
 This problem formulation is depicted in .
 This task will be referred to as connectome cloning, cloning the connectivity of one neural network on to another.
 The model will involve possible actions that neurons can take while making use of barcode-pair information available locally.
+
 ### Mechanism for connectome cloning
+
 We begin the model with the barcode-pair list from the initial network.
 The initial network neurons are each labelled with unique barcode sequences.
 Therefore a sequence uniquely identifies a cell in the original network.
@@ -77,13 +86,17 @@ Through cellular mechanisms, the barcode-pairs are to be moved throughout the ne
 After the barcode-pairs are distributed in a fashion, we suggest that the tabula-rasa network goes through a pruning stage, where every synapse that does not have a barcode-pair anchoring the two cells together gets eliminated.
 Our model will propose that if certain conditions are met, which can be determined locally, the pruning results in a clone of the original network graph.
 This methodology is depicted in .
+
 ### Barcode-pair movements
+
 We will use $[^{pre}]{P}{_i}$ to refer to the pre-synaptic neuron of $P_i$, and $[^{post}]{P}{_i}$ to refer to the post-synaptic neuron of $P_i$.
 To model local movements, we will postulate that the barcode-pairs can be moved as described in , and a depiction can be seen in .
 These rules are formulated to be viable for a single cell to perform.
 Indeed, all the locomotion in these rules involve the barcode-pair to be moving through the cell of interest.
 The barcode-pairs can be pulled into the cytoplasm of one neuron that it is facing, and moved to another synapse that this cell is doing.
+
 ### Local state of tabula-rasa network
+
 The distribution of barcode-pairs induce a state of the tabula-rasa network.
 This state is depicted with the synapse–barcode connection index (SBCI), and is of the form $x{_n_m_,__}$.
 The state is a binary array, that can take on values $1$ and $0$.
@@ -109,7 +122,6 @@ Let $W_B$ be the target connectivity matrix defined by the barcode-pairs.
 Let $W_N$ be a connectivity matrix after of an OBOC distribution of the same barcode-pairs after barcode-free synapses are eliminated.
 Then, a one-to-one mapping $M$ exists between the set of barcodes and the neurons, such that $W_B = M W_N M^$.
 
-
 If OBOC solution is reached, then there is a unique barcode in each cell of the tabula-rasa network, and there is a unique tabula-rasa cell for each unique barcode.
 We define the matrix $P$ with entries $P_{ n} = 1$ when the barcode of the original networks' $$ is found in the $n$ neuron in the tabula-rasa network.
 Since the tabula-rasa is in the OBOC state, $P_{ n} = 1$ implies ${P_{ n} = 0 \;    }$ due to unique barcode type per each tabula-rasa cell, and ${P_{ m} = 0 \;  m  n}$ due to a single barcode type per each tabula-rasa cell.
@@ -121,6 +133,7 @@ $= W_B$
 Therefore, for an OBOC distribution, $W_B = P W_N P^$
 
 ### Local cost function of the tabula-rasa network
+
 While the system has moves that it can use to reach an OBOC state; the cells need to perform these movements with the information available to them.
 The OBOC state can be thought of as two conditions, that barcodes of the same sequence are brought within one cell and barcodes of different sequence are prevented to be in the same cell.
 From these principle, we suggest the following cost function determined from the local variables of each cell in the tabula-rasa network.
@@ -132,16 +145,15 @@ The right-hand term raises the cost of having too much barcodes in one cell, ess
 The balancing of the two terms with the $$ parameter indeed yields the minimum of this cost function as OBOC state.
 It can be proven in the case where $= 2$ and the system is quadratic, that all non-OBOC states have moves that can reduce the cost function.
 [Theorem 2]
-For the cost function  with $= 2$ and $> 1$, a non-OBOC state always has some barcode jump that decreases the cost function.
-
+For the cost function with $= 2$ and $> 1$, a non-OBOC state always has some barcode jump that decreases the cost function.
 
 For , for a barcode type $$ to be relocated from cell $m$ to cell $n$ with a flip, the change in cost function is calculable as follows.
 <EQN HERE>
 If the tabula-rasa network is in non-OBOC state; that means one, or both, of the following must be true.
 
- A barcode is shared between cells; there is a $$, $j$, $k$ such that
+A barcode is shared between cells; there is a $$, $j$, $k$ such that
 ${c_{j }  0  c_{k }}$
- A cell has multiple barcodes; there is a $$, $$, $j$ such that
+A cell has multiple barcodes; there is a $$, $$, $j$ such that
 ${c_{j }  0  c_{j }}$
 
 In the case where a barcode is shared between two cells, we look at the following sum.
@@ -156,11 +168,10 @@ Under all conditions where the solution is not OBOC, a flip that reduces the cos
 
 Following from , it follows that minima of the cost function under the parameters are all OBOC.
 
-For the cost function  with $= 2$ and $> 1$, all minima are OBOC states.
-
+For the cost function with $= 2$ and $> 1$, all minima are OBOC states.
 
 Since all OBOC states are equivalent to the original connectome via a permutation, all OBOC states are also equivalent via a permutation.
-The cost function in  is invariant under permutation, thus all OBOC states have the same value of the cost function.
+The cost function in is invariant under permutation, thus all OBOC states have the same value of the cost function.
 If state is not OBOC, cost function can always be reduced.
 Cost function is bounded below and above by the constraints on the system counts, therefore there is a maximum and minimum value for the cost function.
 There is no minima that is not an OBOC state, since if the system is not in an OBOC state, there is a different state that is guaranteed to have lower cost function.
@@ -170,8 +181,7 @@ Since all OBOC states are permutations, and permutation leaves the cost invarian
 The connectome cloning problem, within the constraints discussed, then is possible with the given moveset as long as this cost function can be preferentially decreased.
 One other constraint that we can observe on the system is the reachability of OBOC state from a non-OBOC distribution in finite amount of time.
 [Theorem 3]
-For the cost function  with $= 2$ and $> 1$, convergence to a minimum state of the cost function takes a number of states limited above by a polynomial of the number of cells in the network.
-
+For the cost function with $= 2$ and $> 1$, convergence to a minimum state of the cost function takes a number of states limited above by a polynomial of the number of cells in the network.
 
 The cost-function spectrum is discrete and limited.
 For example, if $$ is a natural number, then the cost function is an integer number.
@@ -180,6 +190,7 @@ As we start with a random distribution of the barcodes, the higher boundary appr
 Thus, the overall number of the steps to convergence does not exceed ${(1+)f^3 N^7}$, which is polynomial.
 
 ## Simulating connectome cloning
+
 To demonstrate this formulation, several computational simulations are performed.
 The simulations consists of generating initial network connectivities of various topologies, number of neurons ($N$) and synaptic density ($f$).
 Then the barcode-pair list of this network is extracted, and distributed onto another network.
@@ -197,7 +208,9 @@ We call this simulation "dynamic synapses", and note that this simulation models
 In all the cases, the steps required for convergence is polynomial in network density, and convergence is reached for all simulations.
 The convergence time needed to reach OBOC state from random distribution is found to be a polynomial relationship with network density $$ and size $N$, (or also equivelantly to the number of synapses $S =  N^2$), consistent with the upper limit set by .
 <EQN HERE>
+
 ## Conclusion
+
 There is evidence that network connectivity on some scale is encoded in the genome.
 And we provided a proof of concept for decoding such information from genomics data.
 While the provided methods does not claim that this is the mechanism for connectome reconstruction from the genome, it is suggested that this information can be stored as a sequence and can be retrieved.

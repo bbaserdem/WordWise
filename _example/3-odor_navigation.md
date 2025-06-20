@@ -1,4 +1,5 @@
 # Learning of Connectivity for Odor Navigation Tasks
+
 {section}
 {section}
 Chemotaxis is an important task for organisms.
@@ -16,21 +17,27 @@ For example, in certain insects the absolute levels of a certain pheromone is in
 In this chapter, I will demonstrate some work regarding modalities of olfactory cues for odor navigation tasks.
 Odor navigation will be formulated as a reinforcement learning task.
 Organisms will be modelled as agents in a digital environment, receiving what would be different modalities of olfactory cues.
+
 ## Formulation of Odor Navigation Task
+
 Odor navigation described in this chapter is a form of chemotaxis that is performed by organisms on volatile chemicals.
 The navigation aspect can encompass many behaviors, such as running away from predators or seeking mates.
 Chemotaxis is a behavior widely studied in microorganisms.
 The media of microorganisms is often liquid, which usually have different mechanics than gaseous media.
 Aerodynamic dispersion of odorant concentration is dominated by different effects on different scales.
 In this work, odor navigation is taken to be the strategy that aims to navigate towards an odorant source while using only local samples of odorant concentration.
+
 ### Emergent Behavior
+
 Almost all terrestrial organisms exhibit certain strategies to locate source of olfactory cues.
 Various strategies are employed by different organisms depending on the mechanics of relevant cues.
 For example; it is known that different insects employ vastly different navigational strategies to locate pheromone sources, depending on their habitat.
 When using pheromone traps to count insects, for example, the numbers of caught insects do not reflect the know population sizes.
 If traps do not accurately emulate the odor dispersion dynamics of what the insects are attuned to detect, the efficiency of the traps are affected.
 While various strategies of individual species are widely studied, how do certain environmental factors relate to optimal strategies is not widely studied.
+
 ### Reinforcement Learning
+
 Reinforcement learning (RL) is a computational paradigm that where an environment-reward mechanism dictates the strategy chosen to interact with the environment.
 ~.
 A detailed explanation of the RL environment and the learning methods used can be found in .
@@ -39,7 +46,9 @@ RL has been used to model complex navigation tasks performed by animals, and tes
 For odor navigation; this work uses the Q-value formulation to learn optimal policies under different conditions.
 The goal for the next chapters is to build models of systems representative of odor navigation tasks,
 and identify features that are useful for biological networks to compute.
+
 ### Agent and Environment
+
 For simulating an agent navigating an odor plume, a model of the agent and environment is required.
 In the case of anima navigating an odor landscape; the environment consist of two interacting parts.
 The main target stimuli are the odorant concentration within the aerial media, which is a scalar field over the environment.
@@ -59,7 +68,9 @@ The agent would have a policy to select actions at every time step.
 The policy can be any algorithm that produces deterministic or stochastic action selection.
 Finally, the agent needs a reward mechanism in place.
 For the rewards; reward scheme based on task completion and current state can be designed.
+
 ## Navigating a simple odor distribution using Reinforcement Learning
+
 Depending on the geometry of the navigation task, the seeking algorithm may be simple, or may need to compromise more complex strategies dependent on more complex stimuli.
 For example, we will consider the goal of navigating to a large target in laminar flow conditions.
 The target size being large (compared to the size of the agent) will cause the odorant to come not from a point source, but from the boundary.
@@ -79,7 +90,9 @@ We can model these effects as a simple linear sink term $R=-$;
 <EQN HERE>
 In , $u$ is the wind direction, $r$ the position vector of the agent with respect to a point along the source boundary and $$ a constant decay rate.
 is an example of such a plume, where the target boundary is the top (north) edge of a square landscape.
+
 ### Navigating to source using a lookup table
+
 Odor navigation in this task can be accomplished by a single rule; move upwind.
 Since due to symmetry, $u$ and $$ are always directed at opposite directions.
 Thus moving in the direction $-u$ is the same as moving up the gradient of $$.
@@ -97,7 +110,7 @@ For the following case; the wind direction is binned to the 4 cardinal direction
 In the simulated environment, the agent is able to develop the strategy of going upwind using a lookup table.
 One full training trial consists of the agent being placed in a random location in one of the four possible scenarios.
 Each scenario corresponding to one edge of the landscape being the odor source, and the wind is directed perpendicular and towards the center.
-(The scenario in  is the north scenario; since the $y=50$ target boundary corresponds to the north edge.
+(The scenario in is the north scenario; since the $y=50$ target boundary corresponds to the north edge.
 There are 3 other scenarios that are successive $90^{}$ rotations of this one.)
 The agent chooses an according to its' lookup table, with a random action being selected instead with probability $$ to encourage off-policy learning.
 After choosing the action, the agent is moved to a new location, and this repeats until trial termination.
@@ -121,7 +134,9 @@ The choice of reward resulting from success or failure is a simple rewarding sch
 However, it is not the only reward scheme that can be employed.
 shows how the agent performs over time in the navigation task.
 The various rewards schemes are given in
+
 ### Navigating to source using neural networks
+
 To expend on the algorithm; instead of using a reward table on discretized state space, a functional approximation of the Q-function can be made.
 A natural choice is a neural network algorithm; mirroring organization from biological networks.
 In , the results for using a feed-forward neural network as the Q-value approximation is shown.
@@ -130,7 +145,7 @@ The input layer is size 3; receiving the wind velocity (2) and odorant concentra
 The odorant concentration being included as an input serves the purpose to feed information regarding the distance from the target.
 While the simple strategy of going upstream to reach the reward does not depend on distance from the target; the network does not do any strategy itself.
 Rather, it fits a non-linear function to approximate the Q-value among different paths.
-Depending on the reward scheme, the actual Q-value will be different for states of different distance to the target; as can be seen in   and .
+Depending on the reward scheme, the actual Q-value will be different for states of different distance to the target; as can be seen in and .
 While for a lookup-table, this is not an issue during learning.
 The learning update using Bellman equation is linear; and the correct strategy is emulated as long as the time average of total value update to the correct action is higher than the erroneous actions, which is the case.
 However, with a neural network, the back-propagation signal updates the weights of the network in a non-linear fashion.
@@ -144,11 +159,13 @@ The overall trend of the Q-value provided from the network matches the actual Q-
 An improvement to the feed-forward neural network algorithm in terms of making the model more realistic is to include recurrence into the network.
 This is achieved by adding connection weights from the output of the hidden layer to the input of the hidden layer at the next time step.
 This establishes information flow through the network between time steps, and is a way to introduce memory to the neural network, as the network can remember the activations from the previous time steps to make calculations.
-The same network structure from  is used; with the addition of recurrent weight matrices.
+The same network structure from is used; with the addition of recurrent weight matrices.
 The algorithm employed to train the weights is back-propagation through time (BPTT).
 The results of success can be seen in ; where it trains to do the task.
 It takes much longer (in trial number) to learn to succeed in navigation, however this is mostly attributed to recurrent network output stabilizing over longer time.
+
 ## Navigating with a simple plume
+
 The gradient across a single direction is a simple case where the correct navigation strategy requires minimal information.
 However, real world cases are usually not as simple; odorants can disperse from sources with structure that cannot be neglected.
 An improvement over the previous attempt would be to get an agent to navigate a plume generated from a point source.
@@ -166,13 +183,13 @@ For correct navigation in this case; the agent needs to be able to infer the gra
 However; since the agent can only sample the odor concentration locally; it needs to sample through space.
 While various ways of doing this is possible; a minimalist state space consists of the action at a previous time step, and whether that action increased the odor concentration that the agent sampled.
 The result of such simulation, using the same hyperparameters as , can be seen in .
-It can be seen in  that the Q-table of  develops the following rules;
+It can be seen in that the Q-table of develops the following rules;
 
- If previous action was to go north and caused the odor concentration to increase, keep going.
- If odor concentration decreased instead, try to go west (left).
- If going left increased odor concentration, go north. If it decreased odor concentration, go right (east.)
- If previous action was to go right, and it increased concentration; keep doing so until concentration decreases.
- If previous action was to go right, and it decreased concentration; go up.
+If previous action was to go north and caused the odor concentration to increase, keep going.
+If odor concentration decreased instead, try to go west (left).
+If going left increased odor concentration, go north. If it decreased odor concentration, go right (east.)
+If previous action was to go right, and it increased concentration; keep doing so until concentration decreases.
+If previous action was to go right, and it decreased concentration; go up.
 
 However, with a table with short term memory, there are still failure modes as this strategy fails to meander into the plume if the agent is out of the plume.
 Further memory can always be added to the state space, but with each included time-step the weights of the system increase exponentially and the problem quickly becomes difficult to compute, and inefficient.
@@ -188,7 +205,7 @@ This causes input to hidden layer to expand to receive information from all the 
 The difference between this network is that instead of back-propagation to update weights, back-propagation through time (BPTT) is employed, and new weight $W_{h  h}$ are included in the system.
 This is a flat weight increase of the system, and dynamically includes all previous time steps as inputs to the system by promoting the hidden layer to an internally calculated state.
 The results of training the recurrent network on the basic plume is given in .
-The reward schemes are the same as  with an added idle punishment term.
+The reward schemes are the same as with an added idle punishment term.
 Idle punishment is a constant small negative reward (in these simulations, $r_{-} = -0.3$) to encourage the agent to move, and this speeds up learning in recurrent networks from empirical experimentation.
 With the more complicated algorithm, the navigation becomes less streamlined and more abstract (as can be seen in ) but the agent learns to generalize for the rule of going in the direction of the odor gradient, and to seek the plume if it is outside any gradient region.
 It can be seen that among several paths, the agent moves through the landscape until the odor starts to decrease along that path, and the agent then reverses and moves in a different direction.
@@ -198,15 +215,19 @@ Since the time window for inferring the strategy is over multiple time steps, th
 It can be seen from both the evolution in success rates () and the success map () that learning navigation becomes easier and more generalizable when the end reward of reaching the stimulus is coupled along with the stimulus being rewarding as well.
 This suggest that stimulus being rewarding itself (pleasantness of the odor itself) is an important factor in navigation; as the longer timescale strategy is more viable to learn if the reward comes from both the odorant and from the value extractable upon reaching a target mate or food source.
 The recurrent network is also sufficient in approximating the q-function well, as can be seen in .
+
 ## Navigating complex plumes
+
 The plume description in the previous section is very regular, and lacks chaotic structures associated with real world situations.
-To test the agent on more real-world like data,  can be applied on a windscape with high variance.
+To test the agent on more real-world like data, can be applied on a windscape with high variance.
 One example of such a wind and odor landscape is shown in .
 To demonstrate that complex navigation is possible, the agent is trained using only one reward scheme; the concentration as reward along with end reward for successfully navigating to the target.
-The same hyperparameters described in  are used for the neural network, but the training layout is different.
+The same hyperparameters described in are used for the neural network, but the training layout is different.
 20 plumes were pre-generated and the agent is trained randomly on one of them at each navigation trial.
 The results of the simulation is shown in .
+
 ## Conclusion
+
 Various modalities of a sensory navigation task has been modelled using reinforcement learning methods.
 While there is no claim that this is how sensory navigation works, it demonstrates that neural networks are capable of performing simple and complex tasks of navigating in an environment where only olfactory cues are present.
 This also demonstrates that networks are capable of learning and generalizing various odor dispersion methods.

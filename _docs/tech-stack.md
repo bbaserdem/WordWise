@@ -1,17 +1,20 @@
 # Tech Stack Documentation
 
 ## Overview
+
 This document defines the complete technology stack for WordWise, a writing assistant for STEM graduate students. The stack is designed to work seamlessly on NixOS while maintaining compatibility with other development environments.
 
 ## Development Environment
 
 ### Language & Runtime
+
 - **TypeScript** - Primary development language
   - Static typing for better code quality and developer experience
   - Excellent IDE support with autocomplete and refactoring
   - Self-documenting code with interfaces and types
 
 #### TypeScript Best Practices
+
 - Use strict mode in `tsconfig.json` for maximum type safety
 - Prefer interfaces over types for object shapes
 - Use union types for better type narrowing
@@ -22,6 +25,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Implement proper async/await patterns with error handling
 
 #### TypeScript Limitations & Pitfalls
+
 - Runtime type checking still needed for external data
 - Bundle size increases with type definitions
 - Learning curve for complex generic types
@@ -29,6 +33,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Type definitions may be outdated for third-party libraries
 
 #### TypeScript Conventions
+
 - Use PascalCase for interfaces and types
 - Use camelCase for variables and functions
 - Prefix interfaces with 'I' only when necessary for clarity
@@ -36,12 +41,14 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Export types from dedicated type files
 
 ### Package Management
+
 - **pnpm** - Node.js package manager
   - Faster and more efficient than npm
   - Better disk space usage with symlinks
   - Strict dependency resolution
 
 #### pnpm Best Practices
+
 - Use `pnpm add` for dependencies, `pnpm add -D` for dev dependencies
 - Lock file should be committed to version control
 - Use workspace features for monorepo management
@@ -49,23 +56,27 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use `pnpm audit` regularly for security updates
 
 #### pnpm Limitations & Pitfalls
+
 - Some tools may not recognize pnpm's symlink structure
 - Potential issues with native dependencies
 - Limited ecosystem compared to npm
 - Some CI/CD platforms may need special configuration
 
 #### pnpm Conventions
+
 - Use `pnpm` instead of `npm` in all scripts
 - Keep `pnpm-lock.yaml` in version control
 - Use workspace configuration for related packages
 
 ### Development Environment
+
 - **Nix + Flakes** - Reproducible development environment
   - Pure functional package management
   - Consistent environment across team members
   - Works seamlessly on NixOS
 
 #### Nix Best Practices
+
 - Use flake-utils for multi-platform support
 - Keep flake.nix as a single file for simplicity
 - Use specific nixpkgs versions for reproducibility
@@ -73,6 +84,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use buildInputs for development dependencies
 
 #### Nix Limitations & Pitfalls
+
 - Steep learning curve for complex configurations
 - Build times can be slow for first-time builds
 - Limited documentation for edge cases
@@ -80,6 +92,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Potential issues with proprietary software
 
 #### Nix Conventions
+
 - Use descriptive names for buildInputs
 - Group related packages with comments
 - Keep shellHook minimal and focused
@@ -90,6 +103,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - No manual shell activation required
 
 #### direnv Best Practices
+
 - Use `.envrc` for environment-specific configuration
 - Keep sensitive data out of `.envrc`
 - Use `direnv allow` to approve changes
@@ -98,6 +112,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 ## Frontend Framework
 
 ### Core Framework
+
 - **Next.js 14** - React framework with App Router
   - File-based routing for clean URL structure
   - Built-in SSR/SSG capabilities
@@ -106,6 +121,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Built-in API routes for backend functionality
 
 #### Next.js Best Practices
+
 - Use App Router for new projects (Pages Router is legacy)
 - Implement proper error boundaries and loading states
 - Use Server Components by default, Client Components when needed
@@ -116,6 +132,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use dynamic imports for code splitting
 
 #### Next.js Limitations & Pitfalls
+
 - App Router is relatively new with evolving patterns
 - Server Components cannot use browser APIs
 - Complex state management requires careful planning
@@ -124,6 +141,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - API routes have execution time limits
 
 #### Next.js Conventions
+
 - Use kebab-case for file and folder names
 - Group related routes in folders
 - Use `layout.tsx` for shared UI
@@ -133,12 +151,14 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use `not-found.tsx` for 404 pages
 
 ### UI Library
+
 - **React 18** - Component library
   - Declarative UI development
   - Excellent ecosystem and tooling
   - Strong TypeScript support
 
 #### React Best Practices
+
 - Use functional components with hooks
 - Implement proper dependency arrays in useEffect
 - Use React.memo for performance optimization
@@ -148,6 +168,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use React.StrictMode in development
 
 #### React Limitations & Pitfalls
+
 - Potential memory leaks with improper cleanup
 - Re-renders can impact performance
 - Complex state management requires external libraries
@@ -155,6 +176,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Potential issues with concurrent features
 
 #### React Conventions
+
 - Use PascalCase for component names
 - Use camelCase for props and variables
 - Export components as default exports
@@ -162,6 +184,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Implement proper prop validation
 
 ### Styling
+
 - **Tailwind CSS** - Utility-first CSS framework
   - Rapid UI development
   - Consistent design system
@@ -169,6 +192,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Excellent responsive design utilities
 
 #### Tailwind Best Practices
+
 - Use component extraction for repeated patterns
 - Implement proper responsive design with breakpoints
 - Use semantic class names with @apply directive
@@ -177,6 +201,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Implement proper focus states for accessibility
 
 #### Tailwind Limitations & Pitfalls
+
 - HTML can become cluttered with utility classes
 - Learning curve for utility-first approach
 - Potential bundle size issues without proper purging
@@ -184,6 +209,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - May conflict with existing CSS frameworks
 
 #### Tailwind Conventions
+
 - Use consistent spacing scale
 - Implement proper color palette
 - Use responsive prefixes consistently
@@ -193,6 +219,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 ## Backend & Services
 
 ### Authentication
+
 - **Firebase Auth** - Authentication service
   - Email/password authentication
   - Google OAuth integration
@@ -200,6 +227,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Excellent integration with other Firebase services
 
 #### Firebase Auth Best Practices
+
 - Implement proper authentication state management
 - Use custom claims for role-based access
 - Implement proper error handling for auth failures
@@ -208,6 +236,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use Firebase Auth UI for consistent UX
 
 #### Firebase Auth Limitations & Pitfalls
+
 - Limited customization options
 - Vendor lock-in to Google ecosystem
 - Potential costs at scale
@@ -215,12 +244,14 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Complex setup for custom authentication flows
 
 #### Firebase Auth Conventions
+
 - Use consistent error handling patterns
 - Implement proper loading states
 - Use Firebase Auth context for state management
 - Implement proper logout functionality
 
 ### Database
+
 - **Firestore (NoSQL)** - Document database
   - Real-time updates for collaborative features
   - Automatic scaling
@@ -229,6 +260,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Flexible document structure
 
 #### Firestore Best Practices
+
 - Design proper data structure for queries
 - Implement proper indexing strategies
 - Use security rules for data access control
@@ -238,6 +270,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use composite indexes for complex queries
 
 #### Firestore Limitations & Pitfalls
+
 - Complex querying limitations
 - Potential costs for read-heavy applications
 - NoSQL design requires careful planning
@@ -246,6 +279,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - No built-in full-text search
 
 #### Firestore Conventions
+
 - Use consistent document structure
 - Implement proper data validation
 - Use subcollections for related data
@@ -253,6 +287,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use batch operations for multiple writes
 
 ### Hosting
+
 - **Firebase Hosting** - Static site hosting
   - Global CDN with fast loading times
   - Automatic SSL certificates
@@ -260,6 +295,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Excellent integration with Firebase services
 
 #### Firebase Hosting Best Practices
+
 - Implement proper caching strategies
 - Use proper redirects for SPA routing
 - Implement proper security headers
@@ -267,6 +303,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Implement proper error pages
 
 #### Firebase Hosting Limitations & Pitfalls
+
 - Limited to static content
 - No server-side rendering support
 - Limited customization options
@@ -274,6 +311,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Limited support for complex routing
 
 ### Local Development
+
 - **Firebase Emulator Suite** - Local development and testing
   - Firestore emulator for local database
   - Auth emulator for local authentication
@@ -285,6 +323,7 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Provides realistic Firebase environment locally
 
 #### Firebase Emulator Best Practices
+
 - Use emulators for all local development
 - Implement proper data seeding
 - Use export/import for consistent data
@@ -292,6 +331,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use environment variables for emulator configuration
 
 #### Firebase Emulator Limitations & Pitfalls
+
 - May not perfectly replicate production behavior
 - Limited performance compared to production
 - Potential issues with complex queries
@@ -300,12 +340,14 @@ This document defines the complete technology stack for WordWise, a writing assi
 ## Development Tools
 
 ### Code Quality
+
 - **ESLint** - JavaScript/TypeScript linting
   - Enforces code quality and consistency
   - Catches common errors and anti-patterns
   - Highly configurable
 
 #### ESLint Best Practices
+
 - Use TypeScript-specific rules
 - Implement proper ignore patterns
 - Use consistent configuration across team
@@ -313,6 +355,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 - Use plugins for framework-specific rules
 
 #### ESLint Limitations & Pitfalls
+
 - Can be overly strict for rapid prototyping
 - Configuration complexity
 - Potential conflicts between rules
@@ -324,23 +367,27 @@ This document defines the complete technology stack for WordWise, a writing assi
   - Excellent IDE integration
 
 #### Prettier Best Practices
+
 - Use consistent configuration
 - Integrate with ESLint properly
 - Use ignore patterns for generated files
 - Implement proper editor integration
 
 #### Prettier Limitations & Pitfalls
+
 - Limited customization options
 - May conflict with ESLint rules
 - Potential issues with complex formatting
 
 ### Firebase Tools
+
 - **Firebase CLI** - Firebase development tools
   - Local emulators for development
   - Deployment and project management
   - Database and hosting management
 
 #### Firebase CLI Best Practices
+
 - Use proper project configuration
 - Implement proper deployment strategies
 - Use environment-specific configurations
@@ -349,6 +396,7 @@ This document defines the complete technology stack for WordWise, a writing assi
 ## Project Structure
 
 ### File Organization
+
 ```
 wordwise/
 ├── app/                    # Next.js App Router pages
@@ -383,11 +431,13 @@ wordwise/
 ## Installation & Setup
 
 ### Prerequisites
+
 - NixOS or Nix package manager
 - Node.js 20.x (provided by Nix shell)
 - pnpm (provided by Nix shell)
 
 ### Development Dependencies
+
 ```json
 {
   "devDependencies": {
@@ -408,6 +458,7 @@ wordwise/
 ```
 
 ### Runtime Dependencies
+
 ```json
 {
   "dependencies": {
@@ -422,6 +473,7 @@ wordwise/
 ## Deployment Strategy
 
 ### Development
+
 - Local development with Firebase emulators
 - Hot reloading with Next.js development server
 - Real-time collaboration features via Firestore emulator
@@ -430,6 +482,7 @@ wordwise/
 - Database seeding and testing
 
 ### Production
+
 - Build Next.js application (`next build`)
 - Deploy to Firebase Hosting (`firebase deploy`)
 - Configure Firebase project settings
@@ -438,6 +491,7 @@ wordwise/
 ## Security Considerations
 
 ### Firebase Security Rules
+
 - Implement proper Firestore security rules
 - Restrict access based on user authentication
 - Validate data on both client and server side
@@ -445,12 +499,14 @@ wordwise/
 - Implement proper data validation
 
 ### Environment Variables
+
 - Store sensitive configuration in environment variables
 - Use Firebase project configuration for service-specific settings
 - Never commit API keys or secrets to version control
 - Use different configurations for development and production
 
 ### Authentication Security
+
 - Implement proper session management
 - Use secure authentication methods
 - Implement proper logout functionality
@@ -459,6 +515,7 @@ wordwise/
 ## Performance Optimization
 
 ### Next.js Optimizations
+
 - Automatic code splitting
 - Image optimization with Next.js Image component
 - Static generation where possible
@@ -467,6 +524,7 @@ wordwise/
 - Use dynamic imports for code splitting
 
 ### Firebase Optimizations
+
 - Implement proper Firestore indexing
 - Use Firebase caching strategies
 - Optimize real-time listeners
@@ -475,6 +533,7 @@ wordwise/
 - Implement proper pagination
 
 ### General Performance
+
 - Implement proper loading states
 - Use React.memo for component optimization
 - Implement proper error boundaries
@@ -484,18 +543,21 @@ wordwise/
 ## Monitoring & Analytics
 
 ### Firebase Analytics
+
 - Track user engagement and feature usage
 - Monitor application performance
 - Analyze user behavior patterns
 - Implement proper event tracking
 
 ### Error Tracking
+
 - Firebase Crashlytics for error monitoring
 - Custom error boundaries in React
 - Comprehensive logging strategy
 - Implement proper error reporting
 
 ### Performance Monitoring
+
 - Monitor Core Web Vitals
 - Track application performance
 - Monitor Firebase usage and costs
@@ -504,18 +566,21 @@ wordwise/
 ## Testing Strategy
 
 ### Unit Testing
+
 - Use Jest for unit testing
 - Implement proper mocking strategies
 - Test utility functions thoroughly
 - Implement proper test coverage
 
 ### Integration Testing
+
 - Test Firebase integration
 - Test authentication flows
 - Test database operations
 - Implement proper test data
 
 ### E2E Testing
+
 - Use Playwright for E2E testing
 - Test critical user flows
 - Implement proper test environments
@@ -524,18 +589,21 @@ wordwise/
 ## Future Considerations
 
 ### Phase 2 Enhancements
+
 - AI/ML integration for advanced writing suggestions
 - Enhanced collaboration features
 - Advanced export formats (LaTeX, PDF)
 - Template system for academic documents
 
 ### Scalability
+
 - Firestore automatic scaling
 - Firebase Functions for serverless backend
 - CDN optimization for global performance
 - Database optimization for large documents
 
 ### Advanced Features
+
 - Real-time collaboration
 - Advanced search capabilities
 - Integration with external services
@@ -544,12 +612,14 @@ wordwise/
 ## Compatibility Notes
 
 ### Browser Support
+
 - Modern browsers (Chrome, Firefox, Safari, Edge)
 - Progressive Web App capabilities
 - Offline functionality support
 - Mobile browser compatibility
 
 ### Development Environment
+
 - Primary: NixOS with Nix flakes
 - Secondary: Any system with Node.js and pnpm
 - Docker support for consistent deployment
@@ -566,6 +636,7 @@ wordwise/
 7. Configure local environment for emulator usage
 
 ### Emulator Setup
+
 ```bash
 # Start all emulators
 firebase emulators:start
@@ -581,6 +652,7 @@ firebase emulators:start --import ./emulator-data
 ```
 
 ### Common Commands
+
 ```bash
 # Development
 pnpm dev                    # Start development server
@@ -597,4 +669,4 @@ firebase login              # Login to Firebase
 firebase init               # Initialize Firebase project
 ```
 
-This tech stack provides a solid foundation for building a modern, scalable writing assistant application with excellent developer experience and robust production capabilities. 
+This tech stack provides a solid foundation for building a modern, scalable writing assistant application with excellent developer experience and robust production capabilities.

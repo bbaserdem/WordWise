@@ -1,4 +1,5 @@
 # Role of connectivity on the macroscopic behavior of neural networks
+
 The brain is one of the most complicated systems ever observed.
 Ever since it is established that the brain is responsible for thoughts and behaviors, it has been a major interest for many fields of science.
 Adopting a Physics perspective, the brain is a large collection of interacting atoms, which are the cells that make up the brain.
@@ -19,7 +20,9 @@ In this study, a large and densely populated section of the half hemibrain, whic
 Drosophila is estimated to have $135,000$~neurons across it's brain in total.~.
 In comparison, the human brain is estimated to have around $10^{8}$~neurons, and each neuron synapses on average with 7000 cells, which makes collecting connectivity information of each neuron a monumental task.
 Current research is ongoing with regards to understanding the full functionality of the nervous system and how the connectome generates the behavior.~
+
 ## Neuronal Function
+
 The computational unit of the brain is the neuron.
 The neuron is a highly specialized cell that is structured around receiving and broadcasting electro-chemical signals.
 The physiology of the neuron is specialized around its function and can be roughly divided into four parts.
@@ -42,7 +45,9 @@ If a neuron is sufficiently depolarized, the depolarization is maintained and tr
 This transmission of signal is called an action potential (AP) and is a fluctuation of around $100 mV$ from the cell membrane.
 While subthreshold fluctuations' amplitudes decay along the axonal axis, APs are maintained through an axon and propagate without decay.
 When AP reaches the synapse, the voltage difference leads to release of neurotransmitters on the presynaptic side, which bind to postsynaptic side and causes either depolarization (excitory) or hyperpolarization (inhibitory) on the postsynaptic neuron.
+
 ## Measuring Neurons
+
 Neurons constantly replenish and break down this chemical gradient to be able to generate APs.
 The depolarization and the recovery of the chemical gradient takes a few milliseconds.
 During this period, named absolute refractory period; sending of further APs is not possible.
@@ -56,7 +61,9 @@ These recordings can be taken in vivo (while subject is alive) to correlate beha
 In a neuronal network, the spikes are transmitted through different neurons by connections.
 Therefore, the activity of neurons are dependent on the activity of the others through the connectome.
 (Except neurons that are the first producer of signals, such as sensory neurons whose activity is dependent not only on other connected neurons, but also on the receptor activity due to various stimuli.)
+
 ## Measuring Connectome
+
 Measuring of connectivity of neural tissue has its challenges.
 Advances have been made in the ease of doing single cell tracing, such as Brainbow where each neuron is genetically edited to express randomly certain fluorescent proteins, coloring each neuron differently so that the images can be easily segmented.~
 Connectome measuring in neural tissue on single cell level resolution necessitates not only cell tracing, but also detection of synapses, which is a structure vastly smaller than it's surroundings.
@@ -64,24 +71,32 @@ The synaptic structures are roughly of the size of $1 m$.
 Comparably, the average axon and dendrite length per cortical neuron is around $40 mm$ and $4 mm$ respectively.
 Imaging of the neurons and finding points of sufficiently close contact (on the order of $m$) is not sufficient as the highly branching nature of dendrites and axons cause many points of close contact without synapses.
 High resolution methods are necessary to image such structures.
+
 ### Electron Microscopy
+
 One of the high-resolution imaging techniques that can resolve $m$ scale details is electron microscopy (EM).
 While methodology differs; the EM methods image thin slices.
 Each slice is imaged using EM, and the resulting images are stacked to produce 3D images.
 For connectome detection, the stack of images obtained need to be segmented into individual neurons and synapses need to be detected.
 Various methods to compliment EM imaging exist in segmentation and synapse detection.
 In the Drosophila connectome project, heavy metal staining are used to enhance contrast of cell membranes so that automated methods can segment and identify synapses with greater precision.~
+
 ### Sequencing
+
 While imaging is powerful, it has many caveats.
 EM imaging captures a lot of detail, and with that the data gathered is quite large.
 Such large amount of information necessitates automation to sift through them.
 While C elegans has been mapped without using automated techniques, it took a lot of manual tracing, effort and time to map out a network of 350 neurons.
 One of the advances in technology in Genomics have been the speed up and increased availability of sequencing techniques.
 Utilizing this technology, various techniques have been developed.~
+
 ## Modelling Neurons
+
 Extracting information from neural tissue about the connectome is vital into our understanding of how the brain processes information.
 Modelling the dynamics of neurons is of special interest.
+
 ### Dynamical Properties of Neurons
+
 Neurons propagate voltage spikes and transmit this information to other neurons.
 The time dependence of neuron output can be represented, on time scales where the internal dynamics of the individual spikes may be ignored, by a sum over Dirac $$ functions.
 <EQN HERE>
@@ -97,7 +112,9 @@ To generalize this procedure, the firing rate is approximated with the filter ke
 <EQN HERE>
 becomes the case where the kernel is a simple rectangular window from $0$ to $t$ and height $1/ t$.
 Depending on the kernel; firing rate of a neuron can be approximated either smoothly or more like the raw spike train.
+
 ### Firing Rate Network Model
+
 A simple model of a neuronal network is when the firing rate of neurons are taken as sufficient to explain the network dynamics.
 In this model, the output of neurons can be considered to be continuous.
 This simplifies the system and allows to model the network as a system of coupled differential equations.
@@ -119,11 +136,15 @@ The time dynamics are realized by considering either, or both, of the quantities
 For example, if the synaptic input responds to incoming spike rates with different time scale with respect to how firing rates respond to synaptic input, the system becomes a set of the following non-linear differential equations.
 <EQN HERE>
 These systems can be solved numerically to observe and predict neuronal activity.
+
 ## Artificial Neural Networks
+
 Besides the simulation of neuronal networks, connectivity information is important for artificial neural networks (ANNs).
 Inspired by the setup of neuronal tissue and how signals propagate through them, ANNs has been a breakthrough in large data processing.
 While ANNs are far from analogous with biological neural networks (BNNs), they are much easier to probe.
+
 ### Perceptron
+
 Perceptron model is the first step in adapting the mechanics of biological neurons to computer algorithms.
 Perceptron can be thought of as a simple computational unit analogous to a single neuron.
 The perceptron receives numbers as inputs; $x$.
@@ -132,7 +153,9 @@ The output of the perceptron is binary, analogous to the fire or not-fire behavi
 This property essentially makes the perceptron a binary classifier.
 The computation of the perceptron can be summarized as follows.
 <EQN HERE>
+
 ### Feedforward Neural Network (FFNN)
+
 The output of the perceptron is binary but is a transformation of inputs which are possible not-binary.
 If the output of the perceptron is needed to be continuous, such as the values of firing rate can be depending on the approximation scheme in real neurons, the output of the perceptron can be a function that approximates the step function.
 Take for instance the logistic sigmoid function.

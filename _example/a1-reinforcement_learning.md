@@ -1,7 +1,10 @@
 # Reinforcement Learning
+
 Reinforcement learning (RL) is the area of machine learning that deals with choice making of an agent in an environment.
 It is formulated as a decision making strategy to maximize the notion of a cumulative reward.
+
 ## Markov decision process
+
 Most RL environments are formulated as a collection of states.
 These states can transition on performing an action.
 Each action has set rules on how states transition to another one, and this transition can be stochastic or deterministic.
@@ -14,19 +17,21 @@ and some response from the environment about the goodness of the selected action
 This complete set is called a Markov decision process (MDP), and is the canonical way RL problems are formulated.
 Markov decision process can be constructed by the 4-tuple $(S, A, P, r)$;
 
- $S$ is the set of states an environment can be in.
+$S$ is the set of states an environment can be in.
 The environment can be in a state at a given time step.
 The state the environment is in at a time step $t$ is denoted with $s_t  S$.
- $A$ is the set of actions that can be taken in an environment.
+$A$ is the set of actions that can be taken in an environment.
 The action to be taken at time step $t$ is denoted with $a_t  A$.
- $P$ is the set of probabilities of the new states as a result of the actions.
+$P$ is the set of probabilities of the new states as a result of the actions.
 The function $P(s^{'}, s_{t}, a_{t})$ gives the probability that the environment will arrive to state $s_{t+1} = s'$ at $t+1$, if the environment at time $t$ was in the state $s_t$ and action $a_t$ was taken.
- $r$ is the set of rewards awarded for the environments state transitions.
+$r$ is the set of rewards awarded for the environments state transitions.
 The function $r(s_{t+1}, s_t, a_t)$ is the reward for transitioning to state $s_{t+1}$ from $s_{t}$, upon taking the action $a$ at time $t$.
 This reward received after the action taken at time step $t$ is denoted as $r_{t+1}$.
 
 This 4-tuple describes the environment, choices that can be taken to manipulate the environment and the feedback from the environment.
+
 ## Policy
+
 For RL, we want an agent to manipulate the environment by selecting actions.
 We want an agent taking actions for some duration, for some number of discrete time steps $T$.
 The agent can pick a sequence of actions $a = (a_1, a_2, ..., a_T)$.
@@ -49,7 +54,9 @@ To account for this, usually a discount rate $$ is included to limit contributio
 The discount rate is a number between 0 and 1. ($( 0 , 1 ]$)
 When $= 1$, this is equivalent to the case with no discount.]
 Considering the case when the reward is a constant ($r_t = 1$), this is anal to tempering the return from an infinite sum to $1{1 - }$ so can roughly be thought of truncating the time window of future path calculation to $~1{1 - }$ steps.
+
 ## State-Value function
+
 For a given policy $$, each starting state induces an action sequence, and an associated expected cumulative reward.
 This induces a notion of value of a state $s$ within that given policy.
 The value function $V_{}(s)$ is the cumulative reward through all future if the environment starts from the state $s$ and utilizes policy $$.
@@ -59,7 +66,9 @@ With this formulation, an optimal agent has an associated state-value function $
 The optimal policy would choose to select an action to maximize future discounted cumulative reward, or the $V$ value of the next time step.
 <EQN HERE>
 Thus knowing the correct state-value function for an optimal policy is the same as knowing the optimal policy itself.
+
 ## Action-Value function
+
 The previous idea can be expanded to consider the value for choosing an action from a given state.
 An action-value pair then have a value for the expected (discounted) cumulative reward, and is denoted as $Q$.
 <EQN HERE>
@@ -69,14 +78,18 @@ The benefit of considering an action-value function over a state-value function 
 The action selection for the policy of optimal state-value function requires an agent to know $P(s', s, a)$.
 Action-value function does not have this requirement, the model of the environment is built in.
 This comes with the trade-off of having a higher dimensional domain; $A  S$ as opposed to the $S$ of the state-value function.
+
 ## Learning of policy
+
 Given an MDP system, the goal for RL is to figure out the optimal policy.
 While this can be calculated if all paths the environment can evolve to is known, this information is often not available.
 The agent may not have access to the full environment state, or the above summations of different possible paths through the state space can be computationally challenging, or infinite.
 Since an optimal policy is implied with the corresponding state-value or action-value function; estimating and improving the estimates of these functions can yield a policy that is close to the optimal one.
 There are many different strategies to estimate value functions.
 The main method used in this work is Q-learning, but it is not the only method to do policy learning in RL environments.
+
 ### Q-Learning
+
 In Q-Learning, the learning goal is to improve the estimate of the optimal action-value function $Q$.
 Starting from an agent with some estimate of the action-value function ($Q$) that differs from the actual optimal action-value function $Q^*$.
 While the actual Q-value of the state is not known, it will satisfy .
@@ -95,7 +108,9 @@ This is called on-policy learning.
 In the case where on-policy learning converges on a non-optimal policy, state-action pairs corresponding to paths unvisited by the sub-optimal $Q$ are not updated on-policy.
 A simple way to ensure off-policy path exploration is to allow agent to randomly pick an action randomly.
 In this work, we use $$ override, a chance for a learning agent to act randomly off-policy instead of taking action according to the $Q$ estimate.
+
 ## Example RL system
+
 demonstrates the learned Q and V values for an example navigation task.
 In this task, the environment is a $44$ maze, and the agent is moving cardinally through the maze to reach the end block.
 The task is formulated such that the agent tries to navigate to the green block while avoiding the red block.

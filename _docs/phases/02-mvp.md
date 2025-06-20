@@ -1,9 +1,11 @@
 # Phase 2: MVP - Core Writing Assistant
 
 ## Overview
+
 This phase transforms the basic setup into a functional writing assistant that delivers the core value proposition. The MVP focuses on real-time grammar and spell checking, enhanced writing experience, and polished user interface. Users can now effectively write academic documents with intelligent assistance.
 
 ## Phase Goals
+
 - Implement real-time grammar and spell checking
 - Create comprehensive suggestion system with visual feedback
 - Enhance writing editor with distraction-free experience
@@ -11,6 +13,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Polish user interface and user experience
 
 ## Deliverables
+
 - ✅ Real-time grammar and spell checking system
 - ✅ Visual suggestion system with color-coded feedback
 - ✅ Enhanced writing editor with distraction-free mode
@@ -21,9 +24,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 ## Features & Tasks
 
 ### 1. Real-Time Grammar & Spell Checking
+
 **Goal**: Implement comprehensive writing assistance with real-time feedback
 
 **Tasks**:
+
 1. Integrate grammar checking service (LanguageTool or similar)
 2. Implement spell checking with custom dictionary
 3. Create real-time text analysis and suggestion generation
@@ -31,6 +36,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Implement suggestion confidence scoring
 
 **Acceptance Criteria**:
+
 - Grammar errors are detected in real-time
 - Spelling errors are highlighted immediately
 - Suggestions are categorized correctly
@@ -38,9 +44,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Performance is acceptable (under 500ms response time)
 
 ### 2. Visual Suggestion System
+
 **Goal**: Create intuitive visual feedback for writing suggestions
 
 **Tasks**:
+
 1. Implement color-coded underlines and highlights
 2. Create suggestion tooltips with detailed explanations
 3. Add suggestion icons for different types
@@ -48,6 +56,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Create suggestion action buttons (accept/ignore)
 
 **Acceptance Criteria**:
+
 - Spelling errors show red underlines
 - Grammar errors show blue highlights
 - Style suggestions show green highlights
@@ -55,9 +64,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 - One-click accept/ignore actions work
 
 ### 3. Enhanced Writing Editor
+
 **Goal**: Create a distraction-free, professional writing experience
 
 **Tasks**:
+
 1. Implement distraction-free writing mode
 2. Add typography-focused content area
 3. Create writing statistics panel (word count, readability)
@@ -65,6 +76,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Add writing progress indicators
 
 **Acceptance Criteria**:
+
 - Distraction-free mode hides non-essential UI
 - Typography is optimized for long-form writing
 - Statistics update in real-time
@@ -72,9 +84,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Progress indicators show writing milestones
 
 ### 4. Suggestion Sidebar
+
 **Goal**: Provide comprehensive overview and management of all suggestions
 
 **Tasks**:
+
 1. Create collapsible suggestion sidebar
 2. Implement suggestion categorization and filtering
 3. Add bulk action functionality (accept all, ignore all)
@@ -82,6 +96,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Add suggestion statistics and summary
 
 **Acceptance Criteria**:
+
 - Sidebar shows all current suggestions
 - Suggestions are categorized by type
 - Bulk actions work for each category
@@ -89,9 +104,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Statistics show suggestion counts and types
 
 ### 5. Enhanced Project Management
+
 **Goal**: Improve project and document organization and workflow
 
 **Tasks**:
+
 1. Add project templates and presets
 2. Implement document versioning and history
 3. Create project statistics and analytics
@@ -99,6 +116,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Implement project sharing and collaboration features
 
 **Acceptance Criteria**:
+
 - Project templates are available for common types
 - Version history shows document evolution
 - Statistics track writing progress
@@ -106,9 +124,11 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Basic collaboration features function
 
 ### 6. Polished User Interface
+
 **Goal**: Create professional, responsive interface following design system
 
 **Tasks**:
+
 1. Implement complete design system with theme tokens
 2. Add responsive design for all screen sizes
 3. Create smooth animations and transitions
@@ -116,6 +136,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 5. Add accessibility features and keyboard navigation
 
 **Acceptance Criteria**:
+
 - Design system is consistently applied
 - Interface works perfectly on mobile and desktop
 - Animations are smooth and purposeful
@@ -125,6 +146,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 ## Technical Implementation
 
 ### Core Dependencies
+
 ```json
 {
   "dependencies": {
@@ -140,6 +162,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 ```
 
 ### Key Components to Create
+
 - `components/editor/text-editor.tsx` - Enhanced text editor
 - `components/editor/suggestion-panel.tsx` - Suggestion sidebar
 - `components/editor/suggestion-item.tsx` - Individual suggestion
@@ -150,6 +173,7 @@ This phase transforms the basic setup into a functional writing assistant that d
 - `hooks/use-suggestions.ts` - Suggestion management hook
 
 ### Enhanced Database Schema
+
 ```typescript
 // Enhanced Document interface
 interface Document {
@@ -197,6 +221,7 @@ interface DocumentVersion {
 ```
 
 ### API Endpoints
+
 ```typescript
 // Grammar checking endpoint
 POST /api/suggestions/check
@@ -218,29 +243,35 @@ GET /api/documents/:id/export?format=docx|latex
 ## Testing Strategy
 
 ### Test Data Utilization
+
 The MVP phase will extensively test all features using the markdown test files from the `_example` directory:
 
 **Grammar and Spell Checking Tests**:
+
 - Test with `0-intro.md` and `1-connclone.md` for academic writing patterns
 - Verify suggestion accuracy with complex scientific terminology
 - Test edge cases with mathematical notation and citations
 
 **Suggestion System Tests**:
+
 - Use `2-mapseq.md` and `3-odor_navigation.md` for diverse content testing
 - Test suggestion categorization with different writing styles
 - Verify confidence scoring with various error types
 
 **Editor Performance Tests**:
+
 - Load large documents like `2-mapseq.md` (33KB) to test performance
 - Test real-time checking with `a1-reinforcement_learning.md` and `a2-neural_networks.md`
 - Verify auto-save functionality with complex formatting
 
 **Export Functionality Tests**:
+
 - Test DOCX export with all markdown files
 - Verify LaTeX export preserves academic formatting
 - Test with documents containing equations and special characters
 
 ### Test Scenarios
+
 1. **Academic Writing Flow**: Import test documents and verify grammar checking works
 2. **Suggestion Management**: Test accept/ignore functionality with real content
 3. **Performance Testing**: Load large documents and measure response times
@@ -248,12 +279,14 @@ The MVP phase will extensively test all features using the markdown test files f
 5. **Edge Case Testing**: Test with documents containing special characters and formatting
 
 ### Quality Assurance
+
 - All features tested with realistic academic content
 - Performance benchmarks established using test data
 - User experience validated with actual writing scenarios
 - Accessibility testing with screen readers and keyboard navigation
 
 ## Success Metrics
+
 - ✅ Real-time grammar checking works with <500ms response time
 - ✅ Visual suggestion system is intuitive and responsive
 - ✅ Writing editor provides distraction-free experience
@@ -262,6 +295,7 @@ The MVP phase will extensively test all features using the markdown test files f
 - ✅ UI is polished and follows design system consistently
 
 ## Risk Mitigation
+
 - **Grammar Service**: Implement fallback to basic checking if service fails
 - **Performance**: Use debouncing and caching for real-time checking
 - **Data Loss**: Ensure suggestions are saved with documents
@@ -269,6 +303,7 @@ The MVP phase will extensively test all features using the markdown test files f
 - **Accessibility**: Conduct accessibility audit and testing
 
 ## Definition of Done
+
 - All acceptance criteria are met
 - Grammar and spell checking work reliably
 - Visual feedback system is intuitive
@@ -278,9 +313,11 @@ The MVP phase will extensively test all features using the markdown test files f
 - Accessibility requirements are met
 
 ## Next Phase Preparation
+
 This phase establishes the core writing assistant functionality for Phase 3 (Enhanced), which will add:
+
 - AI-powered writing suggestions and improvements
 - Advanced collaboration features
 - Enhanced export and formatting options
 - Advanced analytics and insights
-- Template system for academic documents 
+- Template system for academic documents

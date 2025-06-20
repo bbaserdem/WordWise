@@ -1,6 +1,9 @@
 # Neural Networks
+
 This section is a review of artificial neural networks (ANN) and technical details as it relates to this work.
+
 ## Feed-forward Neural Networks
+
 A feed-forward neural network (FFNN) is a parametric function that transforms vectors $i  o$ non-linearly in an organized fashion.
 The inspiration for the organization is introduced in .
 For a number $N$ of hidden layers $h^i$, FFNN is the repeated linear transformation coupled with a non-linear activation functions.
@@ -8,42 +11,44 @@ For a number $N$ of hidden layers $h^i$, FFNN is the repeated linear transformat
 (Einstein notation of implied summation over repeated indices when they appear only on one side of equalities is used throughout this section when applicable.)
 The set of parameters of this function, $( ^i, ^i )$ are called weights, $$ sometimes also referred to as bias.
 This structure defines a computational graph that transforms inputs sequentially into the activation of the hidden layers $h^i$, and then to the output $o$.
+
 ## Terminology
+
 A list of terms, symbols used to denote them, and explanation is as follows.
 {}{ l | X }
 \\
- Notation   &  Definition \\
+Notation & Definition \\
 
- Notation   &  Definition \\
+Notation & Definition \\
 
-
-$N$                 & Number of hidden layers                               \\
-$i$           & Input vector to neural network                        \\
-${h}^n$ & Input vector to the n'th hidden layer                 \\
-$h^n$         & Vector of activation of the n'th hidden layer         \\
-$f^n$               & Activation function for the n'th hidden layer         \\
-$f'^{n}$            & Derivative of activation function                     \\
-$^n$          & Weight matrix used to calculate the n'th hidden layer \\
-$^n$     & Bias vector used to calculate the n'th hidden layer   \\
-${o}$   & Vector of the input to the output layer               \\
-$o$           & Vector of activation of the output layer              \\
-$f^{N+1}$           & Activation function for the output layer              \\
-$^{N+1}$      & Weight matrix used to calculate the output layer      \\
-$^{N+1}$ & Bias vector used to calculate the output layer        \\
-$F$                 & The neural network (function from input to output)    \\
-$X$                 & Set of input vectors                                  \\
-$Y$                 & Set of desired outputs of the input vectors           \\
-$x^a$         & a'th input vector belonging to $X$                    \\
-$y^a$         & Desired output vector of $x^a$                  \\
-$h^{a,n}$     & Activation vector of the n'th hidden layer when the input is $x^a$ \\
-$C$        & Cost function of network, $X$ and $Y$                 \\
-$o$    & Gradient of cost wrt. input to output                 \\
-$h^n$  & Gradient of cost wrt. input to n'th hidden layer      \\
-$i$    & Gradient of cost wrt. input vector                    \\
-$^n$   & Gradient of cost wrt. n'th weight matrix              \\
-$^n$    & Gradient of cost wrt. n'th bias vector
+$N$ & Number of hidden layers \\
+$i$ & Input vector to neural network \\
+${h}^n$ & Input vector to the n'th hidden layer \\
+$h^n$ & Vector of activation of the n'th hidden layer \\
+$f^n$ & Activation function for the n'th hidden layer \\
+$f'^{n}$ & Derivative of activation function \\
+$^n$ & Weight matrix used to calculate the n'th hidden layer \\
+$^n$ & Bias vector used to calculate the n'th hidden layer \\
+${o}$ & Vector of the input to the output layer \\
+$o$ & Vector of activation of the output layer \\
+$f^{N+1}$ & Activation function for the output layer \\
+$^{N+1}$ & Weight matrix used to calculate the output layer \\
+$^{N+1}$ & Bias vector used to calculate the output layer \\
+$F$ & The neural network (function from input to output) \\
+$X$ & Set of input vectors \\
+$Y$ & Set of desired outputs of the input vectors \\
+$x^a$ & a'th input vector belonging to $X$ \\
+$y^a$ & Desired output vector of $x^a$ \\
+$h^{a,n}$ & Activation vector of the n'th hidden layer when the input is $x^a$ \\
+$C$ & Cost function of network, $X$ and $Y$ \\
+$o$ & Gradient of cost wrt. input to output \\
+$h^n$ & Gradient of cost wrt. input to n'th hidden layer \\
+$i$ & Gradient of cost wrt. input vector \\
+$^n$ & Gradient of cost wrt. n'th weight matrix \\
+$^n$ & Gradient of cost wrt. n'th bias vector
 
 ## Backpropagation
+
 The input-output relation of the FFNN is dependent on the network weights.
 A choice of weights that gives a desired input-output pairing is usually of interest.
 A set of inputs $X = \{ x \}$ and matching outputs $Y = \{ y \}$ is denoted as the binary relation $( x^a, y^a )$.
@@ -73,7 +78,9 @@ This is the goal of supervised learning; given a labelled dataset (like $X$ with
 These methods are a combination of iterative weight update rules derived from the weight gradients, and manipulating the dataset used to do each iteration.
 Many algorithms exist, but an overview of all the methods are out of scope for this text.
 The following sections outline and explain the methods used in this work to perform the supervised learning tasks.
+
 ## Gradient Descent
+
 Gradient descent is the simplest algorithm for iterative weight updates.
 The formulation comes from the definition of gradient.
 The value of a differentiable function $f$ at a point $x$ increases fastest along the direction of it's gradient $$,
@@ -91,8 +98,10 @@ The simple gradient descent can eventually find a local minimum of $C$.
 In practice, this might take a long time to converge, or may not converge due to reasons.
 Many algorithms to use gradients for weight updates exist, and throughout this work, the Adam algorithm is used.
 Adam algorithm is a name derived from Adaptive Moment Estimation, and is built upon two other gradient descent algorithms.
+
 ### Momentum
-One failure mode of  is when the gradients are small, it takes many iterations to reach towards a local minima.
+
+One failure mode of is when the gradients are small, it takes many iterations to reach towards a local minima.
 Gradient may be vanishingly small near an extrema.
 A way to mitigate this is to update the weights by an intermediary momentum term $m_t$ instead of the gradient, and allow gradients to update this momentum term.
 <EQN HERE>
@@ -102,8 +111,10 @@ Momentum here is used as a term, borrowing from an analogy of a boulder rolling 
 A rolling boulder does not move just with the speed proportional to the gradient of the height map.
 It has built speed after it starts tumbling, and even upon reaching a low level slope it keeps going because of momentum buildup.
 Here, $_1  (0,1]$ is a new hyperparameter of the system, like learning rate $$, and referred to in this work as the momentum term.
+
 ### Root Mean Square Propagation
-Another failure mode of  is when the gradients vary a lot in between iterations.
+
+Another failure mode of is when the gradients vary a lot in between iterations.
 Usually this happens when iterations are done on different subsets of data.
 A way to mitigate this is to modulate each weight update such they are more similar in magnitude.
 Root mean square propagation (RMSprop) is a technique where the parameter updates are scaled with a moving exponential average of the magnitudes of past updates.
@@ -112,14 +123,18 @@ Root mean square propagation (RMSprop) is a technique where the parameter update
 Here, $_2  (0,1]$ is a new hyperparameter of the system, called the moving average parameter.
 In this work, it is also referenced as the inertia term, to parallel the naming of the momentum term.
 The $$ term is a hyperparameter to ensure that there is no division by 0; and is usually just a very small number.
+
 ### Adam Optimizer
+
 Combining momentum and RMSprop algorithm along with the initial values $m_0 = 0$ and $v_0 = 0$, we get the main steps of the Adam algorithm.
 Both $m$ and $v$ start off from 0 and slowly reach their values over iterations, which empirically slowls down learning in the initial iterations.
 Adam also proposes a correction of the decay rates with a factor of $1 / (1 - ^{t})$ to bypass this delay in learning.
 The update rules to parameters using Adam is as follows.
 <EQN HERE>
 This algorithm is the one used to do weight updates for all neural networks used in this work.
+
 ## Recurrent Neural Networks
+
 FFNN are widely used, but they can only apply on one input at a time.
 Certain models of problems involve processing sequence of inputs, and the output may depend on the order of the input sequence, and the length of the sequence may be arbitrary.
 To process sequences of inputs, recurrent neural networks (RNNs) can be used.
@@ -131,18 +146,22 @@ can be modified to describe a RNN that takes a sequence of inputs $i_t$ (where $
 This network is modelled to output at every input in the sequence, but other structures can be modelled.
 Activation of the hidden layers not only depend on the activation of the inferior hidden layer on the computational diagram, but also the activation of the same hidden layer on the previous calculation of the sequence.
 This links the computations on a discrete time axis; hidden layer activations are dependent not only on the current input, but on the history of all the inputs processed in the network sequence.
+
 ### Backpropagation Through Time
+
 The backpropagation algorithm cannot be used as is on RNNs and need to be modified for the new terms in the hidden layer inputs.
 For the form of the RNN described, the cost function needs to be a function on the sequences of inputs and outputs.
 For a sequence of $T$ inputs, traversing the computational graph top to bottom, then from end to beginning of the sequence, cost gradients can be calculated in the same manner.
-While mostly unchanged,  needs to be modified to take account of the new terms.
+While mostly unchanged, needs to be modified to take account of the new terms.
 (The dataset index $a$ is dropped for brevity, but is implied in the case of multiple input-output sequences within the labeled dataset.)
 <EQN HERE>
 $$ is used to denote element-wise multiplication of vectors; $(a  b)_ = a_ b_$
 The formulation for the gradients are mostly unchanged, but now include contributions from each sequence step.
 By partial differentiation rules, each sequence step contribution is added to get the full gradient.
 <EQN HERE>
+
 ## Using ANN for Reinforcement Learning
+
 So far, ANNs are discussed in terms of supervised learning; weight updates to reduce a cost function.
 RL tasks don't have an associated cost function, so there is no gradient to backpropagate.
 So an appropriate cost function needs to be formulated to optimize RL tasks using ANNs as value function approximations.
@@ -157,16 +176,18 @@ The environment state $s_t$ is used as the input vector $i_t$ to the ANN.
 In this work, identity is used as the output activation function.
 Since the derivative of the identity function ($f^{N+1}(x) = x$) is trivial, this implies that $o_t$ is immediately equivalent to the gradient of the cost function with respect to the Q-function estimate at the $t$'th RL step.
 We note that the cost function is not yet formulated, however if $o_t$ is known, the unknown cost function can still be reduced.
-The iterative Bellman equation of  can be rearranged to resemble the simple gradient descent update .
+The iterative Bellman equation of can be rearranged to resemble the simple gradient descent update .
 <EQN HERE>
 Then for an agent doing an RL task equipped with an ANN to do Q-function estimation, after navigating a sequence of states by taking a sequence of actions; we can define the following output gradient that will correspond to some cost function.
 <EQN HERE>
 Doing gradient descent using this set of $o_t$ is equivalent to updating the Q-function estimate using the Bellman equation.
 Since the gradient term for the $t$'th time step involves network output from the $t+1$'th time step; the empirical form of $C$ is not separable between RL steps, and requires the entire sequence.
 <EQN HERE>
-However the empirical form is not necessary; only the equivalence of choosing $C$ with the property given in  and RL optimization is required.
+However the empirical form is not necessary; only the equivalence of choosing $C$ with the property given in and RL optimization is required.
 For RL tasks using ANN for functional approximation given the paradigm described this section, weight gradient can be calculated using backpropagation (and BPTT) by utilizing .
+
 ## Activation functions
+
 If not for the non-linear activation functions $f^n$, the neural network becomes equivalent to a single linear transformation.
 Non-linearity of the activation function accounts for the non-linear nature of ANN.
 Several commonly used activation functions exist, and several are listed in .

@@ -1,23 +1,27 @@
 # Project Rules & Development Standards
 
 ## Overview
+
 This document defines the project structure, file organization, naming conventions, and development standards for WordWise. These rules ensure the codebase is modular, scalable, AI-friendly, and easy to understand for both human developers and AI tools.
 
 ## AI-First Development Principles
 
 ### Code Organization
+
 - **Modular Architecture**: Each file has a single, clear responsibility
 - **Scalable Structure**: Easy to add new features without breaking existing code
 - **AI-Friendly**: Clear naming, comprehensive documentation, and logical organization
 - **Human-Readable**: Self-documenting code with descriptive names and comments
 
 ### File Size Limits
+
 - **Maximum 500 lines per file**: Ensures files remain manageable and AI-friendly
 - **Split large components**: Break down complex components into smaller, focused files
 - **Extract utilities**: Move reusable logic to dedicated utility files
 - **Separate concerns**: Keep different types of logic in separate files
 
 ### Documentation Standards
+
 - **File Headers**: Every file must have a descriptive header explaining its purpose
 - **Function Documentation**: All functions must have JSDoc/TSDoc comments
 - **Component Documentation**: React components must document props and usage
@@ -26,6 +30,7 @@ This document defines the project structure, file organization, naming conventio
 ## Directory Structure
 
 ### Root Level
+
 ```
 wordwise/
 ├── app/                    # Next.js App Router pages and layouts
@@ -47,6 +52,7 @@ wordwise/
 ```
 
 ### App Directory (Next.js App Router)
+
 ```
 app/
 ├── (auth)/                 # Authentication route group
@@ -108,6 +114,7 @@ app/
 ```
 
 ### Components Directory
+
 ```
 components/
 ├── ui/                     # Basic UI components
@@ -155,6 +162,7 @@ components/
 ```
 
 ### Lib Directory
+
 ```
 lib/
 ├── firebase/               # Firebase configuration and utilities
@@ -192,6 +200,7 @@ lib/
 ```
 
 ### Types Directory
+
 ```
 types/
 ├── auth.ts                 # Authentication types
@@ -207,12 +216,14 @@ types/
 ## File Naming Conventions
 
 ### General Rules
+
 - **kebab-case**: Use kebab-case for all file and directory names
 - **Descriptive Names**: Names should clearly indicate the file's purpose
 - **Consistent Suffixes**: Use consistent file extensions and suffixes
 - **Group Related Files**: Keep related files together in the same directory
 
 ### Component Files
+
 ```
 ComponentName/
 ├── index.tsx               # Main component export
@@ -223,6 +234,7 @@ ComponentName/
 ```
 
 ### Page Files (Next.js)
+
 ```
 page.tsx                    # Main page component
 loading.tsx                 # Loading state
@@ -232,6 +244,7 @@ layout.tsx                  # Layout component
 ```
 
 ### Utility Files
+
 ```
 utility-name.ts             # TypeScript utility
 utility-name.js             # JavaScript utility
@@ -240,6 +253,7 @@ utility-name.d.ts           # Type definitions
 ```
 
 ### Configuration Files
+
 ```
 config-name.config.ts       # TypeScript configuration
 config-name.config.js       # JavaScript configuration
@@ -249,17 +263,18 @@ config-name.json            # JSON configuration
 ## Code Documentation Standards
 
 ### File Headers
+
 Every file must begin with a descriptive header:
 
 ```typescript
 /**
  * @fileoverview Component for displaying writing suggestions in the editor sidebar.
- * 
+ *
  * This component renders a list of writing suggestions with different categories
  * (spelling, grammar, style, AI recommendations) and provides actions to accept
  * or ignore each suggestion. It integrates with the suggestion system to provide
  * real-time feedback to users during their writing process.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -270,32 +285,33 @@ import React from 'react';
 ```
 
 ### Function Documentation (JSDoc/TSDoc)
+
 All functions must be documented with comprehensive JSDoc comments:
 
-```typescript
+````typescript
 /**
  * Processes writing suggestions and categorizes them by type.
- * 
+ *
  * This function takes raw suggestion data from the grammar checking service
  * and processes it into a structured format that can be displayed in the UI.
  * It categorizes suggestions by type (spelling, grammar, style, AI) and
  * applies appropriate styling and priority levels.
- * 
+ *
  * @param rawSuggestions - Array of raw suggestion objects from the API
  * @param documentText - The current document text for context
  * @param userPreferences - User's writing preferences and settings
  * @returns Processed suggestions organized by category with metadata
- * 
+ *
  * @example
  * ```typescript
  * const processed = processSuggestions(rawData, documentText, preferences);
  * console.log(processed.spelling); // Array of spelling suggestions
  * console.log(processed.grammar);  // Array of grammar suggestions
  * ```
- * 
+ *
  * @throws {ValidationError} When suggestion data is malformed
  * @throws {ProcessingError} When document text cannot be parsed
- * 
+ *
  * @since 1.0.0
  * @author WordWise Team
  */
@@ -306,20 +322,21 @@ function processSuggestions(
 ): ProcessedSuggestions {
   // Implementation...
 }
-```
+````
 
 ### Component Documentation
+
 React components must document props and usage:
 
-```typescript
+````typescript
 /**
  * SuggestionPanel component for displaying writing suggestions.
- * 
+ *
  * This component renders a sidebar panel that shows categorized writing
  * suggestions to the user. It provides interactive elements to accept
  * or ignore suggestions, and displays statistics about the document's
  * writing quality.
- * 
+ *
  * @component
  * @example
  * ```tsx
@@ -349,23 +366,24 @@ export function SuggestionPanel({
   onAccept,
   onIgnore,
   isLoading,
-  className
+  className,
 }: SuggestionPanelProps) {
   // Component implementation...
 }
-```
+````
 
 ### Type Documentation
+
 TypeScript types and interfaces must be documented:
 
 ```typescript
 /**
  * Represents a processed writing suggestion with metadata.
- * 
+ *
  * This type defines the structure of a suggestion after it has been
  * processed and categorized. It includes all necessary information
  * for display and interaction in the UI.
- * 
+ *
  * @since 1.0.0
  */
 interface ProcessedSuggestion {
@@ -396,6 +414,7 @@ interface ProcessedSuggestion {
 ## Code Organization Rules
 
 ### Import Organization
+
 Organize imports in the following order:
 
 ```typescript
@@ -423,6 +442,7 @@ import styles from './suggestion-panel.module.css';
 ```
 
 ### Export Organization
+
 Organize exports consistently:
 
 ```typescript
@@ -441,6 +461,7 @@ export { processSuggestions } from './utils';
 ```
 
 ### Function Organization
+
 Organize functions within files:
 
 ```typescript
@@ -463,17 +484,17 @@ function utilityFunction() {
 export function Component({ ... }: ComponentProps) {
   // 4a. Hooks
   const [state, setState] = useState();
-  
+
   // 4b. Event handlers
   const handleClick = () => {
     // ...
   };
-  
+
   // 4c. Effects
   useEffect(() => {
     // ...
   }, []);
-  
+
   // 4d. Render
   return (
     // ...
@@ -484,6 +505,7 @@ export function Component({ ... }: ComponentProps) {
 ## Testing Standards
 
 ### Test File Organization
+
 ```
 ComponentName/
 ├── component-name.test.tsx     # Unit tests
@@ -493,13 +515,14 @@ ComponentName/
 ```
 
 ### Test Documentation
+
 ```typescript
 /**
  * @fileoverview Unit tests for SuggestionPanel component.
- * 
+ *
  * Tests cover rendering, user interactions, accessibility,
  * and integration with the suggestion system.
- * 
+ *
  * @jest-environment jsdom
  */
 
@@ -510,7 +533,7 @@ describe('SuggestionPanel', () => {
   it('renders suggestions when provided', () => {
     // Test implementation...
   });
-  
+
   /**
    * Test that the component handles empty state correctly.
    */
@@ -523,16 +546,19 @@ describe('SuggestionPanel', () => {
 ## Performance Standards
 
 ### Code Splitting
+
 - Use dynamic imports for large components
 - Implement route-based code splitting
 - Lazy load non-critical features
 
 ### Bundle Optimization
+
 - Keep bundle size under 250KB for initial load
 - Use tree shaking for unused code elimination
 - Optimize images and assets
 
 ### Memory Management
+
 - Clean up event listeners and subscriptions
 - Use React.memo for expensive components
 - Implement proper cleanup in useEffect
@@ -540,16 +566,19 @@ describe('SuggestionPanel', () => {
 ## Accessibility Standards
 
 ### Semantic HTML
+
 - Use proper HTML elements for their intended purpose
 - Implement ARIA labels and roles
 - Ensure keyboard navigation works
 
 ### Screen Reader Support
+
 - Provide descriptive alt text for images
 - Use proper heading hierarchy
 - Implement live regions for dynamic content
 
 ### Color and Contrast
+
 - Maintain WCAG AA contrast ratios
 - Don't rely solely on color for information
 - Support high contrast mode
@@ -557,16 +586,19 @@ describe('SuggestionPanel', () => {
 ## Security Standards
 
 ### Input Validation
+
 - Validate all user inputs
 - Sanitize data before rendering
 - Use TypeScript for type safety
 
 ### Authentication
+
 - Implement proper session management
 - Use secure authentication methods
 - Protect sensitive routes
 
 ### Data Protection
+
 - Encrypt sensitive data
 - Implement proper CORS policies
 - Use HTTPS in production
@@ -574,7 +606,9 @@ describe('SuggestionPanel', () => {
 ## Version Control Standards
 
 ### Commit Messages
+
 Use conventional commit format:
+
 ```
 type(scope): description
 
@@ -584,6 +618,7 @@ type(scope): description
 ```
 
 Examples:
+
 ```
 feat(editor): add real-time grammar checking
 fix(auth): resolve login redirect issue
@@ -592,15 +627,17 @@ test(components): add unit tests for SuggestionPanel
 ```
 
 ### Branch Naming
+
 - `feature/feature-name` for new features
 - `fix/bug-description` for bug fixes
 - `docs/documentation-update` for documentation
 - `refactor/component-name` for refactoring
 
 ### Pull Request Standards
+
 - Include comprehensive description
 - Add screenshots for UI changes
 - Ensure all tests pass
 - Request code review from team members
 
-This document ensures that the WordWise codebase remains organized, maintainable, and AI-friendly while following industry best practices for modern web development. 
+This document ensures that the WordWise codebase remains organized, maintainable, and AI-friendly while following industry best practices for modern web development.
