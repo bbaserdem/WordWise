@@ -1,10 +1,10 @@
 /**
  * @fileoverview Reusable Button component for the WordWise application.
- * 
+ *
  * This component provides a consistent button interface with multiple
  * variants, sizes, and states. It follows the design system and
  * includes proper accessibility features.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils/cn';
 
 /**
  * Button variant styles using class-variance-authority.
- * 
+ *
  * @since 1.0.0
  */
 const buttonVariants = cva(
@@ -26,8 +26,10 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary-600 text-white hover:bg-primary-700',
         destructive: 'bg-accent-error text-white hover:bg-red-600',
-        outline: 'border border-primary-200 bg-background-primary hover:bg-background-secondary hover:text-text-primary',
-        secondary: 'bg-background-secondary text-text-primary border border-primary-200 hover:bg-background-tertiary',
+        outline:
+          'border border-primary-200 bg-background-primary hover:bg-background-secondary hover:text-text-primary',
+        secondary:
+          'bg-background-secondary text-text-primary border border-primary-200 hover:bg-background-tertiary',
         ghost: 'hover:bg-background-secondary hover:text-text-primary',
         link: 'text-primary-600 underline-offset-4 hover:underline',
       },
@@ -47,7 +49,7 @@ const buttonVariants = cva(
 
 /**
  * Button component props interface.
- * 
+ *
  * @since 1.0.0
  */
 export interface ButtonProps
@@ -61,11 +63,11 @@ export interface ButtonProps
 
 /**
  * Button component with variants and loading states.
- * 
+ *
  * This component provides a consistent button interface with multiple
  * visual variants, sizes, and states including loading and disabled states.
  * It follows accessibility best practices and integrates with the design system.
- * 
+ *
  * @param variant - Visual variant of the button
  * @param size - Size variant of the button
  * @param isLoading - Whether the button is in a loading state
@@ -77,14 +79,14 @@ export interface ButtonProps
  * @param props - Additional button props
  * @param ref - Forwarded ref
  * @returns Button component
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="primary" size="lg" isLoading>
  *   Save Document
  * </Button>
  * ```
- * 
+ *
  * @since 1.0.0
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -144,4 +146,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-Button.displayName = 'Button'; 
+Button.displayName = 'Button';

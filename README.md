@@ -7,6 +7,7 @@ WordWise is a modern, distraction-free writing assistant designed specifically f
 ## 🎯 Project Overview
 
 ### Phase 1: Core Grammarly Clone
+
 - Real-time grammar and spell checking
 - Basic style suggestions and readability analysis
 - Clean, responsive text editor interface
@@ -14,6 +15,7 @@ WordWise is a modern, distraction-free writing assistant designed specifically f
 - Document versioning and export capabilities
 
 ### Phase 2: AI Enhancement
+
 - Context-aware suggestions powered by large language models
 - Personalized writing recommendations based on user goals
 - Advanced style analysis beyond rule-based corrections
@@ -23,18 +25,21 @@ WordWise is a modern, distraction-free writing assistant designed specifically f
 ## 🚀 Tech Stack
 
 ### Frontend
+
 - **Next.js 14** with App Router
 - **React 18** with TypeScript
 - **Tailwind CSS** for styling
 - **Framer Motion** for animations
 
 ### Backend & Services
+
 - **Firebase Auth** for authentication
 - **Firestore** for real-time database
 - **Firebase Hosting** for deployment
 - **Firebase Emulator Suite** for local development
 
 ### Development Environment
+
 - **Nix + Flakes** for reproducible development
 - **pnpm** for package management
 - **TypeScript** for type safety
@@ -66,6 +71,7 @@ wordwise/
 ## 🎨 Design Principles
 
 ### UI/UX Guidelines
+
 - **Distraction-free**: Minimal interface focused on writing
 - **Academic Professionalism**: Clean, scholarly aesthetic
 - **Accessibility**: WCAG AA compliance
@@ -73,6 +79,7 @@ wordwise/
 - **Semantic Iconography**: Clear, meaningful icons
 
 ### Theme System
+
 - **Color Palette**: Blue-gray primary with semantic accents
 - **Typography**: Georgia for content, Inter for UI
 - **Spacing**: 8px grid system
@@ -82,6 +89,7 @@ wordwise/
 ## 🔧 Development Conventions
 
 ### Code Standards
+
 - **File Naming**: kebab-case for files and directories
 - **Component Naming**: PascalCase for components
 - **Documentation**: Comprehensive JSDoc/TSDoc comments
@@ -89,11 +97,13 @@ wordwise/
 - **Testing**: Unit tests for all components and utilities
 
 ### Git Workflow
+
 - **Branch Naming**: `feature/feature-name`, `fix/bug-description`
 - **Commit Messages**: Conventional commit format
 - **Pull Requests**: Comprehensive descriptions with screenshots
 
 ### Import Organization
+
 ```typescript
 // 1. React and Next.js imports
 import React, { useState, useEffect } from 'react';
@@ -114,15 +124,19 @@ import type { User } from '@/types';
 ## 📋 Development Phases
 
 ### Phase 1: Setup (2-3 weeks)
+
 Barebones foundation with basic authentication and project structure.
 
 ### Phase 2: MVP (4-6 weeks)
+
 Core writing assistant with grammar checking and visual feedback.
 
 ### Phase 3: Enhanced (6-8 weeks)
+
 AI-powered features and real-time collaboration.
 
 ### Phase 4: Polished (8-10 weeks)
+
 Enterprise-ready platform with advanced features.
 
 [View detailed phase documentation →](_docs/phases/)
@@ -130,11 +144,13 @@ Enterprise-ready platform with advanced features.
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - NixOS or Nix package manager
 - Node.js 20.x (provided by Nix shell)
 - pnpm (provided by Nix shell)
 
 ### Quick Start
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -157,6 +173,7 @@ pnpm emulators
 ```
 
 ### Development Commands
+
 ```bash
 pnpm dev          # Start development server
 pnpm build        # Build for production
@@ -178,6 +195,7 @@ pnpm type-check   # Run TypeScript check
 ## 🎯 Key Features
 
 ### Writing Assistant
+
 - Real-time grammar and spell checking
 - Visual suggestion system with color-coded feedback
 - Distraction-free writing environment
@@ -185,12 +203,14 @@ pnpm type-check   # Run TypeScript check
 - Export to multiple formats (DOCX, LaTeX, PDF)
 
 ### Project Management
+
 - Organize documents into projects
 - Template system for academic documents
 - Collaboration and sharing features
 - Progress tracking and analytics
 
 ### AI Enhancement
+
 - Context-aware writing suggestions
 - Personalized recommendations
 - Advanced style analysis

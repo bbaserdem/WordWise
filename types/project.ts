@@ -1,10 +1,10 @@
 /**
  * @fileoverview Project type definitions for the WordWise application.
- * 
+ *
  * This file defines TypeScript interfaces and types related to projects,
  * including project data structures, document management, and
  * project-related operations.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -15,10 +15,10 @@ type Timestamp = any;
 
 /**
  * Represents a project in the WordWise application.
- * 
+ *
  * This interface defines the structure of project data stored in Firestore,
  * including metadata, settings, and relationships to documents.
- * 
+ *
  * @since 1.0.0
  */
 export interface Project {
@@ -52,10 +52,10 @@ export interface Project {
 
 /**
  * Project types/categories.
- * 
+ *
  * @since 1.0.0
  */
-export type ProjectType = 
+export type ProjectType =
   | 'dissertation'
   | 'research-paper'
   | 'thesis'
@@ -68,10 +68,10 @@ export type ProjectType =
 
 /**
  * Project status values.
- * 
+ *
  * @since 1.0.0
  */
-export type ProjectStatus = 
+export type ProjectStatus =
   | 'draft'
   | 'in-progress'
   | 'review'
@@ -80,31 +80,31 @@ export type ProjectStatus =
 
 /**
  * Project visibility settings.
- * 
+ *
  * @since 1.0.0
  */
 export type ProjectVisibility = 'private' | 'shared' | 'public';
 
 /**
  * Writing style preferences.
- * 
+ *
  * @since 1.0.0
  */
 export type WritingStyle = 'academic' | 'technical' | 'creative' | 'casual';
 
 /**
  * Citation format preferences.
- * 
+ *
  * @since 1.0.0
  */
 export type CitationFormat = 'apa' | 'mla' | 'chicago' | 'ieee' | 'harvard';
 
 /**
  * Document types.
- * 
+ *
  * @since 1.0.0
  */
-export type DocumentType = 
+export type DocumentType =
   | 'chapter'
   | 'section'
   | 'appendix'
@@ -119,7 +119,7 @@ export type DocumentType =
 
 /**
  * Project settings and preferences.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectSettings {
@@ -151,7 +151,7 @@ export interface ProjectSettings {
 
 /**
  * Project statistics and metrics.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectStats {
@@ -177,7 +177,7 @@ export interface ProjectStats {
 
 /**
  * Project creation form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface CreateProjectFormData {
@@ -201,7 +201,7 @@ export interface CreateProjectFormData {
 
 /**
  * Project update form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface UpdateProjectFormData {
@@ -223,7 +223,7 @@ export interface UpdateProjectFormData {
 
 /**
  * Project filter options for listing projects.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectFilters {
@@ -249,7 +249,7 @@ export interface ProjectFilters {
 
 /**
  * Project list response structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectListResponse {
@@ -269,7 +269,7 @@ export interface ProjectListResponse {
 
 /**
  * Project template for creating new projects.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectTemplate {
@@ -293,7 +293,7 @@ export interface ProjectTemplate {
 
 /**
  * Project template structure defining initial documents.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProjectTemplateStructure {
@@ -305,7 +305,7 @@ export interface ProjectTemplateStructure {
 
 /**
  * Template document definition.
- * 
+ *
  * @since 1.0.0
  */
 export interface TemplateDocument {
@@ -323,7 +323,7 @@ export interface TemplateDocument {
 
 /**
  * Template folder definition.
- * 
+ *
  * @since 1.0.0
  */
 export interface TemplateFolder {
@@ -335,4 +335,4 @@ export interface TemplateFolder {
   parentId?: string;
   /** Folder order */
   order: number;
-} 
+}

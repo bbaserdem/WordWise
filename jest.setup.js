@@ -77,7 +77,7 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
-global.matchMedia = jest.fn().mockImplementation((query) => ({
+global.matchMedia = jest.fn().mockImplementation(query => ({
   matches: false,
   media: query,
   onchange: null,
@@ -86,4 +86,4 @@ global.matchMedia = jest.fn().mockImplementation((query) => ({
   addEventListener: jest.fn(),
   removeEventListener: jest.fn(),
   dispatchEvent: jest.fn(),
-})); 
+}));

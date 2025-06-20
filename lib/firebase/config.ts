@@ -1,10 +1,10 @@
 /**
  * @fileoverview Firebase configuration for the WordWise application.
- * 
+ *
  * This file initializes Firebase with the necessary services (Auth, Firestore, Storage)
  * and configures emulators for local development. It provides a centralized
  * configuration that can be imported throughout the application.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -17,10 +17,10 @@ import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 /**
  * Firebase configuration object.
- * 
+ *
  * This contains the API keys and project settings for the Firebase project.
  * In production, these values should be set via environment variables.
- * 
+ *
  * @since 1.0.0
  */
 const firebaseConfig = {
@@ -35,13 +35,13 @@ const firebaseConfig = {
 
 /**
  * Initialize Firebase app instance.
- * 
+ *
  * This function initializes Firebase if it hasn't been initialized already,
  * preventing multiple initializations in development mode.
- * 
+ *
  * @returns The initialized Firebase app instance
  * @throws Error if Firebase configuration is missing
- * 
+ *
  * @since 1.0.0
  */
 function initializeFirebaseApp(): FirebaseApp {
@@ -70,13 +70,13 @@ function initializeFirebaseApp(): FirebaseApp {
 
 /**
  * Configure Firebase emulators for local development.
- * 
+ *
  * This function sets up the local emulators for Auth, Firestore, and Storage
  * when running in development mode. This allows for offline development
  * without affecting the production Firebase project.
- * 
+ *
  * @param app - The Firebase app instance
- * 
+ *
  * @since 1.0.0
  */
 async function configureEmulators(app: FirebaseApp): Promise<void> {
@@ -88,7 +88,9 @@ async function configureEmulators(app: FirebaseApp): Promise<void> {
     const firestore = getFirestore(app);
     const storage = getStorage(app);
     if (process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === 'true') {
-      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+      connectAuthEmulator(auth, 'http://localhost:9099', {
+        disableWarnings: true,
+      });
     }
     if (process.env.NEXT_PUBLIC_USE_FIRESTORE_EMULATOR === 'true') {
       connectFirestoreEmulator(firestore, 'localhost', 8080);
@@ -103,9 +105,9 @@ async function configureEmulators(app: FirebaseApp): Promise<void> {
 
 /**
  * Get Firebase Auth instance.
- * 
+ *
  * @returns The Firebase Auth instance
- * 
+ *
  * @since 1.0.0
  */
 export function getFirebaseAuth(): Auth {
@@ -115,9 +117,9 @@ export function getFirebaseAuth(): Auth {
 
 /**
  * Get Firestore instance.
- * 
+ *
  * @returns The Firestore instance
- * 
+ *
  * @since 1.0.0
  */
 export function getFirebaseFirestore(): Firestore {
@@ -127,9 +129,9 @@ export function getFirebaseFirestore(): Firestore {
 
 /**
  * Get Firebase Storage instance.
- * 
+ *
  * @returns The Firebase Storage instance
- * 
+ *
  * @since 1.0.0
  */
 export function getFirebaseStorage(): FirebaseStorage {
@@ -139,9 +141,9 @@ export function getFirebaseStorage(): FirebaseStorage {
 
 /**
  * Get the main Firebase app instance.
- * 
+ *
  * @returns The Firebase app instance
- * 
+ *
  * @since 1.0.0
  */
 export function getFirebaseApp(): FirebaseApp {
@@ -152,4 +154,4 @@ export function getFirebaseApp(): FirebaseApp {
 export const auth = getFirebaseAuth();
 export const firestore = getFirebaseFirestore();
 export const storage = getFirebaseStorage();
-export const app = getFirebaseApp(); 
+export const app = getFirebaseApp();

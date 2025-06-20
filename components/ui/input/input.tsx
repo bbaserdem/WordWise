@@ -1,9 +1,9 @@
 /**
  * @fileoverview Reusable Input component for the WordWise application.
- * 
+ *
  * This component provides a consistent input interface with proper
  * styling, validation states, and accessibility features.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -14,10 +14,11 @@ import { cn } from '@/lib/utils/cn';
 
 /**
  * Input component props interface.
- * 
+ *
  * @since 1.0.0
  */
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Whether the input has an error state */
   hasError?: boolean;
   /** Error message to display */
@@ -30,11 +31,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 /**
  * Input component with validation states and accessibility features.
- * 
+ *
  * This component provides a consistent input interface with proper
  * styling, validation states, and accessibility features. It integrates
  * with the design system and supports various input types.
- * 
+ *
  * @param className - Additional CSS classes
  * @param hasError - Whether the input has an error state
  * @param errorMessage - Error message to display
@@ -44,7 +45,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  * @param props - Additional input props
  * @param ref - Forwarded ref
  * @returns Input component
- * 
+ *
  * @example
  * ```tsx
  * <Input
@@ -54,7 +55,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  *   errorMessage={errors.email?.message}
  * />
  * ```
- * 
+ *
  * @since 1.0.0
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -125,4 +126,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = 'Input'; 
+Input.displayName = 'Input';

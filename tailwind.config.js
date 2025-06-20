@@ -27,8 +27,8 @@ module.exports = {
         accent: {
           success: '#10b981', // Green for positive actions
           warning: '#f59e0b', // Amber for warnings
-          error: '#ef4444',   // Red for errors
-          info: '#3b82f6',    // Blue for information
+          error: '#ef4444', // Red for errors
+          info: '#3b82f6', // Blue for information
         },
         // Background colors
         background: {
@@ -52,11 +52,11 @@ module.exports = {
       },
       fontSize: {
         // Custom font sizes
-        'xs': ['0.75rem', { lineHeight: '1rem' }],
-        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
-        'base': ['1rem', { lineHeight: '1.5rem' }],
-        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
         '2xl': ['1.5rem', { lineHeight: '2rem' }],
         '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
         '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
@@ -65,22 +65,22 @@ module.exports = {
       },
       spacing: {
         // 8px grid system
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem',
       },
       borderRadius: {
-        'sm': '0.25rem',
-        'md': '0.375rem',
-        'lg': '0.5rem',
-        'xl': '0.75rem',
+        sm: '0.25rem',
+        md: '0.375rem',
+        lg: '0.5rem',
+        xl: '0.75rem',
         '2xl': '1rem',
       },
       boxShadow: {
         // Custom shadows
-        'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.1)',
-        'medium': '0 4px 16px 0 rgba(0, 0, 0, 0.1)',
-        'strong': '0 8px 32px 0 rgba(0, 0, 0, 0.15)',
+        soft: '0 2px 8px 0 rgba(0, 0, 0, 0.1)',
+        medium: '0 4px 16px 0 rgba(0, 0, 0, 0.1)',
+        strong: '0 8px 32px 0 rgba(0, 0, 0, 0.15)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       },
       animation: {
@@ -110,8 +110,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/forms'),
-  ],
-}; 
+  plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+};

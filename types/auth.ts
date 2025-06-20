@@ -1,10 +1,10 @@
 /**
  * @fileoverview Authentication type definitions for the WordWise application.
- * 
+ *
  * This file defines TypeScript interfaces and types related to user
  * authentication, including user data structures, authentication
  * states, and form data types.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -14,10 +14,10 @@ import type { Timestamp } from 'firebase/firestore';
 
 /**
  * Represents a user in the WordWise application.
- * 
+ *
  * This interface defines the structure of user data stored in Firestore,
  * including basic profile information and metadata.
- * 
+ *
  * @since 1.0.0
  */
 export interface User {
@@ -51,21 +51,26 @@ export interface User {
 
 /**
  * User roles in the application.
- * 
+ *
  * @since 1.0.0
  */
 export type UserRole = 'student' | 'researcher' | 'professor' | 'admin';
 
 /**
  * Academic levels for users.
- * 
+ *
  * @since 1.0.0
  */
-export type AcademicLevel = 'undergraduate' | 'masters' | 'phd' | 'postdoc' | 'faculty';
+export type AcademicLevel =
+  | 'undergraduate'
+  | 'masters'
+  | 'phd'
+  | 'postdoc'
+  | 'faculty';
 
 /**
  * User preferences for writing and application settings.
- * 
+ *
  * @since 1.0.0
  */
 export interface UserPreferences {
@@ -91,21 +96,21 @@ export interface UserPreferences {
 
 /**
  * Writing style preferences.
- * 
+ *
  * @since 1.0.0
  */
 export type WritingStyle = 'academic' | 'technical' | 'creative' | 'casual';
 
 /**
  * Citation format preferences.
- * 
+ *
  * @since 1.0.0
  */
 export type CitationFormat = 'apa' | 'mla' | 'chicago' | 'ieee' | 'harvard';
 
 /**
  * Authentication state for the application.
- * 
+ *
  * @since 1.0.0
  */
 export interface AuthState {
@@ -121,7 +126,7 @@ export interface AuthState {
 
 /**
  * Login form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface LoginFormData {
@@ -135,7 +140,7 @@ export interface LoginFormData {
 
 /**
  * Registration form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface RegisterFormData {
@@ -161,7 +166,7 @@ export interface RegisterFormData {
 
 /**
  * Password reset form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface PasswordResetFormData {
@@ -171,7 +176,7 @@ export interface PasswordResetFormData {
 
 /**
  * Profile update form data structure.
- * 
+ *
  * @since 1.0.0
  */
 export interface ProfileUpdateFormData {
@@ -189,10 +194,10 @@ export interface ProfileUpdateFormData {
 
 /**
  * Authentication error types.
- * 
+ *
  * @since 1.0.0
  */
-export type AuthErrorType = 
+export type AuthErrorType =
   | 'auth/user-not-found'
   | 'auth/wrong-password'
   | 'auth/email-already-in-use'
@@ -210,7 +215,7 @@ export type AuthErrorType =
 
 /**
  * Authentication error with additional context.
- * 
+ *
  * @since 1.0.0
  */
 export interface AuthError {
@@ -220,4 +225,4 @@ export interface AuthError {
   message: string;
   /** Original error object */
   originalError?: any;
-} 
+}

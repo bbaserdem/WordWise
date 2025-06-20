@@ -1,10 +1,10 @@
 /**
  * @fileoverview Authentication context provider for the WordWise application.
- * 
+ *
  * This component provides authentication state management using Firebase Auth.
  * It handles user authentication, sign-in, sign-out, and user data management
  * throughout the application.
- * 
+ *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
@@ -19,14 +19,18 @@ import type { User, AuthState, AuthError, AuthErrorType } from '@/types/auth';
 
 /**
  * Authentication context interface.
- * 
+ *
  * @since 1.0.0
  */
 interface AuthContextType extends AuthState {
   /** Sign in with email and password */
   signIn: (email: string, password: string) => Promise<void>;
   /** Sign up with email and password */
-  signUp: (email: string, password: string, userData: Partial<User>) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    userData: Partial<User>
+  ) => Promise<void>;
   /** Sign out the current user */
   signOut: () => Promise<void>;
   /** Reset password for a user */
@@ -39,14 +43,14 @@ interface AuthContextType extends AuthState {
 
 /**
  * Authentication context for the application.
- * 
+ *
  * @since 1.0.0
  */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
  * Authentication provider component props.
- * 
+ *
  * @since 1.0.0
  */
 interface AuthProviderProps {
@@ -56,14 +60,14 @@ interface AuthProviderProps {
 
 /**
  * Authentication provider component.
- * 
+ *
  * This component provides authentication state and methods to all child components.
  * It manages user authentication state, handles Firebase Auth integration,
  * and provides user data management functionality.
- * 
+ *
  * @param children - Child components to wrap with authentication context
  * @returns The authentication provider with context
- * 
+ *
  * @since 1.0.0
  */
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -76,13 +80,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Convert Firebase user to application user format.
-   * 
+   *
    * @param firebaseUser - Firebase user object
    * @returns Application user object
-   * 
+   *
    * @since 1.0.0
    */
-  const convertFirebaseUser = async (firebaseUser: FirebaseUser): Promise<User> => {
+  const convertFirebaseUser = async (
+    firebaseUser: FirebaseUser
+  ): Promise<User> => {
     try {
       const { getFirebaseFirestore } = await import('@/lib/firebase/config');
       const firestore = getFirebaseFirestore();
@@ -121,11 +127,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Sign in with email and password.
-   * 
+   *
    * @param email - User's email address
    * @param password - User's password
    * @throws Error if sign-in fails
-   * 
+   *
    * @since 1.0.0
    */
   const signIn = async (email: string, password: string): Promise<void> => {
@@ -142,29 +148,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: err.message || 'Sign-in failed',
         originalError: error,
       };
-      setAuthState(prev => ({ ...prev, isLoading: false, error: authError.message }));
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: authError.message,
+      }));
       throw authError;
     }
   };
 
   /**
    * Sign up with email and password.
-   * 
+   *
    * @param email - User's email address
    * @param password - User's password
    * @param userData - Additional user data
    * @throws Error if sign-up fails
-   * 
+   *
    * @since 1.0.0
    */
-  const signUp = async (email: string, password: string, userData: Partial<User>): Promise<void> => {
+  const signUp = async (
+    email: string,
+    password: string,
+    userData: Partial<User>
+  ): Promise<void> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-      const { getFirebaseAuth, getFirebaseFirestore } = await import('@/lib/firebase/config');
+      const { getFirebaseAuth, getFirebaseFirestore } = await import(
+        '@/lib/firebase/config'
+      );
       const { createUserWithEmailAndPassword } = await import('firebase/auth');
       const auth = getFirebaseAuth();
       const firestore = getFirebaseFirestore();
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const firebaseUser = userCredential.user;
       const newUser: User = {
         uid: firebaseUser.uid,
@@ -198,16 +218,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: err.message || 'Sign-up failed',
         originalError: error,
       };
-      setAuthState(prev => ({ ...prev, isLoading: false, error: authError.message }));
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: authError.message,
+      }));
       throw authError;
     }
   };
 
   /**
    * Sign out the current user.
-   * 
+   *
    * @throws Error if sign-out fails
-   * 
+   *
    * @since 1.0.0
    */
   const signOut = async (): Promise<void> => {
@@ -230,10 +254,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Reset password for a user.
-   * 
+   *
    * @param email - User's email address
    * @throws Error if password reset fails
-   * 
+   *
    * @since 1.0.0
    */
   const resetPassword = async (email: string): Promise<void> => {
@@ -255,10 +279,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Update user profile.
-   * 
+   *
    * @param data - User data to update
    * @throws Error if profile update fails
-   * 
+   *
    * @since 1.0.0
    */
   const updateProfile = async (data: Partial<User>): Promise<void> => {
@@ -275,7 +299,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       setAuthState(prev => ({
         ...prev,
-        user: prev.user ? { ...prev.user, ...data, updatedAt: Timestamp.now() } : null,
+        user: prev.user
+          ? { ...prev.user, ...data, updatedAt: Timestamp.now() }
+          : null,
       }));
     } catch (error: unknown) {
       const err = error as { message?: string };
@@ -290,7 +316,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Clear any authentication errors.
-   * 
+   *
    * @since 1.0.0
    */
   const clearError = (): void => {
@@ -304,33 +330,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { getFirebaseAuth } = await import('@/lib/firebase/config');
       const { onAuthStateChanged } = await import('firebase/auth');
       const auth = getFirebaseAuth();
-      unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-        try {
-          if (firebaseUser) {
-            const user = await convertFirebaseUser(firebaseUser);
-            setAuthState({
-              user,
-              isLoading: false,
-              error: null,
-              isAuthenticated: true,
-            });
-          } else {
+      unsubscribe = onAuthStateChanged(
+        auth,
+        async (firebaseUser: FirebaseUser | null) => {
+          try {
+            if (firebaseUser) {
+              const user = await convertFirebaseUser(firebaseUser);
+              setAuthState({
+                user,
+                isLoading: false,
+                error: null,
+                isAuthenticated: true,
+              });
+            } else {
+              setAuthState({
+                user: null,
+                isLoading: false,
+                error: null,
+                isAuthenticated: false,
+              });
+            }
+          } catch {
             setAuthState({
               user: null,
               isLoading: false,
-              error: null,
+              error: 'Failed to load user data',
               isAuthenticated: false,
             });
           }
-        } catch {
-          setAuthState({
-            user: null,
-            isLoading: false,
-            error: 'Failed to load user data',
-            isAuthenticated: false,
-          });
         }
-      });
+      );
     })();
     return () => {
       if (unsubscribe) {
@@ -350,29 +379,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 
 /**
  * Hook to use authentication context.
- * 
+ *
  * This hook provides access to the authentication context and ensures
  * it's used within the AuthProvider component.
- * 
+ *
  * @returns The authentication context
  * @throws Error if used outside of AuthProvider
- * 
+ *
  * @since 1.0.0
  */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
-} 
+}
