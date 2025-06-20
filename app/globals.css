@@ -1,0 +1,218 @@
+/**
+ * @fileoverview Global styles for the WordWise application.
+ * 
+ * This file imports Tailwind CSS and defines global styles,
+ * custom CSS variables, and utility classes used throughout
+ * the application.
+ * 
+ * @author WordWise Team
+ * @version 1.0.0
+ * @since 2024-01-01
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS variables for theming */
+:root {
+  --color-primary-50: #f8fafc;
+  --color-primary-100: #f1f5f9;
+  --color-primary-200: #e2e8f0;
+  --color-primary-300: #cbd5e1;
+  --color-primary-400: #94a3b8;
+  --color-primary-500: #64748b;
+  --color-primary-600: #475569;
+  --color-primary-700: #334155;
+  --color-primary-800: #1e293b;
+  --color-primary-900: #0f172a;
+  --color-primary-950: #020617;
+  
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
+  --color-accent-error: #ef4444;
+  --color-accent-info: #3b82f6;
+  
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8fafc;
+  --color-background-tertiary: #f1f5f9;
+  
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+  --color-text-inverse: #ffffff;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #0f172a;
+    --color-background-secondary: #1e293b;
+    --color-background-tertiary: #334155;
+    
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-tertiary: #94a3b8;
+    --color-text-inverse: #0f172a;
+  }
+}
+
+/* Base styles */
+@layer base {
+  body {
+    @apply bg-background-primary text-text-primary;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  
+  /* Typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold;
+  }
+  
+  h2 {
+    @apply text-3xl font-bold;
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold;
+  }
+  
+  h4 {
+    @apply text-xl font-semibold;
+  }
+  
+  h5 {
+    @apply text-lg font-semibold;
+  }
+  
+  h6 {
+    @apply text-base font-semibold;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-background-primary;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-300 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-400;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background-primary;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700;
+  }
+  
+  .btn-secondary {
+    @apply bg-background-secondary text-text-primary border border-primary-200 hover:bg-background-tertiary;
+  }
+  
+  .btn-ghost {
+    @apply hover:bg-background-secondary hover:text-text-primary;
+  }
+  
+  .btn-destructive {
+    @apply bg-accent-error text-white hover:bg-red-600;
+  }
+  
+  .btn-outline {
+    @apply border border-primary-200 bg-background-primary hover:bg-background-secondary hover:text-text-primary;
+  }
+  
+  /* Input styles */
+  .input {
+    @apply flex h-10 w-full rounded-md border border-primary-200 bg-background-primary px-3 py-2 text-sm ring-offset-background-primary file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  
+  /* Card styles */
+  .card {
+    @apply rounded-lg border border-primary-200 bg-background-primary text-text-primary shadow-soft;
+  }
+  
+  .card-header {
+    @apply flex flex-col space-y-1.5 p-6;
+  }
+  
+  .card-title {
+    @apply text-2xl font-semibold leading-none tracking-tight;
+  }
+  
+  .card-description {
+    @apply text-sm text-text-secondary;
+  }
+  
+  .card-content {
+    @apply p-6 pt-0;
+  }
+  
+  .card-footer {
+    @apply flex items-center p-6 pt-0;
+  }
+}
+
+/* Utility styles */
+@layer utilities {
+  /* Text selection */
+  .selection-primary {
+    @apply selection:bg-primary-200 selection:text-primary-900;
+  }
+  
+  /* Writing editor specific styles */
+  .editor-content {
+    @apply prose prose-primary max-w-none;
+  }
+  
+  .editor-content h1,
+  .editor-content h2,
+  .editor-content h3,
+  .editor-content h4,
+  .editor-content h5,
+  .editor-content h6 {
+    @apply font-serif;
+  }
+  
+  .editor-content p {
+    @apply leading-relaxed;
+  }
+  
+  /* Suggestion highlighting */
+  .suggestion-spelling {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .suggestion-grammar {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .suggestion-style {
+    @apply bg-purple-100 text-purple-800;
+  }
+  
+  .suggestion-ai {
+    @apply bg-green-100 text-green-800;
+  }
+} 
