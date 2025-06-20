@@ -12,24 +12,10 @@
 
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore';
+import { firestore } from '../lib/firebase/config';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { Project } from '../types/project';
 import type { Document, CreateDocumentFormData } from '../types/document';
-
-// Firebase configuration (you'll need to set this up)
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 /**
  * Test user data for importing documents.
@@ -181,7 +167,7 @@ async function importMarkdownFiles() {
 
     // Create test project
     console.log('📁 Creating test project...');
-    const projectRef = await addDoc(collection(db, 'projects'), TEST_PROJECT);
+    const projectRef = await addDoc(collection(firestore, 'projects'), TEST_PROJECT);
     const projectId = projectRef.id;
     console.log(`✅ Project created with ID: ${projectId}`);
 
@@ -230,7 +216,7 @@ async function importMarkdownFiles() {
           updatedAt: now,
         };
 
-        const docRef = await addDoc(collection(db, 'documents'), newDocument);
+        const docRef = await addDoc(collection(firestore, 'documents'), newDocument);
         console.log(`✅ Document created with ID: ${docRef.id}`);
 
         // Create initial version
@@ -244,7 +230,7 @@ async function importMarkdownFiles() {
           createdAt: now,
         };
 
-        await addDoc(collection(db, 'documentVersions'), versionData);
+        await addDoc(collection(firestore, 'documentVersions'), versionData);
         console.log(`✅ Version created for document ${docRef.id}`);
 
       } catch (error) {
@@ -270,12 +256,6 @@ async function importMarkdownFiles() {
 async function main() {
   console.log('📚 WordWise Markdown Import Script');
   console.log('=====================================');
-
-  // Check if Firebase config is available
-  if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-    console.error('❌ Firebase configuration not found. Please set up your environment variables.');
-    process.exit(1);
-  }
 
   // Run the import
   await importMarkdownFiles();

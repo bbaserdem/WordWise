@@ -79,14 +79,15 @@ function initializeFirebaseApp(): FirebaseApp {
  *
  * @since 1.0.0
  */
-async function configureEmulators(app: FirebaseApp): Promise<void> {
+function configureEmulators(app: FirebaseApp): void {
   try {
-    const { connectAuthEmulator } = await import('firebase/auth');
-    const { connectFirestoreEmulator } = await import('firebase/firestore');
-    const { connectStorageEmulator } = await import('firebase/storage');
+    const { connectAuthEmulator } = require('firebase/auth');
+    const { connectFirestoreEmulator } = require('firebase/firestore');
+    const { connectStorageEmulator } = require('firebase/storage');
     const auth = getAuth(app);
     const firestore = getFirestore(app);
     const storage = getStorage(app);
+    
     if (process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === 'true') {
       connectAuthEmulator(auth, 'http://localhost:9099', {
         disableWarnings: true,
@@ -99,7 +100,7 @@ async function configureEmulators(app: FirebaseApp): Promise<void> {
       connectStorageEmulator(storage, 'localhost', 9199);
     }
   } catch (error: unknown) {
-    // Optionally log error in development
+    console.error('Failed to configure emulators:', error);
   }
 }
 
