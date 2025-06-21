@@ -14,12 +14,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, History, Settings } from 'lucide-react';
+import { ArrowLeft, History, Settings, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TextEditor } from '@/components/editor/text-editor';
 import { VersionHistory } from '@/components/editor/version-history';
-import { useAuth } from '@/hooks';
-import { getDocument } from '@/lib/db/documents';
+import { useAuth, useDocument } from '@/hooks';
 import type { Document, DocumentVersion } from '@/types/document';
 
 /**
@@ -27,7 +26,8 @@ import type { Document, DocumentVersion } from '@/types/document';
  *
  * This component provides a comprehensive document editing experience
  * with the text editor, version history, and document management features.
- * It handles document loading, saving, and version management.
+ * It handles document loading, saving, and version management with real-time
+ * synchronization across browser sessions.
  *
  * @returns The document editor page component
  *
@@ -41,47 +41,32 @@ export default function DocumentEditorPage() {
   const projectId = params.projectId as string;
   const documentId = params.documentId as string;
 
-  // Page state
-  const [document, setDocument] = useState<Document | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Real-time document management
+  const {
+    document,
+    status,
+    error,
+    isSaving,
+    hasUnsavedChanges,
+    lastSavedAt,
+    versions,
+    updateContent,
+    saveDocument,
+    restoreVersion,
+    refreshDocument,
+    clearDocument,
+  } = useDocument(documentId);
+
+  // UI state
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [currentContent, setCurrentContent] = useState('');
 
-  // Load document on mount
+  // Update current content when document changes
   useEffect(() => {
-    if (user && documentId) {
-      loadDocument();
+    if (document) {
+      setCurrentContent(document.content);
     }
-  }, [user, documentId]);
-
-  /**
-   * Load document from the database.
-   *
-   * @since 1.0.0
-   */
-  const loadDocument = async () => {
-    if (!user || !documentId) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const doc = await getDocument(documentId, user.uid);
-      if (!doc) {
-        setError('Document not found');
-        return;
-      }
-
-      setDocument(doc);
-      setCurrentContent(doc.content);
-    } catch (error) {
-      console.error('Error loading document:', error);
-      setError('Failed to load document');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [document]);
 
   /**
    * Handle document save.
@@ -90,8 +75,9 @@ export default function DocumentEditorPage() {
    * @since 1.0.0
    */
   const handleDocumentSave = (updatedDocument: Document) => {
-    setDocument(updatedDocument);
-    setCurrentContent(updatedDocument.content);
+    // The real-time hook handles document updates automatically
+    // This callback is mainly for UI feedback
+    console.log('Document saved:', updatedDocument.title);
   };
 
   /**
@@ -110,10 +96,12 @@ export default function DocumentEditorPage() {
    * @param version - The version to restore
    * @since 1.0.0
    */
-  const handleVersionRestore = (version: DocumentVersion) => {
-    if (document) {
-      setCurrentContent(version.content);
-      // The TextEditor will handle the actual save when content changes
+  const handleVersionRestore = async (version: DocumentVersion) => {
+    try {
+      await restoreVersion(version);
+      setShowVersionHistory(false);
+    } catch (error) {
+      console.error('Error restoring version:', error);
     }
   };
 
@@ -123,11 +111,13 @@ export default function DocumentEditorPage() {
    * @since 1.0.0
    */
   const handleBackToProject = () => {
+    // Clear document data before navigating
+    clearDocument();
     router.push(`/dashboard/projects/${projectId}`);
   };
 
   // Loading state
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -139,16 +129,23 @@ export default function DocumentEditorPage() {
   }
 
   // Error state
-  if (error || !document) {
+  if (status === 'error' || !document) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-text-primary mb-4">Document Not Found</h1>
           <p className="text-text-secondary mb-6">{error || 'The document you are looking for does not exist.'}</p>
-          <Button onClick={handleBackToProject}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Project
-          </Button>
+          <div className="space-x-4">
+            <Button onClick={handleBackToProject}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Project
+            </Button>
+            {error && (
+              <Button variant="outline" onClick={refreshDocument}>
+                Try Again
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -157,7 +154,7 @@ export default function DocumentEditorPage() {
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-primary-200 bg-white">
+      <div className="flex items-center justify-between p-4 border-b border-primary-200 bg-background-primary">
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
@@ -172,13 +169,38 @@ export default function DocumentEditorPage() {
             <h1 className="text-lg font-semibold text-text-primary">
               {document.title}
             </h1>
-            <p className="text-sm text-text-secondary">
-              {document.type} • {document.status}
-            </p>
+            <div className="flex items-center space-x-2 text-sm text-text-secondary">
+              <span>{document.type} • {document.status}</span>
+              {status === 'syncing' && (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary-600 mr-1"></div>
+                  <span>Syncing...</span>
+                </div>
+              )}
+              {isSaving && (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary-600 mr-1"></div>
+                  <span>Saving...</span>
+                </div>
+              )}
+              {lastSavedAt && (
+                <span>• Last saved {lastSavedAt.toLocaleTimeString()}</span>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
+          {/* Connection Status */}
+          <div className="flex items-center text-sm text-text-secondary">
+            {status === 'loaded' ? (
+              <Wifi className="w-4 h-4 mr-1 text-green-600" />
+            ) : (
+              <WifiOff className="w-4 h-4 mr-1 text-red-600" />
+            )}
+            <span>{status === 'loaded' ? 'Connected' : 'Offline'}</span>
+          </div>
+
           <Button
             variant="outline"
             size="sm"
@@ -208,6 +230,7 @@ export default function DocumentEditorPage() {
           document={document}
           onSave={handleDocumentSave}
           onContentChange={handleContentChange}
+          updateContent={updateContent}
           className="h-full"
         />
       </div>

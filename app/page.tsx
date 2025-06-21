@@ -195,7 +195,7 @@ export default function HomePage() {
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href="/register"
-                className="btn bg-white px-8 py-3 text-base font-semibold text-primary-600 hover:bg-primary-50"
+                className="btn bg-background-primary px-8 py-3 text-base font-semibold text-primary-600 hover:bg-primary-50"
               >
                 Start Writing Now
               </Link>

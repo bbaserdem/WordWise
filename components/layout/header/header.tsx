@@ -15,6 +15,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 /**
  * Props for the Header component.
@@ -76,7 +77,7 @@ export function Header({
 
   return (
     <header
-      className={`bg-white shadow-soft border-b border-gray-200 sticky top-0 z-40 ${className}`}
+      className={`bg-white dark:bg-background-primary shadow-soft border-b border-gray-200 dark:border-primary-800 sticky top-0 z-40 ${className}`}
     >
       <div className="flex items-center justify-between px-4 py-3">
         {/* Left side - Logo and sidebar toggle */}
@@ -113,8 +114,11 @@ export function Header({
           </div>
         </div>
 
-        {/* Right side - User menu */}
+        {/* Right side - Theme toggle and user menu */}
         <div className="flex items-center space-x-4">
+          {/* Theme toggle */}
+          <ThemeToggle showDropdown={true} />
+          
           {/* User profile */}
           {user && (
             <div className="relative">
@@ -124,7 +128,7 @@ export function Header({
                 aria-label="User menu"
               >
                 {/* User avatar */}
-                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary-100 dark:bg-primary-800 rounded-full flex items-center justify-center">
                   {user.photoURL ? (
                     <Image
                       src={user.photoURL}
@@ -134,7 +138,7 @@ export function Header({
                       className="w-8 h-8 rounded-full"
                     />
                   ) : (
-                    <span className="text-primary-600 font-medium text-sm">
+                    <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
                       {user.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                     </span>
                   )}
@@ -165,8 +169,8 @@ export function Header({
 
               {/* User dropdown menu */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-background-primary rounded-md shadow-lg border border-gray-200 dark:border-primary-800 py-1 z-50">
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-primary-700">
                     <p className="text-sm font-medium text-text-primary">
                       {user.displayName || 'User'}
                     </p>

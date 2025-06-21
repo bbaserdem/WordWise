@@ -206,7 +206,7 @@ export default function ProjectPage() {
       {/* Project Information */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Project Details */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+        <div className="lg:col-span-2 bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
           <h2 className="text-xl font-semibold text-text-primary mb-4">Project Overview</h2>
           
           {project.description && (
@@ -251,7 +251,7 @@ export default function ProjectPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
           <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
           
           <div className="space-y-3">
@@ -296,7 +296,7 @@ export default function ProjectPage() {
 
       {/* Recent Documents */}
       {documents.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-text-primary">Recent Documents</h2>
             <Link href={`/dashboard/projects/${projectId}/documents`}>
@@ -336,7 +336,7 @@ export default function ProjectPage() {
 
       {/* Empty State */}
       {documents.length === 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-text-primary mb-2">

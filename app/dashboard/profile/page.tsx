@@ -112,7 +112,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+      <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
         {isEditing ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

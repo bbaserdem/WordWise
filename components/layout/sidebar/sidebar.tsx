@@ -174,13 +174,13 @@ export function Sidebar({
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white shadow-soft border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-background-primary shadow-soft border-r border-gray-200 dark:border-primary-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${className}`}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-primary-800">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">W</span>
@@ -224,13 +224,13 @@ export function Sidebar({
                       onClick={handleNavigationClick}
                       className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                         active
-                          ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
+                          ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-r-2 border-primary-600'
                           : 'text-text-secondary hover:text-text-primary hover:bg-background-tertiary'
                       }`}
                     >
                       <span
                         className={`${
-                          active ? 'text-primary-600' : 'text-text-secondary'
+                          active ? 'text-primary-600 dark:text-primary-400' : 'text-text-secondary'
                         }`}
                       >
                         {item.icon}
@@ -244,7 +244,7 @@ export function Sidebar({
           </nav>
 
           {/* Sidebar footer */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 dark:border-primary-800">
             <div className="text-xs text-text-secondary text-center">
               <p>WordWise v1.0.0</p>
               <p className="mt-1">AI-first writing assistant</p>

@@ -9,4 +9,5 @@
  */
 
 export { LoadingSpinner, type LoadingSpinnerProps } from './loading-spinner';
-export { ErrorBoundary, type ErrorBoundaryProps } from './error-boundary'; 
+export { ErrorBoundary, type ErrorBoundaryProps } from './error-boundary';
+export { ConnectionStatus } from './connection-status'; 

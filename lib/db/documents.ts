@@ -24,6 +24,7 @@ import {
   Timestamp,
   type DocumentData,
   type QueryConstraint,
+  onSnapshot,
 } from 'firebase/firestore';
 
 import { getFirebaseFirestore } from '@/lib/firebase/config';
@@ -447,6 +448,7 @@ export async function getDocumentVersions(
     const q = query(
       versionsRef,
       where('documentId', '==', documentId),
+      where('userId', '==', userId),
       orderBy('version', 'desc'),
       firestoreLimit(limit)
     );
@@ -583,5 +585,155 @@ export async function searchDocuments(
   } catch (error) {
     console.error('Error searching documents:', error);
     throw new Error('Failed to search documents');
+  }
+}
+
+/**
+ * Set up real-time listener for a document.
+ *
+ * This function creates a real-time listener that will automatically
+ * update when the document changes in Firestore. This enables
+ * real-time synchronization across multiple browser sessions.
+ *
+ * @param documentId - ID of the document to listen to
+ * @param userId - ID of the user requesting the document (for security)
+ * @param onUpdate - Callback function called when document updates
+ * @param onError - Callback function called when an error occurs
+ * @returns Unsubscribe function to stop listening
+ * @throws Error if listener setup fails
+ *
+ * @since 1.0.0
+ */
+export function listenToDocument(
+  documentId: string,
+  userId: string,
+  onUpdate: (document: Document | null) => void,
+  onError?: (error: Error) => void
+): () => void {
+  try {
+    const firestore = getFirebaseFirestore();
+    const documentRef = doc(firestore, 'documents', documentId);
+
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(
+      documentRef,
+      (documentSnap) => {
+        if (!documentSnap.exists()) {
+          onUpdate(null);
+          return;
+        }
+
+        const documentData = documentSnap.data() as DocumentData;
+        const document: Document = {
+          id: documentSnap.id,
+          ...documentData,
+        } as Document;
+
+        // Security check: ensure user owns the document
+        if (document.userId !== userId) {
+          const error = new Error('Access denied');
+          onError?.(error);
+          return;
+        }
+
+        onUpdate(document);
+      },
+      (error) => {
+        console.error('Error listening to document:', error);
+        onError?.(error);
+      }
+    );
+
+    return unsubscribe;
+  } catch (error) {
+    console.error('Error setting up document listener:', error);
+    throw new Error('Failed to set up document listener');
+  }
+}
+
+/**
+ * Update document content with real-time synchronization.
+ *
+ * This function updates a document's content and ensures the update
+ * is immediately available to all real-time listeners. It includes
+ * conflict resolution and proper error handling.
+ *
+ * @param documentId - ID of the document to update
+ * @param userId - ID of the user updating the document (for security)
+ * @param content - New document content
+ * @param options - Update options
+ * @returns The updated document
+ * @throws Error if document update fails
+ *
+ * @since 1.0.0
+ */
+export async function updateDocumentContent(
+  documentId: string,
+  userId: string,
+  content: string,
+  options: {
+    isAutoSave?: boolean;
+    description?: string;
+    updateStats?: boolean;
+  } = {}
+): Promise<Document> {
+  try {
+    const firestore = getFirebaseFirestore();
+    const documentRef = doc(firestore, 'documents', documentId);
+
+    // First, verify the document exists and user has access
+    const existingDocument = await getDocument(documentId, userId);
+    if (!existingDocument) {
+      throw new Error('Document not found');
+    }
+
+    // Calculate document statistics if requested
+    let statsUpdate: Partial<Document['stats']> = {};
+    if (options.updateStats) {
+      const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+      const characters = content.length;
+      const paragraphs = content.split('\n\n').filter(p => p.trim()).length;
+      const sentences = content.split(/[.!?]+/).filter(s => s.trim()).length;
+
+      statsUpdate = {
+        wordCount: words,
+        characterCount: characters,
+        paragraphCount: paragraphs,
+        sentenceCount: sentences,
+        lastSavedAt: Timestamp.now(),
+      };
+    }
+
+    // Prepare update data
+    const updateFields: Partial<Document> = {
+      content,
+      updatedAt: Timestamp.now(),
+      ...(Object.keys(statsUpdate).length > 0 && { stats: { ...existingDocument.stats, ...statsUpdate } }),
+    };
+
+    // Update the document
+    await updateDoc(documentRef, updateFields);
+
+    // Create version if this is a manual save or auto-save is enabled
+    if (!options.isAutoSave || existingDocument.metadata.enableVersionHistory) {
+      await createDocumentVersion(
+        documentId,
+        userId,
+        content,
+        options.description || (options.isAutoSave ? 'Auto-save' : 'Manual save'),
+        options.isAutoSave || false
+      );
+    }
+
+    // Return the updated document
+    const updatedDocument: Document = {
+      ...existingDocument,
+      ...updateFields,
+    };
+
+    return updatedDocument;
+  } catch (error) {
+    console.error('Error updating document content:', error);
+    throw new Error('Failed to update document content');
   }
 } 

@@ -32,11 +32,11 @@
   - [x] Set up document data models and basic operations
   - [x] Add basic project navigation and routing
 - [ ] **Basic Writing Editor**
-  - [ ] Implement basic text editor component
-  - [ ] Add auto-save functionality
-  - [ ] Create document version history system
-  - [ ] Set up real-time document synchronization
-  - [ ] Add basic document export functionality
+  - [x] Implement basic text editor component
+  - [x] Add auto-save functionality
+  - [x] Create document version history system
+  - [x] Set up real-time document synchronization
+  - [x] Add basic document export functionality
 - [ ] **Development Infrastructure**
   - [ ] Set up Firebase emulators for local development
   - [ ] Configure environment variables and secrets

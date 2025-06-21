@@ -12,7 +12,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createProject } from '@/lib/db/projects';
@@ -69,7 +69,7 @@ export function ProjectForm({
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isOnline, setIsOnline] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<CreateProjectFormData>({
@@ -85,47 +85,6 @@ export function ProjectForm({
 
   // Tag input state
   const [tagInput, setTagInput] = useState('');
-
-  // Monitor network status
-  useEffect(() => {
-    const handleOnline = () => {
-      console.log('Network: Online');
-      setIsOnline(true);
-      setError(null); // Clear any network errors when coming back online
-    };
-    
-    const handleOffline = () => {
-      console.log('Network: Offline');
-      setIsOnline(false);
-    };
-
-    // Set initial status
-    const initialStatus = navigator.onLine;
-    console.log('Initial network status:', initialStatus);
-    setIsOnline(initialStatus);
-
-    // Add event listeners
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Add interval-based monitoring for dev tools offline mode
-    const networkCheckInterval = setInterval(() => {
-      const currentStatus = navigator.onLine;
-      if (currentStatus !== isOnline) {
-        console.log('Network status changed via interval check:', currentStatus);
-        setIsOnline(currentStatus);
-        if (currentStatus) {
-          setError(null); // Clear network errors when coming back online
-        }
-      }
-    }, 1000); // Check every second
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      clearInterval(networkCheckInterval);
-    };
-  }, [isOnline]); // Add isOnline to dependencies
 
   /**
    * Handle form field changes.
@@ -202,51 +161,27 @@ export function ProjectForm({
   };
 
   /**
-   * Validate the form data.
+   * Validate form data.
    *
    * @returns True if form is valid, false otherwise
    */
   const validateForm = (): boolean => {
-    console.log('Validating form with name length:', formData.name.length);
-    
     if (!formData.name.trim()) {
-      console.log('Validation failed: Project name is required');
       setError('Project name is required');
       return false;
     }
 
-    if (formData.name.length >= 100) {
-      console.log('Validation failed: Project name too long');
-      setError('Project name must be less than 100 characters');
+    if (formData.name.length > 100) {
+      setError('Project name must be 100 characters or less');
       return false;
     }
 
-    if (formData.description && formData.description.length >= 500) {
-      console.log('Validation failed: Description too long');
-      setError('Project description must be less than 500 characters');
+    if (formData.description && formData.description.length > 500) {
+      setError('Description must be 500 characters or less');
       return false;
     }
 
-    if (formData.tags.length > 10) {
-      console.log('Validation failed: Too many tags');
-      setError('Maximum 10 tags allowed');
-      return false;
-    }
-
-    console.log('Validation passed');
     return true;
-  };
-
-  /**
-   * Check network connectivity manually.
-   *
-   * @returns True if online, false if offline
-   */
-  const checkNetworkStatus = (): boolean => {
-    const status = navigator.onLine;
-    console.log('Manual network check:', status);
-    setIsOnline(status);
-    return status;
   };
 
   /**
@@ -266,13 +201,6 @@ export function ProjectForm({
     // Clear any previous errors
     setError(null);
 
-    // Check network connectivity
-    const networkStatus = checkNetworkStatus();
-    if (!networkStatus) {
-      setError('You are currently offline. Please check your internet connection and try again.');
-      return;
-    }
-
     // Validate form
     const isValid = validateForm();
     
@@ -281,38 +209,37 @@ export function ProjectForm({
       return;
     }
 
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Double-check network status before proceeding
-      if (!checkNetworkStatus()) {
-        throw new Error('Network connection lost. Please check your internet connection and try again.');
-      }
-
+      console.log('Creating project...', formData);
+      
       // Create project in Firestore
       const newProject = await createProject(user.uid, formData);
       console.log('Project created successfully:', newProject);
 
-      // Final network check before navigation
-      if (!checkNetworkStatus()) {
-        throw new Error('Network connection lost during project creation. Please try again.');
-      }
+      // Show success state
+      setIsSuccess(true);
+      setError(null);
+
+      // Small delay to ensure UI updates and user sees success
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Call the success callback
       if (onProjectCreated) {
         onProjectCreated(newProject.id);
       } else {
-        // Default navigation - only if still online
-        if (checkNetworkStatus()) {
-          router.push(`/dashboard/projects/${newProject.id}`);
-        } else {
-          throw new Error('Cannot navigate to project page while offline.');
-        }
+        // Default navigation with replace to prevent back button issues
+        router.replace(`/dashboard/projects/${newProject.id}`);
       }
     } catch (error) {
       console.error('Error creating project:', error);
       setError(error instanceof Error ? error.message : 'Failed to create project');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -330,33 +257,20 @@ export function ProjectForm({
 
   return (
     <form onSubmit={handleSubmit} className={`space-y-6 ${className}`} noValidate>
-      {/* Network Status */}
-      {!isOnline && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
-          ⚠️ You are currently offline. Some features may not work properly.
-        </div>
-      )}
-
-      {/* Debug Network Status (remove in production) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-3 rounded-lg text-sm">
-          <div className="flex items-center justify-between">
-            <span>Network Status: {isOnline ? '🟢 Online' : '🔴 Offline'}</span>
-            <button
-              type="button"
-              onClick={checkNetworkStatus}
-              className="text-blue-600 hover:text-blue-800 underline"
-            >
-              Refresh Status
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Error Display */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           {error}
+        </div>
+      )}
+
+      {/* Success Display */}
+      {isSuccess && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
+            Project created successfully! Redirecting...
+          </div>
         </div>
       )}
 
@@ -372,6 +286,7 @@ export function ProjectForm({
           onChange={(e) => handleFieldChange('name', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           placeholder="Enter project name"
+          disabled={isSubmitting || isSuccess}
         />
       </div>
 
@@ -388,6 +303,7 @@ export function ProjectForm({
           placeholder="Describe your project (optional)"
           rows={3}
           maxLength={500}
+          disabled={isSubmitting || isSuccess}
         />
       </div>
 
@@ -401,6 +317,7 @@ export function ProjectForm({
           value={formData.type}
           onChange={(e) => handleFieldChange('type', e.target.value as ProjectType)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          disabled={isSubmitting || isSuccess}
         >
           <option value="research-paper">Research Paper</option>
           <option value="dissertation">Dissertation</option>
@@ -424,6 +341,7 @@ export function ProjectForm({
           value={formData.visibility}
           onChange={(e) => handleFieldChange('visibility', e.target.value as ProjectVisibility)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          disabled={isSubmitting || isSuccess}
         >
           <option value="private">Private</option>
           <option value="shared">Shared</option>
@@ -445,6 +363,7 @@ export function ProjectForm({
             onKeyPress={handleTagKeyPress}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Add tags (press Enter or comma to add)"
+            disabled={isSubmitting || isSuccess}
           />
           {formData.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -478,6 +397,7 @@ export function ProjectForm({
           value={formData.writingStyle}
           onChange={(e) => handleFieldChange('writingStyle', e.target.value as WritingStyle)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          disabled={isSubmitting || isSuccess}
         >
           <option value="academic">Academic</option>
           <option value="technical">Technical</option>
@@ -496,6 +416,7 @@ export function ProjectForm({
           value={formData.citationFormat}
           onChange={(e) => handleFieldChange('citationFormat', e.target.value as CitationFormat)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          disabled={isSubmitting || isSuccess}
         >
           <option value="apa">APA</option>
           <option value="mla">MLA</option>
@@ -513,6 +434,7 @@ export function ProjectForm({
           checked={formData.enableCollaboration}
           onChange={(e) => handleFieldChange('enableCollaboration', e.target.checked)}
           className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+          disabled={isSubmitting || isSuccess}
         />
         <label htmlFor="enable-collaboration" className="ml-2 block text-sm text-text-primary">
           Enable real-time collaboration
@@ -525,16 +447,23 @@ export function ProjectForm({
           type="button"
           variant="outline"
           onClick={handleCancel}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isSuccess}
         >
           Cancel
         </Button>
         <Button
           type="submit"
           variant="default"
-          disabled={isSubmitting || !isOnline}
+          disabled={isSubmitting || isSuccess}
         >
-          {isSubmitting ? 'Creating...' : isOnline ? 'Create Project' : 'Offline - Cannot Create'}
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Creating...
+            </>
+          ) : (
+            'Create Project'
+          )}
         </Button>
       </div>
     </form>

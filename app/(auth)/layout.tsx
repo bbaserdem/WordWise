@@ -38,7 +38,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             AI-first writing assistant for STEM graduate students
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow-soft p-8">
+        <div className="bg-background-primary rounded-lg shadow-soft p-8">
           {children}
         </div>
       </div>

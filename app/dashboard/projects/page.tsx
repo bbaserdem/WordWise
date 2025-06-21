@@ -56,89 +56,62 @@ export default function ProjectsPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-text-secondary">Loading projects...</p>
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
           </div>
         </div>
       )}
 
-      {/* Projects List */}
-      {!isLoading && projects.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="bg-white p-6 rounded-lg shadow-soft border border-primary-200 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-text-primary truncate">
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projects.map((project) => (
+          <Link
+            key={project.id}
+            href={`/dashboard/projects/${project.id}`}
+            className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-text-primary mb-2">
                   {project.name}
                 </h3>
-                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 text-primary-800 ml-2 flex-shrink-0">
-                  {project.type.replace('-', ' ')}
-                </span>
-              </div>
-              
-              {project.description && (
-                <p className="text-text-secondary text-sm mb-4 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {project.description}
+                <p className="text-sm text-text-secondary line-clamp-2">
+                  {project.description || 'No description'}
                 </p>
-              )}
-
-              <div className="flex items-center justify-between text-xs text-text-secondary mb-4">
-                <span>Status: {project.status}</span>
-                <span>Visibility: {project.visibility}</span>
               </div>
-
-              {project.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {project.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {project.tags.length > 3 && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                      +{project.tags.length - 3} more
-                    </span>
-                  )}
-                </div>
-              )}
-
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-text-secondary">
-                  {project.stats.documentCount} documents
+              <div className="ml-4">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  {project.type}
                 </span>
-                <Link href={`/dashboard/projects/${project.id}`}>
-                  <Button variant="outline" size="sm">
-                    Open Project
-                  </Button>
-                </Link>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="flex items-center justify-between text-sm text-text-secondary">
+              <span>
+                {project.stats.documentCount || 0} document{project.stats.documentCount !== 1 ? 's' : ''}
+              </span>
+              <span>
+                {new Date(project.updatedAt).toLocaleDateString()}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
 
       {/* Empty State */}
-      {!isLoading && projects.length === 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
-          <div className="text-center py-12">
+      {projects.length === 0 && (
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
+          <div className="text-center">
             <h3 className="text-lg font-semibold text-text-primary mb-2">
               No projects yet
             </h3>
-            <p className="text-text-secondary mb-6">
-              Create your first project to start writing with AI assistance.
+            <p className="text-text-secondary mb-4">
+              Create your first project to get started with WordWise.
             </p>
             <Link href="/dashboard/projects/new">
-              <Button variant="default">
-                Create Your First Project
-              </Button>
+              <Button>Create Your First Project</Button>
             </Link>
           </div>
         </div>

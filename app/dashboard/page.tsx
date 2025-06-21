@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Quick Actions */}
-          <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+          <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
             <h3 className="text-lg font-semibold text-text-primary mb-4">
               Quick Actions
             </h3>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           </div>
 
           {/* User Info */}
-          <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+          <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
             <h3 className="text-lg font-semibold text-text-primary mb-4">
               Your Profile
             </h3>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Getting Started */}
-          <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+          <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
             <h3 className="text-lg font-semibold text-text-primary mb-4">
               Getting Started
             </h3>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity Placeholder */}
-        <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200">
+        <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200">
           <h3 className="text-lg font-semibold text-text-primary mb-4">
             Recent Activity
           </h3>

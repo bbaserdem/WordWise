@@ -13,4 +13,6 @@
 export { useAuth } from '@/lib/auth/auth-context';
 
 // Export custom hooks here as they are created
+export { useFirestoreConnection } from './use-firestore-connection';
+export { useDocument } from './use-documents';
 // Example: export { useProjects } from './use-projects'; 

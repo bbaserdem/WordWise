@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <AuthGuard>
       <ErrorBoundary>
-        <div className="min-h-screen bg-background-secondary">
+        <div className="min-h-screen bg-background-secondary dark:bg-background-primary">
           {/* Header */}
           <Header
             isSidebarOpen={isSidebarOpen}
@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               
               {/* Page content */}
-              <div className="bg-white rounded-lg shadow-soft p-6">
+              <div className="bg-white dark:bg-background-primary rounded-lg shadow-soft p-6">
                 {children}
               </div>
             </main>

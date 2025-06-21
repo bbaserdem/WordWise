@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { History, RotateCcw, Eye, Calendar, User } from 'lucide-react';
+import { History, RotateCcw, Eye, Calendar, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { useAuth } from '@/hooks';
@@ -168,142 +168,70 @@ export function VersionHistory({
 
   return (
     <div className={cn('fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center', className)}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-3/4 flex flex-col">
+      <div className="bg-background-primary rounded-lg shadow-xl w-full max-w-4xl h-3/4 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-primary-200">
-          <div className="flex items-center space-x-2">
-            <History className="w-5 h-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-text-primary">Version History</h2>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-primary-800 bg-background-primary">
+          <h2 className="text-lg font-semibold text-text-primary">Version History</h2>
+          <button
             onClick={onClose}
+            className="text-text-secondary hover:text-text-primary transition-colors"
           >
-            Close
-          </Button>
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
-          {/* Version List */}
-          <div className="w-1/3 border-r border-primary-200 overflow-y-auto">
-            <div className="p-4">
-              <h3 className="text-sm font-medium text-text-primary mb-3">Versions</h3>
-              
-              {isLoading ? (
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                  <p className="text-sm text-text-secondary mt-2">Loading versions...</p>
+        <div className="flex-1 flex overflow-hidden bg-background-primary">
+          {/* Versions List */}
+          <div className="w-1/3 border-r border-gray-200 dark:border-primary-800 p-4 overflow-y-auto">
+            <h3 className="text-sm font-medium text-text-primary mb-3">Versions</h3>
+            <div className="space-y-2">
+              {versions.map((version, index) => (
+                <div
+                  key={version.id}
+                  onClick={() => setSelectedVersion(version)}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors bg-background-primary ${
+                    selectedVersion?.id === version.id
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-gray-200 dark:border-primary-800 hover:border-primary-300 dark:hover:border-primary-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-text-primary">
+                      Version {versions.length - index}
+                    </span>
+                    <span className="text-xs text-text-secondary">
+                      {formatTimestamp(version.createdAt)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-text-secondary">
+                    {version.isAutoSave ? 'Auto-save' : 'Manual save'}
+                  </div>
                 </div>
-              ) : versions.length === 0 ? (
-                <div className="text-center py-4">
-                  <p className="text-sm text-text-secondary">No versions found</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {versions.map((version) => {
-                    const diff = calculateDiff(version.content, currentContent);
-                    const isSelected = selectedVersion?.id === version.id;
-                    
-                    return (
-                      <div
-                        key={version.id}
-                        className={cn(
-                          'p-3 rounded-lg border cursor-pointer transition-colors',
-                          isSelected
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-primary-200 hover:border-primary-300 hover:bg-primary-25'
-                        )}
-                        onClick={() => handleVersionSelect(version)}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-text-primary">
-                              Version {version.version}
-                            </span>
-                            {version.isAutoSave && (
-                              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                Auto-save
-                              </span>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleVersionRestore(version);
-                            }}
-                            className="text-primary-600 hover:text-primary-700"
-                          >
-                            <RotateCcw className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="text-xs text-text-secondary mb-2">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{formatTimestamp(version.createdAt)}</span>
-                          </div>
-                        </div>
-                        
-                        {version.description && (
-                          <p className="text-xs text-text-secondary mb-2">
-                            {version.description}
-                          </p>
-                        )}
-                        
-                        <div className="text-xs text-text-secondary">
-                          <span>{version.content.split(/\s+/).length} words</span>
-                          {diff.added > 0 && (
-                            <span className="text-green-600 ml-2">+{diff.added} added</span>
-                          )}
-                          {diff.removed > 0 && (
-                            <span className="text-red-600 ml-2">-{diff.removed} removed</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              ))}
             </div>
           </div>
 
-          {/* Version Content */}
+          {/* Version Preview */}
           <div className="flex-1 flex flex-col">
             {selectedVersion ? (
               <>
-                <div className="p-4 border-b border-primary-200">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-text-primary">
-                      Version {selectedVersion.version} Content
-                    </h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleVersionRestore(selectedVersion)}
-                    >
-                      <RotateCcw className="w-4 h-4 mr-2" />
-                      Restore This Version
-                    </Button>
-                  </div>
+                <div className="p-4 border-b border-gray-200 dark:border-primary-800 bg-background-primary">
+                  <h3 className="text-sm font-medium text-text-primary">
+                    Version {versions.findIndex(v => v.id === selectedVersion.id) + 1} Preview
+                  </h3>
+                  <p className="text-xs text-text-secondary mt-1">
+                    {formatTimestamp(selectedVersion.createdAt)}
+                  </p>
                 </div>
-                
-                <div className="flex-1 overflow-y-auto p-4">
-                  <div className="prose prose-sm max-w-none">
-                    <pre className="whitespace-pre-wrap font-serif text-text-primary text-sm leading-relaxed">
-                      {selectedVersion.content}
-                    </pre>
-                  </div>
+                <div className="flex-1 overflow-y-auto p-4 bg-background-primary">
+                  <pre className="whitespace-pre-wrap font-serif text-base leading-relaxed text-text-primary bg-gray-50 dark:bg-background-secondary p-4 rounded-lg border border-gray-200 dark:border-primary-800">
+                    {selectedVersion.content}
+                  </pre>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <Eye className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
-                  <p className="text-text-secondary">Select a version to view its content</p>
-                </div>
+              <div className="flex-1 flex items-center justify-center bg-background-primary">
+                <p className="text-text-secondary">Select a version to preview</p>
               </div>
             )}
           </div>

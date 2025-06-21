@@ -12,6 +12,12 @@
 
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+
+// Force emulator usage for this script
+process.env.NEXT_PUBLIC_USE_FIRESTORE_EMULATOR = 'true';
+process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR = 'true';
+process.env.NEXT_PUBLIC_USE_STORAGE_EMULATOR = 'true';
+
 import { firestore } from '../lib/firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { Project } from '../types/project';

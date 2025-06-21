@@ -20,7 +20,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks';
 import { getProject } from '@/lib/db/projects';
 import { createDocument } from '@/lib/db/documents';
-import type { Project, CreateDocumentFormData, DocumentType } from '@/types';
+import type { Project } from '@/types/project';
+import type { CreateDocumentFormData, DocumentType } from '@/types/document';
 
 /**
  * Document creation page component.
@@ -44,6 +45,7 @@ export default function CreateDocumentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<CreateDocumentFormData>({
@@ -101,7 +103,7 @@ export default function CreateDocumentPage() {
    * @since 1.0.0
    */
   const handleFieldChange = (field: keyof CreateDocumentFormData, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev: CreateDocumentFormData) => ({
       ...prev,
       [field]: value,
     }));
@@ -137,7 +139,7 @@ export default function CreateDocumentPage() {
   const removeTag = (tagToRemove: string) => {
     handleFieldChange(
       'tags',
-      formData.tags.filter(tag => tag !== tagToRemove)
+      formData.tags.filter((tag: string) => tag !== tagToRemove)
     );
   };
 
@@ -211,19 +213,32 @@ export default function CreateDocumentPage() {
       return;
     }
 
+    // Prevent multiple submissions
+    if (isCreating) {
+      return;
+    }
+
     try {
       setIsCreating(true);
       setError(null);
 
+      console.log('Creating document...', formData);
+
       // Create the document
       const newDocument = await createDocument(user.uid, projectId, formData);
+      console.log('Document created successfully:', newDocument);
 
-      // Redirect to the document editor
-      router.push(`/dashboard/projects/${projectId}/documents/${newDocument.id}`);
+      // Show success state
+      setIsSuccess(true);
+
+      // Small delay to ensure UI updates and user sees success
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Redirect to the document editor with replace to prevent back button issues
+      router.replace(`/dashboard/projects/${projectId}/documents/${newDocument.id}`);
     } catch (error) {
       console.error('Error creating document:', error);
       setError('Failed to create document. Please try again.');
-    } finally {
       setIsCreating(false);
     }
   };
@@ -446,22 +461,39 @@ export default function CreateDocumentPage() {
           </div>
         )}
 
+        {/* Success Display */}
+        {isSuccess && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
+              Document created successfully! Redirecting...
+            </div>
+          </div>
+        )}
+
         {/* Form Actions */}
         <div className="flex justify-end space-x-3 pt-6">
           <Button
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={isCreating}
+            disabled={isCreating || isSuccess}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={isCreating}
+            disabled={isCreating || isSuccess}
           >
             <Save className="w-4 h-4 mr-2" />
-            {isCreating ? 'Creating...' : 'Create Document'}
+            {isCreating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Creating...
+              </>
+            ) : (
+              'Create Document'
+            )}
           </Button>
         </div>
       </form>

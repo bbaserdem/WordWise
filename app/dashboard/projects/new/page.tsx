@@ -34,12 +34,6 @@ export default function NewProjectPage() {
    * @param projectId - ID of the created project
    */
   const handleProjectCreated = (projectId: string) => {
-    // Check network connectivity before navigation
-    if (!navigator.onLine) {
-      console.error('Cannot navigate to project page while offline');
-      return;
-    }
-    
     // Navigate to the new project
     router.push(`/dashboard/projects/${projectId}`);
   };
@@ -55,7 +49,7 @@ export default function NewProjectPage() {
         </Link>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-soft border border-primary-200 max-w-2xl">
+      <div className="bg-background-primary p-6 rounded-lg shadow-soft border border-primary-200 max-w-2xl">
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-text-primary mb-2">
             Project Details

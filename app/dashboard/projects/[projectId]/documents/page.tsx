@@ -323,7 +323,7 @@ export default function DocumentsPage() {
           {filteredAndSortedDocuments.map((doc) => (
             <div
               key={doc.id}
-              className="bg-white rounded-lg border border-primary-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-background-primary rounded-lg border border-primary-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => handleDocumentSelect(doc.id)}
             >
               <div className="flex items-start justify-between mb-4">

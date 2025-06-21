@@ -34,6 +34,8 @@ interface TextEditorProps {
   onSave?: (document: Document) => void;
   /** Callback when document content changes */
   onContentChange?: (content: string) => void;
+  /** Real-time update function (optional) */
+  updateContent?: (content: string, options?: { isAutoSave?: boolean; description?: string }) => Promise<void>;
   /** Whether to show the editor in full-screen mode */
   fullScreen?: boolean;
   /** Additional CSS classes */
@@ -57,6 +59,7 @@ type SaveStatus = 'saved' | 'saving' | 'error' | 'offline' | 'unsaved';
  * @param document - The document to edit
  * @param onSave - Callback when document is saved
  * @param onContentChange - Callback when document content changes
+ * @param updateContent - Real-time update function (optional)
  * @param fullScreen - Whether to show the editor in full-screen mode
  * @param className - Additional CSS classes
  * @returns The text editor component
@@ -67,6 +70,7 @@ type SaveStatus = 'saved' | 'saving' | 'error' | 'offline' | 'unsaved';
  *   document={currentDocument}
  *   onSave={(doc) => console.log('Document saved:', doc)}
  *   onContentChange={(content) => console.log('Content changed:', content)}
+ *   updateContent={updateContent}
  * />
  * ```
  *
@@ -76,6 +80,7 @@ export function TextEditor({
   document,
   onSave,
   onContentChange,
+  updateContent,
   fullScreen = false,
   className,
 }: TextEditorProps) {
@@ -103,6 +108,14 @@ export function TextEditor({
     setCharacterCount(characters);
   }, [content]);
 
+  // Update content when document content changes (e.g., from version restoration)
+  useEffect(() => {
+    setContent(document.content);
+    contentRef.current = document.content;
+    hasUnsavedChangesRef.current = false;
+    setSaveStatus('saved');
+  }, [document.content]);
+
   // Auto-save functionality
   const autoSave = useCallback(async () => {
     console.log('Auto-save triggered:', {
@@ -125,38 +138,47 @@ export function TextEditor({
       setSaveStatus('saving');
       lastSaveTimeRef.current = now;
       
-      // Update document content
-      const updatedDocument = await updateDocument(document.id, user.uid, {
-        title: document.title,
-        description: document.metadata.description || '',
-        type: document.type,
-        status: document.status,
-        content: contentRef.current,
-        tags: document.tags,
-        order: document.order,
-        metadata: {
-          ...document.metadata,
-        },
-      });
+      if (updateContent) {
+        // Use real-time update function if available
+        await updateContent(contentRef.current, { 
+          isAutoSave: true, 
+          description: 'Auto-save' 
+        });
+      } else {
+        // Fallback to traditional update method
+        const updatedDocument = await updateDocument(document.id, user.uid, {
+          title: document.title,
+          description: document.metadata.description || '',
+          type: document.type,
+          status: document.status,
+          content: contentRef.current,
+          tags: document.tags,
+          order: document.order,
+          metadata: {
+            ...document.metadata,
+          },
+        });
 
-      // Create version for auto-save
-      await createDocumentVersion(
-        document.id,
-        user.uid,
-        contentRef.current,
-        'Auto-save',
-        true
-      );
+        // Create version for auto-save
+        await createDocumentVersion(
+          document.id,
+          user.uid,
+          contentRef.current,
+          'Auto-save',
+          true
+        );
+
+        onSave?.(updatedDocument);
+      }
 
       setSaveStatus('saved');
       hasUnsavedChangesRef.current = false;
-      onSave?.(updatedDocument);
       console.log('Auto-save completed successfully');
     } catch (error) {
       console.error('Auto-save failed:', error);
       setSaveStatus('error');
     }
-  }, [user, document, onSave]);
+  }, [user, document, onSave, updateContent]);
 
   // Set up auto-save interval
   useEffect(() => {
@@ -195,32 +217,41 @@ export function TextEditor({
       setSaveStatus('saving');
       lastSaveTimeRef.current = now;
       
-      // Update document content
-      const updatedDocument = await updateDocument(document.id, user.uid, {
-        title: document.title,
-        description: document.metadata.description || '',
-        type: document.type,
-        status: document.status,
-        content: content,
-        tags: document.tags,
-        order: document.order,
-        metadata: {
-          ...document.metadata,
-        },
-      });
+      if (updateContent) {
+        // Use real-time update function if available
+        await updateContent(content, { 
+          isAutoSave: false, 
+          description: 'Manual save' 
+        });
+      } else {
+        // Fallback to traditional update method
+        const updatedDocument = await updateDocument(document.id, user.uid, {
+          title: document.title,
+          description: document.metadata.description || '',
+          type: document.type,
+          status: document.status,
+          content: content,
+          tags: document.tags,
+          order: document.order,
+          metadata: {
+            ...document.metadata,
+          },
+        });
 
-      // Create version for manual save
-      await createDocumentVersion(
-        document.id,
-        user.uid,
-        content,
-        'Manual save',
-        false
-      );
+        // Create version for manual save
+        await createDocumentVersion(
+          document.id,
+          user.uid,
+          content,
+          'Manual save',
+          false
+        );
+
+        onSave?.(updatedDocument);
+      }
 
       setSaveStatus('saved');
       hasUnsavedChangesRef.current = false;
-      onSave?.(updatedDocument);
     } catch (error) {
       console.error('Manual save failed:', error);
       setSaveStatus('error');
@@ -283,7 +314,7 @@ export function TextEditor({
       )}
     >
       {/* Editor Toolbar */}
-      <div className="flex items-center justify-between p-4 border-b border-primary-200 bg-white">
+      <div className="flex items-center justify-between p-4 border-b border-primary-200 bg-background-primary">
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -386,16 +417,14 @@ export function TextEditor({
 
         {/* Preview Panel */}
         {showPreview && (
-          <div className="w-1/2 border-l border-primary-200 bg-white overflow-auto">
+          <div className="w-1/2 border-l border-primary-200 bg-white dark:bg-background-primary overflow-auto">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary mb-4">
                 Preview
               </h3>
-              <div className="prose prose-lg max-w-none">
-                <pre className="whitespace-pre-wrap font-serif text-text-primary">
-                  {content}
-                </pre>
-              </div>
+              <pre className="whitespace-pre-wrap font-serif text-base leading-relaxed text-gray-900 dark:text-text-primary">
+                {content}
+              </pre>
             </div>
           </div>
         )}
