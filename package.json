@@ -1,6 +1,6 @@
 {
   "name": "wordwise",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An AI-first writing assistant for STEM graduate students",
   "private": true,
   "scripts": {
