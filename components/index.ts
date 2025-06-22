@@ -11,11 +11,17 @@
 // UI Components
 export * from './ui';
 
+// Common Components
+export * from './common/connection-status';
+export * from './common/version-display';
+
+// Editor Components
+export * from './editor/text-editor';
+export * from './editor/version-history';
+export * from './editor/confidence-indicator';
+
 // Layout Components
 export * from './layout';
-
-// Common Components
-export * from './common';
 
 // Form Components
 export * from './forms'; 

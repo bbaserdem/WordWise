@@ -15,6 +15,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { VERSION_UTILS } from '@/lib/constants/version';
 
 /**
  * Props for the Sidebar component.
@@ -246,7 +247,7 @@ export function Sidebar({
           {/* Sidebar footer */}
           <div className="p-4 border-t border-gray-200 dark:border-primary-800">
             <div className="text-xs text-text-secondary text-center">
-              <p>WordWise v1.0.0</p>
+              <p>WordWise {VERSION_UTILS.getDisplayVersion()}</p>
               <p className="mt-1">AI-first writing assistant</p>
             </div>
           </div>
