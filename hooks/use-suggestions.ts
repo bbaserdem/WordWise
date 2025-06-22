@@ -260,6 +260,16 @@ export function useSuggestions(
             enableGrammarCheck: true,
             enableStyleCheck: true,
           },
+          // Enable AI suggestions by default
+          includeAI: true,
+          writingContext: {
+            documentType: 'general',
+            subject: 'General',
+            academicLevel: 'graduate',
+            targetAudience: 'academic',
+          },
+          userGoals: ['improve clarity', 'enhance style'],
+          aiSuggestionTypes: ['style', 'clarity', 'improvement'],
           ...options,
         }),
         signal: abortControllerRef.current.signal,
@@ -600,6 +610,16 @@ export function useSuggestions(
             enableGrammarCheck: true,
             enableStyleCheck: true,
           },
+          // Enable AI suggestions by default
+          includeAI: true,
+          writingContext: {
+            documentType: 'general',
+            subject: 'General',
+            academicLevel: 'graduate',
+            targetAudience: 'academic',
+          },
+          userGoals: ['improve clarity', 'enhance style'],
+          aiSuggestionTypes: ['style', 'clarity', 'improvement'],
           ...options,
         }),
         signal: abortControllerRef.current.signal,

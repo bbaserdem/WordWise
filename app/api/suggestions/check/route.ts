@@ -4,6 +4,7 @@
  * This route provides grammar, spelling, and style checking functionality
  * using LanguageTool. It processes text and returns structured suggestions
  * for improving writing quality with performance optimization for real-time use.
+ * Now includes AI-powered writing suggestions for enhanced assistance.
  *
  * @author WordWise Team
  * @version 1.0.0
@@ -13,7 +14,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkGrammar } from '@/lib/suggestions/grammar-checker';
 import { processSuggestions } from '@/lib/suggestions/suggestion-processor';
+import { generateAISuggestions } from '@/lib/suggestions/ai-suggestion-generator';
 import type { GrammarCheckRequest, ProcessedSuggestions } from '@/types/suggestion';
+import type { AISuggestionGenerationRequest } from '@/lib/suggestions/ai-suggestion-generator';
 
 /**
  * Validate grammar check request data.
@@ -48,7 +51,8 @@ function validateGrammarCheckRequest(request: GrammarCheckRequest): { isValid: b
  *
  * This endpoint processes text for grammar, spelling, and style issues
  * and returns structured suggestions. It's optimized for real-time use
- * with performance constraints and error handling.
+ * with performance constraints and error handling. Now includes AI-powered
+ * suggestions for enhanced writing assistance.
  *
  * @param request - Next.js request object
  * @returns Next.js response with grammar check results
@@ -64,7 +68,14 @@ function validateGrammarCheckRequest(request: GrammarCheckRequest): { isValid: b
  *     preferences: {
  *       enableSpellCheck: true,
  *       enableGrammarCheck: true
- *     }
+ *     },
+ *     // New AI options
+ *     includeAI: true,
+ *     writingContext: {
+ *       documentType: 'research-paper',
+ *       subject: 'Computer Science'
+ *     },
+ *     userGoals: ['improve clarity', 'enhance academic tone']
  *   })
  * });
  * ```
@@ -94,33 +105,88 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Perform grammar check
-    const grammarResponse = await checkGrammar(grammarRequest);
-    console.log('[API] Grammar check response:', grammarResponse);
+    // Check if AI suggestions are requested
+    const includeAI = (body as any).includeAI === true;
+    const writingContext = (body as any).writingContext;
+    const userGoals = (body as any).userGoals || [];
+    const aiSuggestionTypes = (body as any).aiSuggestionTypes || ['style', 'clarity'];
 
-    if (!grammarResponse.success) {
-      console.log('[API] Grammar check failed:', grammarResponse.error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: grammarResponse.error || 'Grammar check failed',
-          processingTime: Date.now() - startTime 
-        },
-        { status: 500 }
+    let processedSuggestions: ProcessedSuggestions;
+    let aiStats: any = undefined;
+
+    if (includeAI && writingContext) {
+      // Use AI-enhanced suggestion generation
+      const aiRequest: AISuggestionGenerationRequest = {
+        ...grammarRequest,
+        writingContext,
+        userGoals,
+        aiSuggestionTypes,
+        includeAI: true,
+        aiMinConfidence: 0.6,
+        maxAISuggestionsPerType: 3,
+      };
+
+      const aiResponse = await generateAISuggestions(aiRequest);
+      
+      if (aiResponse.success) {
+        processedSuggestions = aiResponse.suggestions;
+        aiStats = aiResponse.aiStats;
+      } else {
+        console.log('[API] AI suggestions failed, falling back to grammar-only:', aiResponse.error);
+        // Fallback to grammar-only suggestions
+        const grammarResponse = await checkGrammar(grammarRequest);
+        
+        if (!grammarResponse.success) {
+          console.log('[API] Grammar check failed:', grammarResponse.error);
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: grammarResponse.error || 'Grammar check failed',
+              processingTime: Date.now() - startTime 
+            },
+            { status: 500 }
+          );
+        }
+
+        processedSuggestions = processSuggestions(
+          grammarResponse.suggestions,
+          grammarRequest.documentId || 'temp',
+          'system', // Will be replaced with actual user ID in production
+          {
+            minConfidence: 0.5,
+            maxSuggestions: 50,
+            filterBySeverity: ['low', 'medium', 'high', 'critical'],
+          }
+        );
+      }
+    } else {
+      // Use traditional grammar-only checking
+      const grammarResponse = await checkGrammar(grammarRequest);
+      console.log('[API] Grammar check response:', grammarResponse);
+
+      if (!grammarResponse.success) {
+        console.log('[API] Grammar check failed:', grammarResponse.error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: grammarResponse.error || 'Grammar check failed',
+            processingTime: Date.now() - startTime 
+          },
+          { status: 500 }
+        );
+      }
+
+      processedSuggestions = processSuggestions(
+        grammarResponse.suggestions,
+        grammarRequest.documentId || 'temp',
+        'system', // Will be replaced with actual user ID in production
+        {
+          minConfidence: 0.5,
+          maxSuggestions: 50, // Limit for real-time performance
+          filterBySeverity: ['low', 'medium', 'high', 'critical'],
+        }
       );
     }
-
-    // Process suggestions into structured format
-    const processedSuggestions: ProcessedSuggestions = processSuggestions(
-      grammarResponse.suggestions,
-      grammarRequest.documentId || 'temp',
-      'system', // Will be replaced with actual user ID in production
-      {
-        minConfidence: 0.5,
-        maxSuggestions: 50, // Limit for real-time performance
-        filterBySeverity: ['low', 'medium', 'high', 'critical'],
-      }
-    );
 
     const processingTime = Date.now() - startTime;
 
@@ -129,13 +195,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       suggestions: processedSuggestions,
-      language: grammarResponse.language,
+      language: grammarRequest.language,
       processingTime,
+      aiStats,
       stats: {
         totalSuggestions: processedSuggestions.stats.total,
         spellingSuggestions: processedSuggestions.stats.spelling,
         grammarSuggestions: processedSuggestions.stats.grammar,
         styleSuggestions: processedSuggestions.stats.style,
+        aiSuggestions: processedSuggestions.stats.ai,
         highSeveritySuggestions: processedSuggestions.stats.highSeverity,
       },
     });
@@ -180,8 +248,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       success: true,
       message: 'Grammar checking API is available',
       endpoints: {
-        POST: '/api/suggestions/check - Check text for grammar and spelling issues',
-        GET: '/api/suggestions/check?health=true - Health check',
+        'POST /api/suggestions/check': 'Check text for grammar and spelling issues',
+        'GET /api/suggestions/check?health=true': 'Health check',
+        'POST /api/suggestions/ai': 'Generate AI writing suggestions',
+        'GET /api/suggestions/ai?health=true': 'AI service health check',
+      },
+      features: {
+        grammarChecking: true,
+        spellChecking: true,
+        styleChecking: true,
+        aiSuggestions: true,
+        realTimeProcessing: true,
       },
     });
 

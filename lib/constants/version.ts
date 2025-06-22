@@ -21,13 +21,13 @@
  */
 export const APP_VERSION = {
   /** Full version string */
-  version: '0.2.1',
+  version: '0.2.4+',
   /** Major version number */
   major: 0,
   /** Minor version number (phase) */
   minor: 2,
   /** Patch version number (task) */
-  patch: 1,
+  patch: 4,
   /** Build number (optional) */
   build: process.env.NEXT_PUBLIC_BUILD_NUMBER || 'dev',
   /** Build date */
@@ -43,24 +43,24 @@ export const APP_VERSION = {
  */
 export const PHASE_INFO = {
   /** Current phase number */
-  current: 2,
+  current: 3,
   /** Current phase name */
-  name: 'MVP - Core Writing Assistant',
+  name: 'Enhanced - AI-Powered Writing Assistant',
   /** Current phase description */
-  description: 'Real-time grammar and spell checking with confidence scores',
+  description: 'AI-powered writing suggestions with context-aware improvements',
   /** Current task number */
   task: 1,
   /** Current task name */
-  taskName: 'Real-Time Grammar & Spell Checking',
+  taskName: 'AI-Powered Writing Suggestions',
   /** Task description */
-  taskDescription: 'Implement comprehensive writing assistance with real-time feedback and confidence scoring',
+  taskDescription: 'Implement intelligent, context-aware writing assistance using large language models',
   /** Phase completion status */
   isComplete: false,
   /** Next phase information */
   nextPhase: {
-    number: 2,
-    name: 'Enhanced Writing Assistant',
-    description: 'AI-powered suggestions and advanced features',
+    number: 4,
+    name: 'Polished - Advanced Features',
+    description: 'Advanced collaboration, templates, and enterprise features',
   },
 } as const;
 
@@ -198,11 +198,11 @@ export const FEATURE_FLAGS = {
   /** Whether real-time grammar checking is enabled */
   realtimeGrammarChecking: true, // Enabled in 0.2.1
   /** Whether AI suggestions are enabled */
-  aiSuggestions: false, // Will be enabled in Phase 2.2
+  aiSuggestions: true, // Enabled in 0.2.4+
   /** Whether advanced collaboration is enabled */
-  advancedCollaboration: false, // Will be enabled in Phase 3
+  advancedCollaboration: false, // Will be enabled in Phase 4
   /** Whether export to LaTeX is enabled */
-  latexExport: false, // Will be enabled in Phase 2.3
+  latexExport: false, // Will be enabled in Phase 4
 } as const;
 
 /**
@@ -237,6 +237,22 @@ export const VERSION_HISTORY = [
     description: 'Enhanced grammar checking with confidence scores',
     date: '2024-01-20',
     features: ['Real-time grammar checking', 'Confidence scores', 'Visual suggestion system'],
+  },
+  {
+    version: '0.2.4+',
+    phase: 3,
+    task: 1,
+    name: 'AI-Powered Writing Suggestions',
+    description: 'Intelligent, context-aware writing assistance using large language models',
+    date: '2024-01-25',
+    features: [
+      'OpenAI GPT integration',
+      'Context-aware AI suggestions',
+      'Style, clarity, and improvement suggestions',
+      'Intelligent suggestion deduplication',
+      'Real-time AI writing assistance',
+      'Academic writing optimization'
+    ],
   },
 ] as const;
 

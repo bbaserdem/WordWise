@@ -484,15 +484,46 @@ export function TextEditor({
    * @param suggestionIds - Array of suggestion IDs to process
    * @since 1.0.0
    */
-  const handleBulkSuggestionAction = useCallback((action: 'accept' | 'ignore', suggestionIds: string[]) => {
-    suggestionIds.forEach(suggestionId => {
-      if (action === 'accept') {
-        handleAcceptSuggestion(suggestionId);
-      } else {
-        handleIgnoreSuggestion(suggestionId);
+  const handleBulkSuggestionAction = useCallback(async (action: 'accept' | 'ignore', suggestionIds: string[]) => {
+    if (action === 'accept') {
+      // Apply suggestions sequentially to avoid position conflicts
+      let currentContent = content;
+      const suggestionsToApply = suggestionIds
+        .map(id => suggestions.all.find(s => s.id === id))
+        .filter(Boolean)
+        .sort((a, b) => a!.position.start - b!.position.start); // Sort by position to apply in order
+      
+      for (const suggestion of suggestionsToApply) {
+        if (!suggestion) continue;
+        
+        // Clear suggestions before applying each one
+        clearSuggestions();
+        
+        // Apply the suggestion to the current content
+        currentContent = currentContent.substring(0, suggestion.position.start) + 
+                        suggestion.suggestion + 
+                        currentContent.substring(suggestion.position.end);
+        
+        // Mark the suggestion as accepted
+        acceptSuggestion(suggestion.id);
+        
+        console.log('Applied suggestion in bulk:', {
+          id: suggestion.id,
+          original: suggestion.original,
+          suggestion: suggestion.suggestion,
+          position: suggestion.position
+        });
       }
-    });
-  }, [handleAcceptSuggestion, handleIgnoreSuggestion]);
+      
+      // Update content once with all changes
+      handleContentChange(currentContent);
+    } else {
+      // For ignore, we can do them all at once
+      suggestionIds.forEach(suggestionId => {
+        ignoreSuggestion(suggestionId);
+      });
+    }
+  }, [content, suggestions.all, handleContentChange, acceptSuggestion, ignoreSuggestion, clearSuggestions]);
 
   /**
    * Handle suggestion click for navigation.
