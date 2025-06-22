@@ -13,3 +13,7 @@ alwaysApply: true
 
 - When you encounter a build error, perform a scan of all possible locations that other occurrences of this error in the project might be encountered.
 - When an error is reported, first scan all occurences of the source of the error, and plan to fix the error without reintroducing it elsewhere.
+
+# New feature principles
+
+- Whenever a new feature is implemented, scan the codebase to see if any previously hardcoded parts can be adapted to use this new feature. Give a report on these locations before adapting to new implementation. Ask for confirmation before you start adapting.
