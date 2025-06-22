@@ -52,6 +52,11 @@ export default function DocumentEditorPage({
     restoreVersion,
     refreshDocument,
     clearDocument,
+    updateContent,
+    trackContentChange,
+    isSaving,
+    hasUnsavedChanges,
+    lastSavedAt,
   } = useDocument(documentId);
 
   const handleVersionRestore = async (version: DocumentVersion) => {
@@ -121,6 +126,11 @@ export default function DocumentEditorPage({
       <div className="flex-1 overflow-auto">
         <TextEditor
           document={document}
+          updateContent={updateContent}
+          trackContentChange={trackContentChange}
+          isSaving={isSaving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          lastSavedAt={lastSavedAt?.toISOString()}
           onContentChange={() => {
             // Content change handling is done within the TextEditor component
           }}

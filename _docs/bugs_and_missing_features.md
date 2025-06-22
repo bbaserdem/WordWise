@@ -8,7 +8,7 @@ Whenever we are in a bugfix cycle, pull from main to keep up to date.
 
 - [ ] Document ordering doesn't work on project page.
 - [x] Document count and date doesn't work on project dashboard.
-- [ ] Implemented auto-save feature broke
+- [x] Implemented auto-save feature broke
 - [ ] Suggestions tracker at the bottom requires
 
 ## Missing Features

@@ -38,6 +38,8 @@ interface TextEditorProps {
   onContentChange?: (content: string) => void;
   /** Real-time update function (optional) */
   updateContent?: (content: string, options?: { isAutoSave?: boolean; description?: string }) => Promise<void>;
+  /** Function to track content changes for unsaved changes state */
+  trackContentChange?: (content: string) => void;
   /** Whether to show the editor in full-screen mode */
   fullScreen?: boolean;
   /** Additional CSS classes */
@@ -70,6 +72,7 @@ type SaveStatus = 'saved' | 'saving' | 'error' | 'offline' | 'unsaved';
  * @param onSave - Callback when document is saved
  * @param onContentChange - Callback when document content changes
  * @param updateContent - Real-time update function (optional)
+ * @param trackContentChange - Function to track content changes for unsaved changes state
  * @param fullScreen - Whether to show the editor in full-screen mode
  * @param className - Additional CSS classes
  * @param enableGrammarChecking - Whether to enable real-time grammar checking
@@ -82,6 +85,7 @@ type SaveStatus = 'saved' | 'saving' | 'error' | 'offline' | 'unsaved';
  *   onSave={(doc) => console.log('Document saved:', doc)}
  *   onContentChange={(content) => console.log('Content changed:', content)}
  *   updateContent={updateContent}
+ *   trackContentChange={trackContentChange}
  *   enableGrammarChecking={true}
  * />
  * ```
@@ -93,6 +97,7 @@ export function TextEditor({
   onSave,
   onContentChange,
   updateContent,
+  trackContentChange,
   fullScreen = false,
   className,
   isSaving = false,
@@ -155,6 +160,19 @@ export function TextEditor({
     setSaveStatus('saved');
   }, [document.content]);
 
+  // Sync with external save status from useDocument hook
+  useEffect(() => {
+    if (isSaving) {
+      setSaveStatus('saving');
+    } else if (hasUnsavedChanges) {
+      setSaveStatus('unsaved');
+      hasUnsavedChangesRef.current = true;
+    } else {
+      setSaveStatus('saved');
+      hasUnsavedChangesRef.current = false;
+    }
+  }, [isSaving, hasUnsavedChanges]);
+
   // Trigger grammar checking when content changes
   useEffect(() => {
     if (enableGrammarChecking && content.length > 0) {
@@ -195,6 +213,8 @@ export function TextEditor({
           isAutoSave: true, 
           description: 'Auto-save' 
         });
+        setSaveStatus('saved');
+        hasUnsavedChangesRef.current = false;
       } else {
         // Fallback to traditional update method
         const updatedDocument = await updateDocument(document.id, user.uid, {
@@ -220,10 +240,10 @@ export function TextEditor({
         );
 
         onSave?.(updatedDocument);
+        setSaveStatus('saved');
+        hasUnsavedChangesRef.current = false;
       }
 
-      setSaveStatus('saved');
-      hasUnsavedChangesRef.current = false;
       console.log('Auto-save completed successfully');
     } catch (error) {
       console.error('Auto-save failed:', error);
@@ -261,17 +281,47 @@ export function TextEditor({
     }
 
     try {
-      await onSave?.(document);
+      setSaveStatus('saving');
+      
+      if (updateContent) {
+        // Use real-time update function if available
+        await updateContent(content, { 
+          isAutoSave: false, 
+          description: 'Manual save' 
+        });
+        setSaveStatus('saved');
+        hasUnsavedChangesRef.current = false;
+      } else {
+        // Fallback to traditional save method
+        await onSave?.(document);
+        setSaveStatus('saved');
+        hasUnsavedChangesRef.current = false;
+      }
+      
       console.log('Manual save completed');
     } catch (error) {
       console.error('Manual save failed:', error);
+      setSaveStatus('error');
     }
   };
 
   // Handle content changes
   const handleContentChange = useCallback((newContent: string) => {
     setContent(newContent);
+    contentRef.current = newContent;
     onContentChange?.(newContent);
+    
+    // Track content changes for unsaved changes state
+    trackContentChange?.(newContent);
+    
+    // Check if content has actually changed from the original document
+    if (newContent !== document.content) {
+      hasUnsavedChangesRef.current = true;
+      setSaveStatus('unsaved');
+    } else {
+      hasUnsavedChangesRef.current = false;
+      setSaveStatus('saved');
+    }
     
     if (document?.metadata?.enableAutoSave) {
       // Clear existing timeout
@@ -284,7 +334,7 @@ export function TextEditor({
         handleAutoSave(newContent);
       }, (document.metadata.autoSaveInterval || 30) * 1000);
     }
-  }, [document, onContentChange]);
+  }, [document, onContentChange, trackContentChange]);
 
   const handleAutoSave = async (contentToSave: string) => {
     if (!document || !contentToSave.trim()) {
@@ -293,7 +343,16 @@ export function TextEditor({
 
     setIsAutoSaving(true);
     try {
-      await onSave?.(document);
+      if (updateContent) {
+        // Use real-time update function if available
+        await updateContent(contentToSave, { 
+          isAutoSave: true, 
+          description: 'Auto-save' 
+        });
+      } else {
+        // Fallback to traditional save method
+        await onSave?.(document);
+      }
       console.log('Auto-save completed');
     } catch (error) {
       console.error('Auto-save failed:', error);

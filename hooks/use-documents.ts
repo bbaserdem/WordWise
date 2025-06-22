@@ -57,6 +57,8 @@ export interface UseDocumentReturn {
   loadDocument: (documentId: string) => Promise<void>;
   /** Update document content with real-time sync */
   updateContent: (content: string, options?: { isAutoSave?: boolean; description?: string }) => Promise<void>;
+  /** Track content changes for unsaved changes state */
+  trackContentChange: (content: string) => void;
   /** Save document manually */
   saveDocument: (updateData: UpdateDocumentFormData) => Promise<void>;
   /** Restore document version */
@@ -109,6 +111,19 @@ export function useDocument(initialDocumentId?: string): UseDocumentReturn {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [versions, setVersions] = useState<DocumentVersion[]>([]);
+
+  /**
+   * Track content changes to update unsaved changes state.
+   *
+   * @param content - Current content
+   * @since 1.0.0
+   */
+  const trackContentChange = useCallback((content: string) => {
+    if (!document) return;
+    
+    const hasChanges = content !== lastContentRef.current;
+    setHasUnsavedChanges(hasChanges);
+  }, [document]);
 
   /**
    * Load document by ID with real-time listener.
@@ -409,6 +424,7 @@ export function useDocument(initialDocumentId?: string): UseDocumentReturn {
     versions,
     loadDocument,
     updateContent,
+    trackContentChange,
     saveDocument,
     restoreVersion,
     refreshDocument,
