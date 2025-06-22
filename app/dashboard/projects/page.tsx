@@ -93,7 +93,7 @@ export default function ProjectsPage() {
                 {project.stats?.documentCount || 0} document{(project.stats?.documentCount || 0) !== 1 ? 's' : ''}
               </span>
               <span>
-                {new Date(project.updatedAt).toLocaleDateString()}
+                {project.updatedAt?.toDate?.()?.toLocaleDateString() || new Date(project.updatedAt).toLocaleDateString()}
               </span>
             </div>
           </Link>

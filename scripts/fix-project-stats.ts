@@ -64,7 +64,7 @@ const DEFAULT_PROJECT_STATS = {
  * Fix project stats for existing projects.
  *
  * This function updates all projects in the database to ensure they have
- * the proper stats property initialized.
+ * the proper stats property initialized and accurate document counts.
  *
  * @since 1.0.0
  */
@@ -115,21 +115,49 @@ async function fixProjectStats() {
 
       console.log(`🔍 Checking project: ${projectData.name} (${projectId})`);
 
+      // Get actual document count for this project
+      const documentsRef = collection(db, 'documents');
+      const documentsQuery = query(
+        documentsRef, 
+        where('projectId', '==', projectId),
+        where('userId', '==', user.uid),
+        where('status', '!=', 'archived')
+      );
+      const documentsSnapshot = await getDocs(documentsQuery);
+      const actualDocumentCount = documentsSnapshot.size;
+
+      console.log(`  📄 Found ${actualDocumentCount} active documents`);
+
       // Check if stats property exists and is properly structured
       if (!projectData.stats || typeof projectData.stats !== 'object') {
         console.log(`  ❌ Missing or invalid stats property, fixing...`);
         
-        // Update the project with proper stats
+        // Update the project with proper stats including actual document count
         const projectRef = doc(db, 'projects', projectId);
         await updateDoc(projectRef, {
-          stats: DEFAULT_PROJECT_STATS,
+          stats: {
+            ...DEFAULT_PROJECT_STATS,
+            documentCount: actualDocumentCount,
+          },
           updatedAt: Timestamp.now(),
         });
         
-        console.log(`  ✅ Fixed stats for project: ${projectData.name}`);
+        console.log(`  ✅ Fixed stats for project: ${projectData.name} (${actualDocumentCount} documents)`);
+        fixedCount++;
+      } else if (projectData.stats.documentCount !== actualDocumentCount) {
+        console.log(`  ⚠️  Document count mismatch (stored: ${projectData.stats.documentCount}, actual: ${actualDocumentCount}), fixing...`);
+        
+        // Update just the document count
+        const projectRef = doc(db, 'projects', projectId);
+        await updateDoc(projectRef, {
+          'stats.documentCount': actualDocumentCount,
+          updatedAt: Timestamp.now(),
+        });
+        
+        console.log(`  ✅ Fixed document count for project: ${projectData.name}`);
         fixedCount++;
       } else {
-        console.log(`  ✅ Project already has proper stats`);
+        console.log(`  ✅ Project already has correct stats (${actualDocumentCount} documents)`);
         skippedCount++;
       }
     }

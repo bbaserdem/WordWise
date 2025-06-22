@@ -476,4 +476,50 @@ export async function getAllProjectsForStaticGeneration(): Promise<{ id: string 
     console.error('Error getting all projects for static generation:', error);
     throw new Error('Failed to retrieve projects for static generation');
   }
+}
+
+/**
+ * Recalculate project statistics for all projects.
+ *
+ * This function recalculates statistics for all projects by counting
+ * their actual documents. This is useful for fixing data inconsistencies.
+ *
+ * @param userId - ID of the user whose projects to update
+ * @returns Number of projects updated
+ * @throws Error if recalculation fails
+ *
+ * @since 1.0.0
+ */
+export async function recalculateAllProjectStats(userId: string): Promise<number> {
+  try {
+    const { getDocumentsByProject } = await import('@/lib/db/documents');
+    
+    // Get all projects for the user
+    const projectsResponse = await getProjects(userId);
+    const projects = projectsResponse.projects;
+    
+    let updatedCount = 0;
+    
+    for (const project of projects) {
+      try {
+        // Get actual document count
+        const documents = await getDocumentsByProject(project.id, userId);
+        
+        // Update project statistics
+        await updateProjectStats(project.id, userId, {
+          documentCount: documents.length,
+        });
+        
+        updatedCount++;
+      } catch (error) {
+        console.warn(`Failed to update stats for project ${project.id}:`, error);
+        // Continue with other projects
+      }
+    }
+    
+    return updatedCount;
+  } catch (error) {
+    console.error('Error recalculating project statistics:', error);
+    throw new Error('Failed to recalculate project statistics');
+  }
 } 

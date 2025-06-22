@@ -28,6 +28,8 @@ import {
 } from 'firebase/firestore';
 
 import { getFirestore } from '@/lib/firebase/config';
+// Remove the direct import to avoid circular dependency
+// import { updateProjectStats } from '@/lib/db/projects';
 import type {
   Document,
   CreateDocumentFormData,
@@ -115,6 +117,18 @@ export async function createDocument(
 
     // Create initial version
     await createDocumentVersion(docRef.id, userId, documentData.content, 'Initial version');
+
+    // Update project statistics - increment document count
+    try {
+      const { updateProjectStats } = await import('@/lib/db/projects');
+      const currentDocuments = await getDocumentsByProject(projectId, userId);
+      await updateProjectStats(projectId, userId, {
+        documentCount: currentDocuments.length,
+      });
+    } catch (error) {
+      console.warn('Failed to update project statistics:', error);
+      // Don't throw error as document creation should still succeed
+    }
 
     return createdDocument;
   } catch (error) {
@@ -337,6 +351,12 @@ export async function deleteDocument(
   userId: string
 ): Promise<boolean> {
   try {
+    // Get the document first to get the project ID
+    const document = await getDocument(documentId, userId);
+    if (!document) {
+      throw new Error('Document not found');
+    }
+
     // For now, we'll implement a soft delete by updating the status
     await updateDocument(documentId, userId, {
       title: '', // Required by interface but not used for deletion
@@ -348,6 +368,19 @@ export async function deleteDocument(
       order: 0,
       metadata: {},
     });
+
+    // Update project statistics - recalculate document count (excluding archived)
+    try {
+      const { updateProjectStats } = await import('@/lib/db/projects');
+      const currentDocuments = await getDocumentsByProject(document.projectId, userId);
+      const activeDocuments = currentDocuments.filter(doc => doc.status !== 'archived');
+      await updateProjectStats(document.projectId, userId, {
+        documentCount: activeDocuments.length,
+      });
+    } catch (error) {
+      console.warn('Failed to update project statistics after document deletion:', error);
+      // Don't throw error as document deletion should still succeed
+    }
 
     return true;
   } catch (error) {
@@ -535,6 +568,7 @@ export async function getDocumentsByProject(
       documentsRef,
       where('projectId', '==', projectId),
       where('userId', '==', userId),
+      where('status', '!=', 'archived'), // Exclude archived documents
       orderBy('order', 'asc')
     );
 
