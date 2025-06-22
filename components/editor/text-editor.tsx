@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Download, History, Eye, EyeOff, Share2, Settings, AlertCircle, CheckCircle, Edit, PenTool } from 'lucide-react';
+import { Save, Download, History, Eye, EyeOff, Share2, Settings, AlertCircle, CheckCircle, Edit, PenTool, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/cn';
@@ -42,8 +42,8 @@ interface TextEditorProps {
   updateContent?: (content: string, options?: { isAutoSave?: boolean; description?: string }) => Promise<void>;
   /** Function to track content changes for unsaved changes state */
   trackContentChange?: (content: string) => void;
-  /** Whether to show the editor in full-screen mode */
-  fullScreen?: boolean;
+  /** Whether to show the editor in zen mode */
+  zenMode?: boolean;
   /** Additional CSS classes */
   className?: string;
   /** Whether the document is currently being saved */
@@ -75,7 +75,7 @@ type SaveStatus = 'saved' | 'saving' | 'error' | 'offline' | 'unsaved';
  * @param onContentChange - Callback when document content changes
  * @param updateContent - Real-time update function (optional)
  * @param trackContentChange - Function to track content changes for unsaved changes state
- * @param fullScreen - Whether to show the editor in full-screen mode
+ * @param zenMode - Whether to show the editor in zen mode (distraction-free)
  * @param className - Additional CSS classes
  * @param enableGrammarChecking - Whether to enable real-time grammar checking
  * @returns The text editor component
@@ -100,7 +100,7 @@ export function TextEditor({
   onContentChange,
   updateContent,
   trackContentChange,
-  fullScreen = false,
+  zenMode = false,
   className,
   isSaving = false,
   hasUnsavedChanges = false,
@@ -118,7 +118,7 @@ export function TextEditor({
   // Editor state
   const [content, setContent] = useState(document.content);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
-  const [isFullScreen, setIsFullScreen] = useState(fullScreen);
+  const [isZenMode, setIsZenMode] = useState(zenMode);
   const [showPreview, setShowPreview] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
@@ -374,10 +374,10 @@ export function TextEditor({
       handleManualSave();
     }
 
-    // Ctrl/Cmd + Enter for full-screen toggle
+    // Ctrl/Cmd + Enter for zen mode toggle
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      setIsFullScreen(!isFullScreen);
+      setIsZenMode(!isZenMode);
     }
   };
 
@@ -527,7 +527,7 @@ export function TextEditor({
     <div
       className={cn(
         'flex flex-col h-full bg-background-primary',
-        isFullScreen && 'fixed inset-0 z-50',
+        isZenMode && 'fixed inset-0 z-50',
         className
       )}
     >
@@ -556,11 +556,14 @@ export function TextEditor({
             </Button>
           )}
 
-          <div className="flex items-center space-x-1 text-sm text-text-secondary">
-            <span>{wordCount} words</span>
-            <span>•</span>
-            <span>{characterCount} characters</span>
-          </div>
+          {/* Writing Statistics Panel - Hidden in Zen Mode */}
+          {!isZenMode && (
+            <div className="flex items-center space-x-1 text-sm text-text-secondary">
+              <span>{wordCount} words</span>
+              <span>•</span>
+              <span>{characterCount} characters</span>
+            </div>
+          )}
 
           {/* Save status indicator */}
           <div className="flex items-center space-x-1">
@@ -659,9 +662,19 @@ export function TextEditor({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsFullScreen(!isFullScreen)}
+            onClick={() => setIsZenMode(!isZenMode)}
           >
-            {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+            {isZenMode ? (
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Exit Zen Mode
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Zen Mode
+              </>
+            )}
           </Button>
         </div>
       </div>

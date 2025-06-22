@@ -83,6 +83,14 @@ This phase transforms the basic setup into a functional writing assistant that d
 - Focus mode provides clean writing environment
 - Progress indicators show writing milestones
 
+**Implementation Notes**:
+
+- **Zen Mode**: Renamed from "Full Screen" to "Zen Mode" for better UX
+- **Statistics Panel**: Hidden in Zen Mode to provide distraction-free experience
+- **Keyboard Shortcut**: Ctrl/Cmd + Enter to toggle Zen Mode
+- **Visual Feedback**: Zap icon and clear button labeling for Zen Mode
+- **Typography**: Georgia serif font with optimized line height for long-form writing
+
 ### 4. Suggestion Sidebar
 
 **Goal**: Provide comprehensive overview and management of all suggestions
