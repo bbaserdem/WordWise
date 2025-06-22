@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Server launching rules
+
+- The server runs are going to be done manually, never run the server yourself.
+- If you suspect the server is not running, ask me to make sure it's running. Make the text bold.
+- If the server needs restarting, ask me to do so at the end of your chat, and make it bold.

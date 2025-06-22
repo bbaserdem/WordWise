@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Refactoring principles
+
+- Whenever you change the contents of a function, scan the codebase for every occurence of the function and make sure the new workflow doesn't break any existing functionality.
+- Follow linting rules when applicable while refactoring code.
+- Always think about downstream effects of refactoring a portion of code, before changing any code. Make sure to prioritize not breaking any existing functionality.
+
+# Error fix principles
+
+- When you encounter a build error, perform a scan of all possible locations that other occurrences of this error in the project might be encountered.
+- When an error is reported, first scan all occurences of the source of the error, and plan to fix the error without reintroducing it elsewhere.
