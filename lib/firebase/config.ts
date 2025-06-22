@@ -11,27 +11,54 @@
  */
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore, enableNetwork, disableNetwork, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { getAuth as getFirebaseAuthInstance, type Auth } from 'firebase/auth';
+import { getFirestore as getFirebaseFirestoreInstance, type Firestore, enableNetwork, disableNetwork, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage as getFirebaseStorageInstance, type FirebaseStorage } from 'firebase/storage';
+import { 
+  getEnvironmentFirebaseConfig, 
+  getCurrentFirebaseEnvironment, 
+  validateFirebaseProjectConfig,
+  type FirebaseEnvironment 
+} from './environment';
 
 /**
- * Firebase configuration object.
+ * Get Firebase configuration with lazy validation.
  *
- * This contains the API keys and project settings for the Firebase project.
- * In production, these values should be set via environment variables.
+ * This function returns the Firebase configuration without immediate validation.
+ * Validation is performed only when the configuration is actually used.
+ *
+ * @returns Firebase configuration object
  *
  * @since 1.0.0
  */
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
+function getFirebaseConfig() {
+  return getEnvironmentFirebaseConfig();
+}
+
+/**
+ * Validate and get Firebase configuration.
+ *
+ * This function validates the Firebase configuration and returns it.
+ * Use this when you need to ensure the configuration is valid before using it.
+ *
+ * @returns Firebase configuration object
+ * @throws Error if Firebase configuration is invalid
+ *
+ * @since 1.0.0
+ */
+function getValidatedFirebaseConfig() {
+  const config = getEnvironmentFirebaseConfig();
+  
+  // Simple validation - just check if we have the required fields
+  if (!config.apiKey || !config.authDomain) {
+    throw new Error(
+      'Firebase configuration is missing required fields (apiKey, authDomain). ' +
+      'Please check your environment variables.'
+    );
+  }
+  
+  return config;
+}
 
 /**
  * Initialize Firebase app instance.
@@ -50,11 +77,22 @@ function initializeFirebaseApp(): FirebaseApp {
     return getApps()[0];
   }
 
-  // Validate required configuration
-  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    throw new Error(
-      'Firebase configuration is missing. Please check your environment variables.'
-    );
+  // Try to get validated Firebase configuration
+  let firebaseConfig;
+  try {
+    firebaseConfig = getValidatedFirebaseConfig();
+  } catch (error) {
+    // If validation fails, try to get the raw config and log a warning
+    console.warn('Firebase validation failed, attempting to use raw config:', error);
+    firebaseConfig = getEnvironmentFirebaseConfig();
+    
+    // Check if we have the minimum required fields
+    if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) {
+      throw new Error(
+        'Firebase configuration is missing required fields (apiKey, authDomain). ' +
+        'Please check your environment variables.'
+      );
+    }
   }
 
   // Initialize Firebase
@@ -83,9 +121,9 @@ function configureEmulators(app: FirebaseApp): void {
   try {
     const { connectAuthEmulator } = require('firebase/auth');
     const { connectStorageEmulator } = require('firebase/storage');
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
-    const storage = getStorage(app);
+    const auth = getFirebaseAuthInstance(app);
+    const firestore = getFirebaseFirestoreInstance(app);
+    const storage = getFirebaseStorageInstance(app);
     
     if (process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR === 'true') {
       connectAuthEmulator(auth, 'http://localhost:9099', {
@@ -114,7 +152,7 @@ function configureEmulators(app: FirebaseApp): void {
  */
 export function getFirebaseAuth(): Auth {
   const app = initializeFirebaseApp();
-  return getAuth(app);
+  return getFirebaseAuthInstance(app);
 }
 
 /**
@@ -126,7 +164,7 @@ export function getFirebaseAuth(): Auth {
  */
 export function getFirebaseFirestore(): Firestore {
   const app = initializeFirebaseApp();
-  const firestore = getFirestore(app);
+  const firestore = getFirebaseFirestoreInstance(app);
   
   // Configure Firestore settings for better reliability
   if (process.env.NODE_ENV === 'development') {
@@ -146,7 +184,7 @@ export function getFirebaseFirestore(): Firestore {
  */
 export function getFirebaseStorage(): FirebaseStorage {
   const app = initializeFirebaseApp();
-  return getStorage(app);
+  return getFirebaseStorageInstance(app);
 }
 
 /**
@@ -158,6 +196,28 @@ export function getFirebaseStorage(): FirebaseStorage {
  */
 export function getFirebaseApp(): FirebaseApp {
   return initializeFirebaseApp();
+}
+
+/**
+ * Get the current Firebase environment.
+ *
+ * @returns The current Firebase environment
+ *
+ * @since 1.0.0
+ */
+export function getCurrentEnvironment(): FirebaseEnvironment {
+  return getCurrentFirebaseEnvironment();
+}
+
+/**
+ * Validate Firebase configuration.
+ *
+ * @returns Validation result with success status and any errors
+ *
+ * @since 1.0.0
+ */
+export function validateFirebaseConfig() {
+  return validateFirebaseProjectConfig();
 }
 
 /**
@@ -176,6 +236,7 @@ export const firestoreConnectionUtils = {
    */
   async enableConnection(): Promise<void> {
     try {
+      const firestore = getFirebaseFirestore();
       await enableNetwork(firestore);
       console.log('Firestore connection enabled');
     } catch (error) {
@@ -190,6 +251,7 @@ export const firestoreConnectionUtils = {
    */
   async disableConnection(): Promise<void> {
     try {
+      const firestore = getFirebaseFirestore();
       await disableNetwork(firestore);
       console.log('Firestore connection disabled (offline mode)');
     } catch (error) {
@@ -213,8 +275,64 @@ export const firestoreConnectionUtils = {
   }
 };
 
-// Export the initialized instances for convenience
-export const auth = getFirebaseAuth();
-export const firestore = getFirebaseFirestore();
-export const storage = getFirebaseStorage();
-export const app = getFirebaseApp();
+// Lazy initialization - only initialize when actually needed
+let _auth: Auth | null = null;
+let _firestore: Firestore | null = null;
+let _storage: FirebaseStorage | null = null;
+let _app: FirebaseApp | null = null;
+
+/**
+ * Get Firebase Auth instance (lazy initialization).
+ *
+ * @returns The Firebase Auth instance
+ *
+ * @since 1.0.0
+ */
+export function getAuth(): Auth {
+  if (!_auth) {
+    _auth = getFirebaseAuth();
+  }
+  return _auth;
+}
+
+/**
+ * Get Firestore instance (lazy initialization).
+ *
+ * @returns The Firestore instance
+ *
+ * @since 1.0.0
+ */
+export function getFirestore(): Firestore {
+  if (!_firestore) {
+    _firestore = getFirebaseFirestore();
+  }
+  return _firestore;
+}
+
+/**
+ * Get Firebase Storage instance (lazy initialization).
+ *
+ * @returns The Firebase Storage instance
+ *
+ * @since 1.0.0
+ */
+export function getFirebaseStorageLazy(): FirebaseStorage {
+  if (!_storage) {
+    _storage = getFirebaseStorage();
+  }
+  return _storage;
+}
+
+/**
+ * Get the main Firebase app instance (lazy initialization).
+ *
+ * @returns The Firebase app instance
+ *
+ * @since 1.0.0
+ */
+export function getApp(): FirebaseApp {
+  if (!_app) {
+    _app = getFirebaseApp();
+  }
+  return _app;
+}

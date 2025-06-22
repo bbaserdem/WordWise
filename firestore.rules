@@ -12,6 +12,11 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && 
         request.auth.uid == request.resource.data.userId;
+      allow list: if request.auth != null;
+      // Temporary rule for cleanup script - allow updates during migration
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         request.auth.uid == "FFxYPE9U6Derm2ZzwLgbZ068jmpE");
     }
     
     // Documents - users can only access documents in their projects
@@ -20,6 +25,11 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && 
         request.auth.uid == request.resource.data.userId;
+      allow list: if request.auth != null;
+      // Temporary rule for cleanup script - allow updates during migration
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         request.auth.uid == "FFxYPE9U6Derm2ZzwLgbZ068jmpE");
     }
     
     // Document versions - users can only access versions of their documents
@@ -28,6 +38,11 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && 
         request.auth.uid == request.resource.data.userId;
+      allow list: if request.auth != null;
+      // Temporary rule for cleanup script - allow updates during migration
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         request.auth.uid == "FFxYPE9U6Derm2ZzwLgbZ068jmpE");
     }
     
     // Suggestions - users can only access suggestions for their documents
@@ -36,6 +51,11 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && 
         request.auth.uid == request.resource.data.userId;
+      allow list: if request.auth != null;
+      // Temporary rule for cleanup script - allow updates during migration
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         request.auth.uid == "FFxYPE9U6Derm2ZzwLgbZ068jmpE");
     }
     
     // Project templates - anyone can read, only admins can write

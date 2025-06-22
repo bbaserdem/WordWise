@@ -17,7 +17,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, Zap, Shield } from 'lucide-react';
-import { useAuth } from '@/hooks';
+// import { useAuth } from '@/hooks';
 
 /**
  * Home page component that displays the landing page content.
@@ -25,8 +25,12 @@ import { useAuth } from '@/hooks';
  * @returns The home page with hero section and feature highlights
  */
 export default function HomePage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  // const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+
+  // Temporarily disable authentication check
+  const isAuthenticated = false;
+  const isLoading = false;
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -198,12 +202,6 @@ export default function HomePage() {
                 className="btn bg-background-primary px-8 py-3 text-base font-semibold text-primary-600 hover:bg-primary-50"
               >
                 Start Writing Now
-              </Link>
-              <Link
-                href="/about"
-                className="btn btn-ghost px-8 py-3 text-base font-semibold text-white hover:bg-primary-500"
-              >
-                Learn More
               </Link>
             </div>
           </div>

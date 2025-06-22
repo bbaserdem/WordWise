@@ -90,7 +90,7 @@ export default function ProjectsPage() {
             </div>
             <div className="flex items-center justify-between text-sm text-text-secondary">
               <span>
-                {project.stats.documentCount || 0} document{project.stats.documentCount !== 1 ? 's' : ''}
+                {project.stats?.documentCount || 0} document{(project.stats?.documentCount || 0) !== 1 ? 's' : ''}
               </span>
               <span>
                 {new Date(project.updatedAt).toLocaleDateString()}

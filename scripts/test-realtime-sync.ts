@@ -18,7 +18,7 @@ process.env.NEXT_PUBLIC_USE_FIRESTORE_EMULATOR = 'true';
 process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR = 'true';
 process.env.NEXT_PUBLIC_USE_STORAGE_EMULATOR = 'true';
 
-import { firestore } from '../lib/firebase/config';
+import { getFirestore } from '../lib/firebase/config';
 import { 
   collection, 
   addDoc, 
@@ -138,7 +138,7 @@ function simulateBrowserSession(sessionId: string, documentId: string, userId: s
   
   // Set up real-time listener
   const unsubscribe = onSnapshot(
-    doc(firestore, 'documents', documentId),
+    doc(getFirestore(), 'documents', documentId),
     (docSnap) => {
       if (docSnap.exists()) {
         const document = docSnap.data() as Document;
@@ -177,7 +177,7 @@ async function simulateContentUpdates(documentId: string, userId: string) {
     setTimeout(async () => {
       try {
         console.log(`✏️  Session ${i + 1}: Updating document content...`);
-        await updateDoc(doc(firestore, 'documents', documentId), {
+        await updateDoc(doc(getFirestore(), 'documents', documentId), {
           content: update.content,
           updatedAt: Timestamp.now(),
           version: i + 2,
@@ -202,7 +202,7 @@ async function testRealTimeSync() {
     
     // Create test project
     console.log('📁 Creating test project...');
-    const projectRef = await addDoc(collection(firestore, 'projects'), TEST_PROJECT);
+    const projectRef = await addDoc(collection(getFirestore(), 'projects'), TEST_PROJECT);
     const projectId = projectRef.id;
     console.log(`✅ Project created with ID: ${projectId}`);
 
@@ -212,7 +212,7 @@ async function testRealTimeSync() {
       ...TEST_DOCUMENT,
       projectId,
     };
-    const documentRef = await addDoc(collection(firestore, 'documents'), documentData);
+    const documentRef = await addDoc(collection(getFirestore(), 'documents'), documentData);
     const documentId = documentRef.id;
     console.log(`✅ Document created with ID: ${documentId}`);
 

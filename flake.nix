@@ -51,10 +51,6 @@
           shellHook = ''
             # Make our node packages available to our shell
             export PATH="./node_modules/.bin:$PATH"
-
-            # Some aliases for launching servers
-            alias launch-firebase=firebase emulators:start --only auth,firestore --project wordwise-thesis
-            alias launch-devservr=pnpm dev
           '';
         };
       }

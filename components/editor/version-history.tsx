@@ -12,8 +12,8 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { History, RotateCcw, Eye, Calendar, User, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Clock, Download, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { useAuth } from '@/hooks';
@@ -28,8 +28,10 @@ import type { DocumentVersion } from '@/types/document';
 interface VersionHistoryProps {
   /** ID of the document to show versions for */
   documentId: string;
-  /** Current document content for comparison */
-  currentContent: string;
+  /** ID of the user to show versions for */
+  userId: string;
+  /** Callback when a version is selected */
+  onVersionSelect?: (version: DocumentVersion) => void;
   /** Callback when a version is restored */
   onVersionRestore?: (version: DocumentVersion) => void;
   /** Whether the component is visible */
@@ -48,7 +50,8 @@ interface VersionHistoryProps {
  * manual saves and auto-saves with timestamps and descriptions.
  *
  * @param documentId - ID of the document to show versions for
- * @param currentContent - Current document content for comparison
+ * @param userId - ID of the user to show versions for
+ * @param onVersionSelect - Callback when a version is selected
  * @param onVersionRestore - Callback when a version is restored
  * @param isVisible - Whether the component is visible
  * @param onClose - Callback to close the version history
@@ -59,7 +62,8 @@ interface VersionHistoryProps {
  * ```tsx
  * <VersionHistory
  *   documentId="doc123"
- *   currentContent="Current document content..."
+ *   userId="user123"
+ *   onVersionSelect={(version) => console.log('Selected version:', version)}
  *   onVersionRestore={(version) => console.log('Restoring version:', version)}
  *   isVisible={true}
  *   onClose={() => setShowHistory(false)}
@@ -70,7 +74,8 @@ interface VersionHistoryProps {
  */
 export function VersionHistory({
   documentId,
-  currentContent,
+  userId,
+  onVersionSelect,
   onVersionRestore,
   isVisible,
   onClose,
@@ -79,34 +84,38 @@ export function VersionHistory({
   const { user } = useAuth();
   const [versions, setVersions] = useState<DocumentVersion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<DocumentVersion | null>(null);
   const [showDiff, setShowDiff] = useState(false);
-
-  // Load versions when component becomes visible
-  useEffect(() => {
-    if (isVisible && user) {
-      loadVersions();
-    }
-  }, [isVisible, user, documentId]);
 
   /**
    * Load document versions from the database.
    *
    * @since 1.0.0
    */
-  const loadVersions = async () => {
-    if (!user) return;
+  const loadVersions = useCallback(async () => {
+    if (!documentId || !userId) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
 
     try {
-      setIsLoading(true);
-      const documentVersions = await getDocumentVersions(documentId, user.uid, 50);
-      setVersions(documentVersions);
+      const versionsData = await getDocumentVersions(documentId, userId);
+      setVersions(versionsData);
     } catch (error) {
       console.error('Error loading versions:', error);
+      setError('Failed to load version history');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [documentId, userId]);
+
+  // Load versions on mount
+  useEffect(() => {
+    loadVersions();
+  }, [loadVersions]);
 
   /**
    * Handle version selection for viewing.
@@ -125,9 +134,9 @@ export function VersionHistory({
    * @param version - The version to restore
    * @since 1.0.0
    */
-  const handleVersionRestore = (version: DocumentVersion) => {
+  const handleVersionRestore = async (version: DocumentVersion) => {
     if (confirm('Are you sure you want to restore this version? This will replace your current content.')) {
-      onVersionRestore?.(version);
+      await onVersionRestore?.(version);
       onClose();
     }
   };
@@ -162,6 +171,12 @@ export function VersionHistory({
     const removed = oldWords.filter(word => !newWords.includes(word)).length;
     
     return { added, removed };
+  };
+
+  const handleShowDiff = () => {
+    if (versions.length > 1) {
+      setShowDiff(!showDiff);
+    }
   };
 
   if (!isVisible) return null;

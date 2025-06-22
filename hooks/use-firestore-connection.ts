@@ -1,132 +1,93 @@
 /**
- * @fileoverview Custom hook for monitoring Firestore connection status.
+ * @fileoverview Custom hook for managing Firestore connection state.
  *
- * This hook provides utilities for monitoring Firestore connections
- * and handling connection issues gracefully. It's useful for showing
- * connection status to users and handling offline scenarios.
+ * This hook provides utilities for managing the Firestore connection,
+ * including enabling/disabling the connection and monitoring connection status.
+ * It's useful for implementing offline functionality and connection management.
  *
  * @author WordWise Team
  * @version 1.0.0
  * @since 2024-01-01
  */
 
-import { useState, useEffect } from 'react';
-import { onSnapshot, doc } from 'firebase/firestore';
-import { firestore, firestoreConnectionUtils } from '@/lib/firebase/config';
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { firestoreConnectionUtils } from '@/lib/firebase/config';
 
 /**
- * Firestore connection status.
+ * Hook for managing Firestore connection state.
  *
- * @since 1.0.0
- */
-export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
-
-/**
- * Hook for monitoring Firestore connection status.
+ * This hook provides state and utilities for managing the Firestore connection,
+ * including connection status, enabling/disabling the connection, and
+ * automatic connection monitoring.
  *
- * This hook monitors the Firestore connection and provides utilities
- * for handling connection issues. It's particularly useful for showing
- * connection status to users and handling offline scenarios.
- *
- * @returns Object containing connection status and utilities
+ * @returns Object containing connection state and management functions
  *
  * @example
  * ```tsx
- * const { status, isConnected, enableConnection, disableConnection } = useFirestoreConnection();
- * 
- * if (status === 'disconnected') {
- *   return <div>You're offline. Some features may be limited.</div>;
- * }
+ * const { isConnected, enableConnection, disableConnection } = useFirestoreConnection();
  * ```
  *
  * @since 1.0.0
  */
 export function useFirestoreConnection() {
-  const [status, setStatus] = useState<ConnectionStatus>('connecting');
-  const [lastConnected, setLastConnected] = useState<Date | null>(null);
-  const [connectionErrors, setConnectionErrors] = useState<Error[]>([]);
+  const [isConnected, setIsConnected] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | null = null;
-
-    const monitorConnection = async () => {
-      try {
-        setStatus('connecting');
-
-        // Create a dummy document reference to monitor connection
-        const dummyDoc = doc(firestore, '_connection_monitor', 'status');
-        
-        // Set up a listener to monitor connection status
-        unsubscribe = onSnapshot(
-          dummyDoc,
-          () => {
-            // Successfully connected
-            setStatus('connected');
-            setLastConnected(new Date());
-            setConnectionErrors([]);
-          },
-          (error) => {
-            // Connection error
-            console.warn('Firestore connection error:', error);
-            setStatus('error');
-            setConnectionErrors(prev => [...prev, error]);
-          }
-        );
-
-        // Set a timeout to mark as disconnected if no response
-        const timeout = setTimeout(() => {
-          if (status === 'connecting') {
-            setStatus('disconnected');
-          }
-        }, 5000);
-
-        return () => clearTimeout(timeout);
-      } catch (error) {
-        console.error('Failed to monitor Firestore connection:', error);
-        setStatus('error');
-        setConnectionErrors(prev => [...prev, error as Error]);
-      }
-    };
-
-    monitorConnection();
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+  /**
+   * Check connection status.
+   */
+  const checkConnection = useCallback(async () => {
+    try {
+      const status = await firestoreConnectionUtils.isConnected();
+      setIsConnected(status);
+    } catch (error) {
+      console.error('Failed to check connection status:', error);
+      setIsConnected(false);
+    }
   }, []);
 
-  const enableConnection = async () => {
+  /**
+   * Enable Firestore connection.
+   */
+  const enableConnection = useCallback(async () => {
+    setIsLoading(true);
     try {
-      setStatus('connecting');
       await firestoreConnectionUtils.enableConnection();
-      setStatus('connected');
-      setLastConnected(new Date());
+      await checkConnection();
     } catch (error) {
-      setStatus('error');
-      setConnectionErrors(prev => [...prev, error as Error]);
+      console.error('Failed to enable connection:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [checkConnection]);
 
-  const disableConnection = async () => {
+  /**
+   * Disable Firestore connection (offline mode).
+   */
+  const disableConnection = useCallback(async () => {
+    setIsLoading(true);
     try {
       await firestoreConnectionUtils.disableConnection();
-      setStatus('disconnected');
+      setIsConnected(false);
     } catch (error) {
-      setConnectionErrors(prev => [...prev, error as Error]);
+      console.error('Failed to disable connection:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Check connection status on mount
+  useEffect(() => {
+    checkConnection();
+  }, [checkConnection]);
 
   return {
-    status,
-    isConnected: status === 'connected',
-    isConnecting: status === 'connecting',
-    isDisconnected: status === 'disconnected',
-    hasError: status === 'error',
-    lastConnected,
-    connectionErrors,
+    isConnected,
+    isLoading,
     enableConnection,
     disableConnection,
+    checkConnection,
   };
 } 

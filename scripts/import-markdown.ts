@@ -10,28 +10,47 @@
  * @since 2024-01-01
  */
 
+// Set NODE_ENV first
+(process.env as any).NODE_ENV = process.env.NODE_ENV || 'development';
+
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+import { config } from 'dotenv';
 
-// Force emulator usage for this script
-process.env.NEXT_PUBLIC_USE_FIRESTORE_EMULATOR = 'true';
-process.env.NEXT_PUBLIC_USE_AUTH_EMULATOR = 'true';
-process.env.NEXT_PUBLIC_USE_STORAGE_EMULATOR = 'true';
+// Load environment variables from .env files
+config({ path: '.env.local' });
+config({ path: '.env' });
 
-import { firestore } from '../lib/firebase/config';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+// Debug: Log environment variables
+console.log('🔍 Debug: Environment variables loaded:');
+console.log('  NEXT_PUBLIC_FIREBASE_PROJECT_ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+console.log('  NEXT_PUBLIC_USE_FIRESTORE_EMULATOR:', process.env.NEXT_PUBLIC_USE_FIRESTORE_EMULATOR);
+console.log('  NODE_ENV:', process.env.NODE_ENV);
+
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, collection, addDoc, Timestamp, connectFirestoreEmulator } from 'firebase/firestore';
 import type { Project } from '../types/project';
 import type { Document, CreateDocumentFormData } from '../types/document';
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
 
 /**
  * Test user data for importing documents.
  *
  * @since 1.0.0
  */
-const TEST_USER = {
-  uid: 'test-user-123',
-  email: 'test@wordwise.com',
-  displayName: 'Test User',
+const TEST_USER_CREDENTIALS = {
+  email: 'test@test.com',
+  password: '1234aoeu"<>P',
 };
 
 /**
@@ -40,7 +59,7 @@ const TEST_USER = {
  * @since 1.0.0
  */
 const TEST_PROJECT: Omit<Project, 'id'> = {
-  userId: TEST_USER.uid,
+  userId: TEST_USER_CREDENTIALS.email,
   name: 'Neural Networks Research Project',
   description: 'A comprehensive research project on neural networks and brain connectivity',
   type: 'research-paper',
@@ -171,9 +190,37 @@ async function importMarkdownFiles() {
   try {
     console.log('🚀 Starting markdown import...');
 
-    // Create test project
+    // Initialize Firebase
+    console.log('📱 Initializing Firebase...');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Connect to emulators
+    console.log('🔗 Connecting to emulators...');
+    connectAuthEmulator(auth, 'http://localhost:9099');
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    console.log('✅ Connected to emulators');
+    
+    // Sign in as test user
+    console.log('🔐 Signing in as test user...');
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      TEST_USER_CREDENTIALS.email,
+      TEST_USER_CREDENTIALS.password
+    );
+    const user = userCredential.user;
+    console.log('✅ Signed in successfully');
+    console.log('  User ID:', user.uid);
+    console.log('  Email:', user.email);
+
+    // Create test project with the authenticated user's ID
     console.log('📁 Creating test project...');
-    const projectRef = await addDoc(collection(firestore, 'projects'), TEST_PROJECT);
+    const projectData = {
+      ...TEST_PROJECT,
+      userId: user.uid, // Use the actual authenticated user ID
+    };
+    const projectRef = await addDoc(collection(db, 'projects'), projectData);
     const projectId = projectRef.id;
     console.log(`✅ Project created with ID: ${projectId}`);
 
@@ -199,58 +246,59 @@ async function importMarkdownFiles() {
         const now = Timestamp.now();
         const newDocument: Omit<Document, 'id'> = {
           projectId,
-          userId: TEST_USER.uid,
+          userId: user.uid, // Use the actual authenticated user ID
           title: documentData.title,
           content: documentData.content,
           type: documentData.type,
           status: 'draft',
-          order: documentData.order,
           tags: documentData.tags,
+          order: documentData.order,
           metadata: {
             description: documentData.description,
-            enableAutoSave: documentData.enableAutoSave,
             autoSaveInterval: 30,
-            enableCollaboration: documentData.enableCollaboration,
             enableVersionHistory: true,
             maxVersions: 50,
             enableSuggestions: true,
             language: 'en',
+            enableAutoSave: documentData.enableAutoSave,
+            enableCollaboration: documentData.enableCollaboration,
           },
-          stats: calculateDocumentStats(content),
           version: 1,
+          stats: calculateDocumentStats(content),
           createdAt: now,
           updatedAt: now,
         };
 
-        const docRef = await addDoc(collection(firestore, 'documents'), newDocument);
+        const docRef = await addDoc(collection(db, 'documents'), newDocument);
         console.log(`✅ Document created with ID: ${docRef.id}`);
 
         // Create initial version
         const versionData = {
           documentId: docRef.id,
-          userId: TEST_USER.uid,
+          userId: user.uid, // Use the actual authenticated user ID
           version: 1,
           content: documentData.content,
-          description: 'Initial import',
-          isAutoSave: false,
           createdAt: now,
+          updatedAt: now,
         };
 
-        await addDoc(collection(firestore, 'documentVersions'), versionData);
-        console.log(`✅ Version created for document ${docRef.id}`);
+        const versionRef = await addDoc(collection(db, 'documentVersions'), versionData);
+        console.log(`✅ Version created with ID: ${versionRef.id}`);
 
       } catch (error) {
-        console.error(`❌ Error importing ${filename}:`, error);
+        console.error(`❌ Failed to import ${filename}:`, error);
       }
     }
 
     console.log('🎉 Markdown import completed successfully!');
-    console.log(`📊 Project ID: ${projectId}`);
-    console.log(`📄 Documents imported: ${files.length}`);
+    console.log(`📊 Summary:`);
+    console.log(`  Project ID: ${projectId}`);
+    console.log(`  Files processed: ${files.length}`);
+    console.log(`  User ID: ${user.uid}`);
 
   } catch (error) {
-    console.error('❌ Error during markdown import:', error);
-    process.exit(1);
+    console.error('❌ Import failed:', error);
+    throw error;
   }
 }
 

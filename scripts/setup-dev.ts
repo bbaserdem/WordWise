@@ -46,13 +46,34 @@ function checkEnvironmentVariables(): boolean {
     'NEXT_PUBLIC_FIREBASE_APP_ID',
   ];
 
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
+  const optionalVars = [
+    'NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID',
+    'NEXT_PUBLIC_USE_AUTH_EMULATOR',
+    'NEXT_PUBLIC_USE_FIRESTORE_EMULATOR',
+    'NEXT_PUBLIC_USE_STORAGE_EMULATOR',
+    'NEXT_PUBLIC_ENABLE_ANALYTICS',
+    'NEXT_PUBLIC_ENABLE_ERROR_TRACKING',
+    'NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING',
+    'NEXT_PUBLIC_LOG_LEVEL',
+    'NEXT_PUBLIC_APP_URL',
+    'NEXT_PUBLIC_APP_NAME',
+    'NEXT_PUBLIC_APP_VERSION',
+  ];
 
-  if (missingVars.length > 0) {
+  const missingRequired = requiredVars.filter(varName => !process.env[varName]);
+  const missingOptional = optionalVars.filter(varName => !process.env[varName]);
+
+  if (missingRequired.length > 0) {
     console.error('❌ Missing required environment variables:');
-    missingVars.forEach(varName => console.error(`   - ${varName}`));
+    missingRequired.forEach(varName => console.error(`   - ${varName}`));
     console.error('\nPlease create a .env.local file with these variables.');
     return false;
+  }
+
+  if (missingOptional.length > 0) {
+    console.warn('⚠️  Missing optional environment variables:');
+    missingOptional.forEach(varName => console.warn(`   - ${varName}`));
+    console.warn('\nThese variables will use default values.');
   }
 
   return true;
@@ -112,7 +133,7 @@ function checkRequiredFiles(): boolean {
 function installDependencies(): void {
   console.log('📦 Installing dependencies...');
   try {
-    execSync('npm install', { stdio: 'inherit' });
+    execSync('pnpm install', { stdio: 'inherit' });
     console.log('✅ Dependencies installed successfully');
   } catch (error) {
     console.error('❌ Failed to install dependencies:', error);
@@ -187,6 +208,44 @@ function runLinting(): void {
 }
 
 /**
+ * Validate environment configuration using the new validation system.
+ *
+ * @since 1.0.0
+ */
+async function validateEnvironmentConfiguration(): Promise<void> {
+  console.log('🔍 Validating environment configuration...');
+  try {
+    const { validateEnvironmentVariables, getEnvironmentSummary } = await import('@/lib/config');
+    
+    const result = validateEnvironmentVariables();
+    const summary = getEnvironmentSummary();
+    
+    if (result.success) {
+      console.log('✅ Environment configuration is valid');
+      console.log(`   Environment: ${summary.environment}`);
+      console.log(`   Firebase: ${summary.firebase.isConfigured ? '✅' : '❌'}`);
+      console.log(`   Emulators: Auth=${summary.emulators.auth ? '✅' : '❌'}, Firestore=${summary.emulators.firestore ? '✅' : '❌'}, Storage=${summary.emulators.storage ? '✅' : '❌'}`);
+      console.log(`   Monitoring: Analytics=${summary.monitoring.analytics ? '✅' : '❌'}, ErrorTracking=${summary.monitoring.errorTracking ? '✅' : '❌'}, Performance=${summary.monitoring.performanceMonitoring ? '✅' : '❌'}`);
+      console.log(`   Log Level: ${summary.monitoring.logLevel}`);
+    } else {
+      console.error('❌ Environment configuration validation failed:');
+      if (result.error) {
+        console.error(`   Message: ${result.error.message}`);
+        if (result.error.missing.length > 0) {
+          console.error(`   Missing: ${result.error.missing.join(', ')}`);
+        }
+        if (result.error.invalid.length > 0) {
+          console.error(`   Invalid: ${result.error.invalid.join(', ')}`);
+        }
+      }
+      console.error('\nPlease fix the environment configuration issues.');
+    }
+  } catch (error) {
+    console.error('❌ Failed to validate environment configuration:', error);
+  }
+}
+
+/**
  * Main setup function.
  *
  * @since 1.0.0
@@ -229,6 +288,10 @@ async function main() {
 
   // Import test data
   importTestData();
+  console.log('');
+
+  // Validate environment configuration
+  await validateEnvironmentConfiguration();
   console.log('');
 
   // Success message

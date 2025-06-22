@@ -3,6 +3,7 @@
  *
  * This component catches JavaScript errors anywhere in the child component
  * tree and displays a fallback UI instead of the component tree that crashed.
+ * It integrates with the monitoring system for error tracking and logging.
  *
  * @author WordWise Team
  * @version 1.0.0
@@ -12,6 +13,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { trackError, getLogger } from '@/lib/monitoring';
 
 /**
  * Props for the ErrorBoundary component.
@@ -23,6 +25,10 @@ export interface ErrorBoundaryProps {
   fallback?: ReactNode;
   /** Callback when an error occurs */
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  /** Component name for error tracking */
+  componentName?: string;
+  /** Additional context for error tracking */
+  errorContext?: Record<string, any>;
 }
 
 /**
@@ -33,6 +39,8 @@ interface ErrorBoundaryState {
   hasError: boolean;
   /** The error that occurred */
   error?: Error;
+  /** Error information */
+  errorInfo?: ErrorInfo;
 }
 
 /**
@@ -41,12 +49,15 @@ interface ErrorBoundaryState {
  * Catches JavaScript errors anywhere in the child component tree
  * and displays a fallback UI instead of the component tree that crashed.
  * This prevents the entire app from crashing due to component errors.
+ * Integrates with the monitoring system for error tracking and logging.
  *
  * @example
  * ```tsx
  * <ErrorBoundary
+ *   componentName="UserProfile"
  *   fallback={<div>Something went wrong</div>}
  *   onError={(error, errorInfo) => console.error(error, errorInfo)}
+ *   errorContext={{ userId: user.id }}
  * >
  *   <MyComponent />
  * </ErrorBoundary>
@@ -71,13 +82,54 @@ export class ErrorBoundary extends Component<
   /**
    * Log error information when an error occurs.
    */
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log the error
-    console.error('Error caught by boundary:', error, errorInfo);
+  async componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error to our error tracking service
+    trackError(error, {
+      location: this.constructor.name,
+      userAgent: navigator.userAgent,
+      metadata: {
+        componentStack: errorInfo.componentStack,
+        url: window.location.href,
+      },
+    });
+
+    // Update state to show error UI
+    this.setState({
+      hasError: true,
+      error,
+      errorInfo,
+    });
+
+    // Log the error using the monitoring system
+    const componentLogger = getLogger().child(this.props.componentName || 'ErrorBoundary');
+    componentLogger.error('Error caught by boundary', error, {
+      errorInfo: {
+        componentStack: errorInfo.componentStack,
+      },
+      ...this.props.errorContext,
+    });
+
+    // Track the error for analytics
+    try {
+      await trackError(error, {
+        location: this.props.componentName || 'ErrorBoundary',
+        metadata: {
+          componentStack: errorInfo.componentStack,
+          ...this.props.errorContext,
+        },
+      });
+    } catch (trackingError) {
+      // Don't let tracking errors break the error boundary
+      componentLogger.warn('Failed to track error', trackingError as Error);
+    }
 
     // Call the onError callback if provided
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
+      try {
+        this.props.onError(error, errorInfo);
+      } catch (callbackError) {
+        componentLogger.error('Error in onError callback', callbackError as Error);
+      }
     }
   }
 
@@ -129,7 +181,7 @@ export class ErrorBoundary extends Component<
               </button>
               
               <button
-                onClick={() => this.setState({ hasError: false })}
+                onClick={() => this.setState({ hasError: false, error: undefined, errorInfo: undefined })}
                 className="w-full bg-gray-100 text-text-primary px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
               >
                 Try Again
@@ -141,9 +193,16 @@ export class ErrorBoundary extends Component<
                 <summary className="cursor-pointer text-sm text-text-secondary hover:text-text-primary">
                   Error Details (Development)
                 </summary>
-                <pre className="mt-2 p-2 bg-gray-100 rounded text-xs text-text-secondary overflow-auto">
-                  {this.state.error.toString()}
-                </pre>
+                <div className="mt-2 space-y-2">
+                  <pre className="p-2 bg-gray-100 rounded text-xs text-text-secondary overflow-auto">
+                    <strong>Error:</strong> {this.state.error.toString()}
+                  </pre>
+                  {this.state.errorInfo && (
+                    <pre className="p-2 bg-gray-100 rounded text-xs text-text-secondary overflow-auto">
+                      <strong>Component Stack:</strong> {this.state.errorInfo.componentStack}
+                    </pre>
+                  )}
+                </div>
               </details>
             )}
           </div>

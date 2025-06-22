@@ -13,7 +13,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Wifi, WifiOff, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFirestoreConnection } from '@/hooks/use-firestore-connection';
@@ -62,37 +62,55 @@ export function ConnectionStatus({
     status,
     isConnected,
     isConnecting,
-    isDisconnected,
     hasError,
     lastConnected,
     connectionErrors,
     enableConnection,
   } = useFirestoreConnection();
+  const [showDetailsState, setShowDetailsState] = useState(showDetails);
 
   // Don't render if not showing or if connected and not showing details
-  if (!show || (isConnected && !showDetails)) {
+  if (!show || (isConnected && !showDetailsState)) {
     return null;
   }
 
   const getStatusIcon = () => {
-    if (isConnected) return <Wifi className="w-4 h-4 text-green-600" />;
-    if (isConnecting) return <RefreshCw className="w-4 h-4 text-yellow-600 animate-spin" />;
-    if (hasError) return <AlertCircle className="w-4 h-4 text-red-600" />;
-    return <WifiOff className="w-4 h-4 text-gray-600" />;
+    if (isConnected) {
+      return <Wifi className="w-4 h-4" />;
+    }
+    if (isConnecting) {
+      return <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />;
+    }
+    if (hasError) {
+      return <WifiOff className="w-4 h-4" />;
+    }
+    return <WifiOff className="w-4 h-4" />;
   };
 
   const getStatusText = () => {
-    if (isConnected) return 'Connected';
-    if (isConnecting) return 'Connecting...';
-    if (hasError) return 'Connection Error';
+    if (isConnected) {
+      return 'Connected';
+    }
+    if (isConnecting) {
+      return 'Connecting...';
+    }
+    if (hasError) {
+      return 'Connection Error';
+    }
     return 'Disconnected';
   };
 
   const getStatusColor = () => {
-    if (isConnected) return 'bg-green-50 border-green-200 text-green-800';
-    if (isConnecting) return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-    if (hasError) return 'bg-red-50 border-red-200 text-red-800';
-    return 'bg-gray-50 border-gray-200 text-gray-800';
+    if (isConnected) {
+      return 'text-green-600';
+    }
+    if (isConnecting) {
+      return 'text-yellow-600';
+    }
+    if (hasError) {
+      return 'text-red-600';
+    }
+    return 'text-gray-600';
   };
 
   return (
@@ -120,7 +138,7 @@ export function ConnectionStatus({
         )}
       </div>
 
-      {showDetails && (
+      {showDetailsState && (
         <div className="mt-2 text-xs">
           {lastConnected && (
             <p>Last connected: {lastConnected.toLocaleTimeString()}</p>

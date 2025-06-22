@@ -27,7 +27,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 
-import { getFirebaseFirestore } from '@/lib/firebase/config';
+import { getFirestore } from '@/lib/firebase/config';
 import type {
   Document,
   CreateDocumentFormData,
@@ -59,7 +59,7 @@ export async function createDocument(
   documentData: CreateDocumentFormData
 ): Promise<Document> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentsRef = collection(firestore, 'documents');
 
     const now = Timestamp.now();
@@ -140,7 +140,7 @@ export async function getDocument(
   userId: string
 ): Promise<Document | null> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentRef = doc(firestore, 'documents', documentId);
     const documentSnap = await getDoc(documentRef);
 
@@ -186,7 +186,7 @@ export async function getDocuments(
   filters: DocumentFilters = {}
 ): Promise<DocumentListResponse> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentsRef = collection(firestore, 'documents');
 
     // Build query constraints
@@ -263,7 +263,7 @@ export async function updateDocument(
   updateData: UpdateDocumentFormData
 ): Promise<Document> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentRef = doc(firestore, 'documents', documentId);
 
     // First, verify the document exists and user has access
@@ -379,7 +379,7 @@ export async function createDocumentVersion(
   isAutoSave: boolean = false
 ): Promise<DocumentVersion> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const versionsRef = collection(firestore, 'documentVersions');
 
     // Get current document to determine version number
@@ -436,7 +436,7 @@ export async function getDocumentVersions(
   limit: number = 20
 ): Promise<DocumentVersion[]> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const versionsRef = collection(firestore, 'documentVersions');
 
     // Verify user has access to the document
@@ -484,7 +484,7 @@ export async function updateDocumentStats(
   statsUpdate: Partial<Document['stats']>
 ): Promise<void> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentRef = doc(firestore, 'documents', documentId);
 
     // Verify the document exists and user has access
@@ -527,7 +527,7 @@ export async function getDocumentsByProject(
   userId: string
 ): Promise<Document[]> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentsRef = collection(firestore, 'documents');
 
     // Verify user has access to the project (you might want to add project access check here)
@@ -611,7 +611,7 @@ export function listenToDocument(
   onError?: (error: Error) => void
 ): () => void {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentRef = doc(firestore, 'documents', documentId);
 
     // Set up real-time listener
@@ -678,7 +678,7 @@ export async function updateDocumentContent(
   } = {}
 ): Promise<Document> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const documentRef = doc(firestore, 'documents', documentId);
 
     // First, verify the document exists and user has access

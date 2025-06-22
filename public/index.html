@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordWise - AI-First Writing Assistant</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .status {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 2rem 0;
+            color: #2e7d32;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .feature h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .feature p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .deployment-info {
+            background: #f0f8ff;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 2rem 0;
+            color: #1976d2;
+        }
+        .version {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 WordWise</h1>
+        <p class="subtitle">AI-First Writing Assistant for STEM Graduate Students</p>
+        
+        <div class="status">
+            ✅ <strong>Phase 1 Task 6 Complete!</strong><br>
+            Application successfully deployed to Firebase Hosting
+        </div>
+
+        <div class="deployment-info">
+            <strong>Deployment Status:</strong><br>
+            • Firebase Hosting: ✅ Deployed<br>
+            • Firestore Database: ✅ Deployed<br>
+            • Authentication: ✅ Configured<br>
+            • Environment: Development (wordwise-thesis-dev)
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>📝 Smart Writing</h3>
+                <p>AI-powered writing assistance with real-time suggestions</p>
+            </div>
+            <div class="feature">
+                <h3>🔬 STEM Focused</h3>
+                <p>Specialized for academic and research writing</p>
+            </div>
+            <div class="feature">
+                <h3>📚 Project Management</h3>
+                <p>Organize documents and projects efficiently</p>
+            </div>
+            <div class="feature">
+                <h3>🔄 Version Control</h3>
+                <p>Track changes and restore previous versions</p>
+            </div>
+        </div>
+
+        <p style="color: #666; font-size: 0.9rem;">
+            This is a static deployment page. The full Next.js application with authentication, 
+            document editing, and AI features will be available in the next phase.
+        </p>
+    </div>
+
+    <div class="version">
+        v0.1.0 - Phase 1 Complete
+    </div>
+</body>
+</html> 

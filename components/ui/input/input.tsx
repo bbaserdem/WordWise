@@ -9,6 +9,8 @@
  * @since 2024-01-01
  */
 
+'use client';
+
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/utils/cn';
 

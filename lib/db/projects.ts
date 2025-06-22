@@ -28,7 +28,7 @@ import {
   type QueryConstraint,
 } from 'firebase/firestore';
 
-import { getFirebaseFirestore } from '@/lib/firebase/config';
+import { getFirestore } from '@/lib/firebase/config';
 import type {
   Project,
   CreateProjectFormData,
@@ -60,7 +60,7 @@ export async function createProject(
   projectData: CreateProjectFormData
 ): Promise<Project> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectsRef = collection(firestore, 'projects');
 
     const now = Timestamp.now();
@@ -131,7 +131,7 @@ export async function getProject(
   userId: string
 ): Promise<Project | null> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectRef = doc(firestore, 'projects', projectId);
     const projectSnap = await getDoc(projectRef);
 
@@ -175,7 +175,7 @@ export async function getProjects(
   filters: ProjectFilters = {}
 ): Promise<ProjectListResponse> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectsRef = collection(firestore, 'projects');
 
     // Build query constraints
@@ -251,7 +251,7 @@ export async function updateProject(
   updateData: UpdateProjectFormData
 ): Promise<Project> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectRef = doc(firestore, 'projects', projectId);
 
     // First, verify the project exists and user has access
@@ -353,7 +353,7 @@ export async function updateProjectStats(
   statsUpdate: Partial<Project['stats']>
 ): Promise<void> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectRef = doc(firestore, 'projects', projectId);
 
     // Verify the project exists and user has access
@@ -395,7 +395,7 @@ export async function updateProjectLastAccessed(
   userId: string
 ): Promise<void> {
   try {
-    const firestore = getFirebaseFirestore();
+    const firestore = getFirestore();
     const projectRef = doc(firestore, 'projects', projectId);
 
     // Verify the project exists and user has access
@@ -447,5 +447,33 @@ export async function searchProjects(
   } catch (error) {
     console.error('Error searching projects:', error);
     throw new Error('Failed to search projects');
+  }
+}
+
+/**
+ * Get all projects for static generation (generateStaticParams).
+ * 
+ * This function retrieves all projects without user filtering for use
+ * in Next.js static export. It should only be used in build-time
+ * functions like generateStaticParams.
+ *
+ * @returns Array of all project IDs
+ * @throws Error if project retrieval fails
+ *
+ * @since 1.0.0
+ */
+export async function getAllProjectsForStaticGeneration(): Promise<{ id: string }[]> {
+  try {
+    const firestore = getFirestore();
+    const projectsRef = collection(firestore, 'projects');
+    
+    const querySnapshot = await getDocs(projectsRef);
+    
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+    }));
+  } catch (error) {
+    console.error('Error getting all projects for static generation:', error);
+    throw new Error('Failed to retrieve projects for static generation');
   }
 } 
