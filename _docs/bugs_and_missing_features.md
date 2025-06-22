@@ -10,6 +10,8 @@ Whenever we are in a bugfix cycle, pull from main to keep up to date.
 - [x] Document count and date doesn't work on project dashboard.
 - [x] Implemented auto-save feature broke
 - [ ] Suggestions tracker at the bottom requires
+- [ ] Ignored suggestions come back after spellcheck
+- [ ] Markdown formatting triggers suggestions; don't do that.
 
 ## Missing Features
 

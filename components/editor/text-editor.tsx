@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Download, History, Eye, EyeOff, Share2, Settings, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, Download, History, Eye, EyeOff, Share2, Settings, AlertCircle, CheckCircle, Edit, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/cn';
@@ -23,6 +23,8 @@ import { updateDocument, createDocumentVersion } from '@/lib/db/documents';
 import type { Document } from '@/types/document';
 import { CompactConfidenceIndicator } from '@/components/editor/confidence-indicator';
 import { getSuggestionTypeDotColor } from '@/lib/utils/suggestion-utils';
+import { SuggestionHighlighter } from '@/components/editor/suggestion-highlighter';
+import { SuggestionSidebar } from '@/components/editor/suggestion-sidebar';
 
 /**
  * Text editor component props interface.
@@ -122,6 +124,9 @@ export function TextEditor({
   const [characterCount, setCharacterCount] = useState(0);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Visual suggestion system state
+  const [mode, setMode] = useState<'writing' | 'edit'>('writing');
 
   // Grammar checking with suggestions
   const {
@@ -426,6 +431,98 @@ export function TextEditor({
     }
   }, [content, checkTextManual, suggestions.all.length]);
 
+  /**
+   * Handle suggestion acceptance with text replacement.
+   *
+   * @param suggestionId - ID of the suggestion to accept
+   * @since 1.0.0
+   */
+  const handleAcceptSuggestion = useCallback((suggestionId: string) => {
+    const suggestion = suggestions.all.find(s => s.id === suggestionId);
+    if (!suggestion) {
+      console.warn('Suggestion not found:', suggestionId);
+      return;
+    }
+
+    // Clear all existing suggestions first
+    clearSuggestions();
+    
+    // Apply the suggestion to the content
+    const newContent = content.substring(0, suggestion.position.start) + 
+                      suggestion.suggestion + 
+                      content.substring(suggestion.position.end);
+    
+    // Update the content (this will trigger the useEffect that re-checks)
+    handleContentChange(newContent);
+    
+    // Mark the suggestion as accepted in the hook
+    acceptSuggestion(suggestionId);
+    
+    console.log('Applied suggestion:', {
+      original: suggestion.original,
+      suggestion: suggestion.suggestion,
+      position: suggestion.position,
+      newContentLength: newContent.length
+    });
+  }, [content, suggestions.all, handleContentChange, acceptSuggestion, clearSuggestions]);
+
+  /**
+   * Handle suggestion acceptance with text replacement.
+   *
+   * @param suggestionId - ID of the suggestion to ignore
+   * @since 1.0.0
+   */
+  const handleIgnoreSuggestion = useCallback((suggestionId: string) => {
+    // Mark the suggestion as ignored in the hook
+    ignoreSuggestion(suggestionId);
+  }, [ignoreSuggestion]);
+
+  /**
+   * Handle bulk suggestion actions.
+   *
+   * @param action - Action to perform
+   * @param suggestionIds - Array of suggestion IDs to process
+   * @since 1.0.0
+   */
+  const handleBulkSuggestionAction = useCallback((action: 'accept' | 'ignore', suggestionIds: string[]) => {
+    suggestionIds.forEach(suggestionId => {
+      if (action === 'accept') {
+        handleAcceptSuggestion(suggestionId);
+      } else {
+        handleIgnoreSuggestion(suggestionId);
+      }
+    });
+  }, [handleAcceptSuggestion, handleIgnoreSuggestion]);
+
+  /**
+   * Handle suggestion click for navigation.
+   *
+   * @param suggestion - The suggestion that was clicked
+   * @since 1.0.0
+   */
+  const handleSuggestionClick = useCallback((suggestion: any) => {
+    // TODO: Implement navigation to suggestion position in text
+    console.log('Navigate to suggestion:', suggestion);
+  }, []);
+
+  /**
+   * Toggle between Writing and Edit modes.
+   *
+   * @since 1.0.0
+   */
+  const handleToggleMode = useCallback(() => {
+    setMode(mode === 'writing' ? 'edit' : 'writing');
+  }, [mode]);
+
+  /**
+   * Handle sidebar collapse - switch to writing mode.
+   *
+   * @since 1.0.0
+   */
+  const handleSidebarCollapse = useCallback(() => {
+    setMode('writing');
+  }, []);
+
   return (
     <div
       className={cn(
@@ -517,6 +614,24 @@ export function TextEditor({
           <Button
             variant="outline"
             size="sm"
+            onClick={handleToggleMode}
+          >
+            {mode === 'writing' ? (
+              <>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Mode
+              </>
+            ) : (
+              <>
+                <PenTool className="w-4 h-4 mr-2" />
+                Writing Mode
+              </>
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowPreview(!showPreview)}
           >
             {showPreview ? (
@@ -555,18 +670,31 @@ export function TextEditor({
       <div className="flex-1 flex overflow-hidden">
         {/* Text Editor */}
         <div className="flex-1 flex flex-col">
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Start writing your document..."
-            className="flex-1 w-full p-6 resize-none border-none outline-none bg-background-primary text-text-primary font-serif text-lg leading-relaxed"
-            style={{
-              fontFamily: 'Georgia, serif',
-              lineHeight: '1.8',
-            }}
-          />
+          <div className="flex-1 p-6 overflow-auto">
+            <SuggestionHighlighter
+              text={content}
+              suggestions={suggestions.all.filter(s => s.status === 'active')}
+              onAcceptSuggestion={handleAcceptSuggestion}
+              onIgnoreSuggestion={handleIgnoreSuggestion}
+              enabled={enableGrammarChecking}
+              className="min-h-full"
+              isEditable={mode === 'writing'}
+              onContentChange={handleContentChange}
+              textareaRef={textareaRef}
+              onKeyDown={handleKeyDown}
+            />
+            {/* Debug info */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-2 bg-gray-100 text-xs">
+                <div>Total suggestions: {suggestions.all.length}</div>
+                <div>Active suggestions: {suggestions.all.filter(s => s.status === 'active').length}</div>
+                <div>Grammar suggestions: {suggestions.grammar.length}</div>
+                <div>Spelling suggestions: {suggestions.spelling.length}</div>
+                <div>Is checking: {isCheckingGrammar ? 'Yes' : 'No'}</div>
+                <div>Grammar error: {grammarError || 'None'}</div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Preview Panel */}
@@ -582,24 +710,47 @@ export function TextEditor({
             </div>
           </div>
         )}
+
+        {/* Suggestion Sidebar */}
+        {mode === 'edit' && enableGrammarChecking && (
+          <SuggestionSidebar
+            suggestions={suggestions.all}
+            onAcceptSuggestion={handleAcceptSuggestion}
+            onIgnoreSuggestion={handleIgnoreSuggestion}
+            onBulkAction={handleBulkSuggestionAction}
+            onSuggestionClick={handleSuggestionClick}
+            isCollapsed={false}
+            onToggleCollapse={handleSidebarCollapse}
+          />
+        )}
       </div>
 
-      {/* Suggestions Panel */}
-      {enableGrammarChecking && suggestions.stats.total > 0 && (
+      {/* Writing Mode Suggestions Panel */}
+      {enableGrammarChecking && suggestions.stats.total > 0 && mode === 'writing' && (
         <div className="border-t border-primary-200 bg-background-secondary">
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-text-primary">
                 Writing Suggestions ({suggestions.stats.total})
               </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearSuggestions}
-                className="text-xs"
-              >
-                Clear All
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSidebarCollapse}
+                  className="text-xs"
+                >
+                  Open Sidebar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSuggestions}
+                  className="text-xs"
+                >
+                  Clear All
+                </Button>
+              </div>
             </div>
             
             <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -641,7 +792,7 @@ export function TextEditor({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => acceptSuggestion(suggestion.id)}
+                        onClick={() => handleAcceptSuggestion(suggestion.id)}
                         className="text-xs h-6 px-2"
                       >
                         Accept
@@ -649,7 +800,7 @@ export function TextEditor({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => ignoreSuggestion(suggestion.id)}
+                        onClick={() => handleIgnoreSuggestion(suggestion.id)}
                         className="text-xs h-6 px-2"
                       >
                         Ignore
