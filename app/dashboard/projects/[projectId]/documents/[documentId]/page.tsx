@@ -76,7 +76,7 @@ export default function DocumentEditorPage({
 
   if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[calc(100vh-80px)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <p className="text-text-secondary">Loading document...</p>
@@ -87,7 +87,7 @@ export default function DocumentEditorPage({
 
   if (status === 'error' || !document) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[calc(100vh-80px)]">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-text-primary mb-4">Document Not Found</h1>
           <p className="text-text-secondary mb-6">{error || 'The document you are looking for does not exist.'}</p>
@@ -108,7 +108,7 @@ export default function DocumentEditorPage({
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-[calc(100vh-80px)] flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-primary-200 bg-background-primary">
         <div className="flex items-center space-x-4">
           <Button variant="outline" size="sm" onClick={handleBackToProject}>
@@ -123,7 +123,7 @@ export default function DocumentEditorPage({
           Version History
         </Button>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         <TextEditor
           document={document}
           updateContent={updateContent}

@@ -12,6 +12,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { AuthGuard } from '@/lib/auth/auth-guard';
 import { Header, Sidebar, Breadcrumbs } from '@/components/layout';
 import { ErrorBoundary } from '@/components/common';
@@ -36,6 +37,12 @@ interface DashboardLayoutProps {
  */
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  /**
+   * Check if the current route is a document editor page.
+   */
+  const isDocumentEditor = pathname?.includes('/documents/') && pathname?.split('/').length >= 6;
 
   /**
    * Toggle sidebar visibility.
@@ -69,14 +76,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             />
             
             {/* Main content */}
-            <main className="flex-1 p-6">
-              {/* Breadcrumbs */}
-              <div className="mb-6">
-                <Breadcrumbs />
-              </div>
+            <main className={`flex-1 ${isDocumentEditor ? '' : 'p-6'}`}>
+              {/* Breadcrumbs - only show for non-document-editor pages */}
+              {!isDocumentEditor && (
+                <div className="mb-6">
+                  <Breadcrumbs />
+                </div>
+              )}
               
               {/* Page content */}
-              <div className="bg-white dark:bg-background-primary rounded-lg shadow-soft p-6">
+              <div className={isDocumentEditor ? 'h-full' : 'bg-white dark:bg-background-primary rounded-lg shadow-soft p-6'}>
                 {children}
               </div>
             </main>
