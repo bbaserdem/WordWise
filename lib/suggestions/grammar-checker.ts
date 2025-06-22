@@ -122,17 +122,8 @@ function convertLanguageToolResponse(
       type = 'style';
     }
 
-    // Calculate confidence based on rule type and context
-    let confidence = 0.7; // Default confidence
-    if (type === 'spelling') {
-      confidence = 0.9; // Spelling errors are usually more certain
-    } else if (match.rule.issueType === 'misspelling') {
-      confidence = 0.95;
-    } else if (match.rule.issueType === 'grammar') {
-      confidence = 0.8;
-    } else if (match.rule.issueType === 'style') {
-      confidence = 0.6; // Style suggestions are more subjective
-    }
+    // Enhanced confidence calculation based on multiple factors
+    const confidence = calculateConfidenceScore(match, type);
 
     // Get the best replacement suggestion
     const bestReplacement = match.replacements.length > 0 
@@ -168,6 +159,108 @@ function convertLanguageToolResponse(
       replacements: match.replacements.map(r => r.value),
     };
   });
+}
+
+/**
+ * Calculate confidence score for a suggestion based on multiple factors.
+ *
+ * This function analyzes various aspects of a LanguageTool match to determine
+ * how confident we should be in the suggestion. It considers rule type,
+ * context, replacement quality, and other factors.
+ *
+ * @param match - LanguageTool match object
+ * @param type - Determined suggestion type
+ * @returns Confidence score between 0 and 1
+ * @since 1.0.0
+ */
+function calculateConfidenceScore(
+  match: LanguageToolResponse['matches'][0],
+  type: 'spelling' | 'grammar' | 'style'
+): number {
+  let baseConfidence = 0.7; // Default confidence
+
+  // Base confidence by type
+  switch (type) {
+    case 'spelling':
+      baseConfidence = 0.9; // Spelling errors are usually more certain
+      break;
+    case 'grammar':
+      baseConfidence = 0.8; // Grammar rules are generally reliable
+      break;
+    case 'style':
+      baseConfidence = 0.6; // Style suggestions are more subjective
+      break;
+  }
+
+  // Adjust based on rule issue type
+  switch (match.rule.issueType) {
+    case 'misspelling':
+      baseConfidence = Math.min(0.95, baseConfidence + 0.1);
+      break;
+    case 'grammar':
+      baseConfidence = Math.min(0.9, baseConfidence + 0.05);
+      break;
+    case 'style':
+      baseConfidence = Math.max(0.5, baseConfidence - 0.1);
+      break;
+    case 'typography':
+      baseConfidence = Math.min(0.85, baseConfidence + 0.05);
+      break;
+    case 'punctuation':
+      baseConfidence = Math.min(0.9, baseConfidence + 0.05);
+      break;
+  }
+
+  // Adjust based on context quality
+  if (match.contextForSureMatch > 0) {
+    // Higher context confidence increases overall confidence
+    baseConfidence = Math.min(0.95, baseConfidence + (match.contextForSureMatch * 0.1));
+  }
+
+  // Adjust based on replacement quality
+  if (match.replacements.length > 0) {
+    const bestReplacement = match.replacements[0];
+    
+    // If replacement is very similar to original, lower confidence
+    if (bestReplacement.value.toLowerCase() === match.context.text.substring(
+      match.context.offset, 
+      match.context.offset + match.context.length
+    ).toLowerCase()) {
+      baseConfidence = Math.max(0.3, baseConfidence - 0.2);
+    }
+    
+    // If multiple good replacements exist, slightly lower confidence
+    if (match.replacements.length > 2) {
+      baseConfidence = Math.max(0.5, baseConfidence - 0.05);
+    }
+  }
+
+  // Adjust based on sentence completeness
+  if (match.ignoreForIncompleteSentence) {
+    baseConfidence = Math.max(0.4, baseConfidence - 0.2);
+  }
+
+  // Adjust based on rule category
+  switch (match.rule.category.id) {
+    case 'TYPOS':
+      baseConfidence = Math.min(0.95, baseConfidence + 0.05);
+      break;
+    case 'GRAMMAR':
+      baseConfidence = Math.min(0.9, baseConfidence + 0.02);
+      break;
+    case 'STYLE':
+      baseConfidence = Math.max(0.4, baseConfidence - 0.1);
+      break;
+    case 'PUNCTUATION':
+      baseConfidence = Math.min(0.9, baseConfidence + 0.05);
+      break;
+    case 'CASING':
+      baseConfidence = Math.min(0.95, baseConfidence + 0.05);
+      break;
+  }
+
+  // Ensure confidence is within bounds
+  return Math.max(0.1, Math.min(0.95, baseConfidence));
 }
 
 /**

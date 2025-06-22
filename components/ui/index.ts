@@ -10,3 +10,10 @@
 
 export { Button, type ButtonProps } from './button';
 export { Input, type InputProps } from './input';
+export { ThemeToggle } from './theme-toggle';
+export { 
+  Tooltip, 
+  TooltipProvider, 
+  TooltipTrigger, 
+  TooltipContent 
+} from './tooltip';

@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils/cn';
 import { useAuth, useSuggestions } from '@/hooks';
 import { updateDocument, createDocumentVersion } from '@/lib/db/documents';
 import type { Document } from '@/types/document';
+import { CompactConfidenceIndicator } from '@/components/editor/confidence-indicator';
+import { getSuggestionTypeDotColor } from '@/lib/utils/suggestion-utils';
 
 /**
  * Text editor component props interface.
@@ -554,20 +556,24 @@ export function TextEditor({
                       <div
                         className={cn(
                           'w-2 h-2 rounded-full',
-                          suggestion.type === 'spelling' && 'bg-red-500',
-                          suggestion.type === 'grammar' && 'bg-blue-500',
-                          suggestion.type === 'style' && 'bg-green-500'
+                          getSuggestionTypeDotColor(suggestion.type)
                         )}
                       />
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-text-primary">
-                        <span className="font-medium">{suggestion.original}</span>
-                        <span className="text-text-secondary"> → </span>
-                        <span className="font-medium text-green-600">{suggestion.suggestion}</span>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="text-sm text-text-primary">
+                          <span className="font-medium">{suggestion.original}</span>
+                          <span className="text-text-secondary"> → </span>
+                          <span className="font-medium text-green-600">{suggestion.suggestion}</span>
+                        </div>
+                        <CompactConfidenceIndicator 
+                          confidence={suggestion.confidence}
+                          className="ml-2"
+                        />
                       </div>
-                      <p className="text-xs text-text-secondary mt-1">
+                      <p className="text-xs text-text-secondary">
                         {suggestion.explanation}
                       </p>
                     </div>
